@@ -10,6 +10,8 @@ import org.jsoup.select.Elements;
 
 import java.nio.charset.Charset;
 
+import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT;
+
 public class FragmentCreator {
 
     private static final String TEMPLATE = readTemplate("/body-template.html");
@@ -35,7 +37,7 @@ public class FragmentCreator {
         for (Element element : template.body().children()) {
             body.appendChild(element);
         }
-        body.append(" {{fragment.footer}}");
+        FOOTER_FRAGMENT.ifPresent(fragment -> body.append(" " + fragment));
     }
 
     @SneakyThrows

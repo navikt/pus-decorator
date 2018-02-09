@@ -46,8 +46,7 @@ public class SimpleEnonicClient implements ContentRetriever {
         return getPageContentFullUrl(url);
     }
 
-    @Override
-    public String getPageContentFullUrl(String url) {
+    private String getPageContentFullUrl(String url) {
         String uniqueRandomUrl = InnholdshenterTools.makeUniqueRandomUrl(url);
         HttpGet request = new HttpGet(uniqueRandomUrl);
         try {
@@ -62,14 +61,12 @@ public class SimpleEnonicClient implements ContentRetriever {
         }
     }
 
-    @Override
-    public Properties getProperties(String path) {
+    Properties getProperties(String path) {
         String url = makeFullUrl(path, baseUrl);
         return getPropertiesFullUrl(url);
     }
 
-    @Override
-    public Properties getPropertiesFullUrl(String url) {
+    private Properties getPropertiesFullUrl(String url) {
         String xmlstring = getPageContentFullUrl(url);
 
         Document document = Jsoup.parse(xmlstring, "", Parser.xmlParser());
@@ -83,9 +80,5 @@ public class SimpleEnonicClient implements ContentRetriever {
         return properties;
     }
 
-    @Override
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
 }
 

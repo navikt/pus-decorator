@@ -40,7 +40,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     @Override
     public void startup(ServletContext servletContext) {
         FilterRegistration.Dynamic docratorfilter = servletContext.addFilter("docratorfilter", getDecoratorFilter());
-        docratorfilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.FORWARD),false, "/index.html");
+        docratorfilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.FORWARD), false, "/index.html");
 
         ServletRegistration.Dynamic reactapp = servletContext.addServlet("reactapp", new ApplicationServlet());
         reactapp.addMapping("/*");

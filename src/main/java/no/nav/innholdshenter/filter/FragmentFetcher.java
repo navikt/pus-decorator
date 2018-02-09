@@ -1,6 +1,8 @@
 package no.nav.innholdshenter.filter;
 
 import lombok.SneakyThrows;
+import no.nav.cache.Cache;
+import no.nav.cache.CacheUtils;
 import no.nav.innholdshenter.common.ContentRetriever;
 import org.apache.http.client.utils.URIBuilder;
 import org.jsoup.Jsoup;
@@ -9,21 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
-import static no.nav.innholdshenter.filter.DecoratorFilterUtils.createMatcher;
-import static no.nav.innholdshenter.filter.DecoratorFilterUtils.extractMetaTag;
-import static no.nav.innholdshenter.filter.DecoratorFilterUtils.getRequestUriOrAlternativePathBasedOnMetaTag;
-import static no.nav.innholdshenter.filter.DecoratorFilterUtils.isFragmentSubmenu;
+import static no.nav.cache.CacheConfig.DEFAULT;
+import static no.nav.innholdshenter.filter.DecoratorFilterUtils.*;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class FragmentFetcher {
 
-    private final static Logger logger = LoggerFactory.getLogger(FragmentFetcher.class);
-
+    private final Cache<String, Document> cache;
     private ContentRetriever contentRetriever;
     private String fragmentsUrl;
     private String applicationName;
@@ -35,9 +34,17 @@ public class FragmentFetcher {
     private final String originalResponseString;
     private ExtendedConfiguration extendedConfiguration;
 
-    public FragmentFetcher(ContentRetriever contentRetriever, String fragmentsUrl, String applicationName, boolean shouldIncludeActiveItem,
-                           String subMenuPath, List<String> fragmentNames, Map<String, String> additionalOptions, HttpServletRequest request,
-                           String originalResponseString, ExtendedConfiguration extendedConfiguration) {
+    public FragmentFetcher(ContentRetriever contentRetriever,
+                           String fragmentsUrl,
+                           String applicationName,
+                           boolean shouldIncludeActiveItem,
+                           String subMenuPath,
+                           List<String> fragmentNames,
+                           Map<String, String> additionalOptions,
+                           HttpServletRequest request,
+                           String originalResponseString,
+                           ExtendedConfiguration extendedConfiguration,
+                           Cache<String, Document> cache) {
         this.contentRetriever = contentRetriever;
         this.fragmentsUrl = fragmentsUrl;
         this.applicationName = applicationName;
@@ -48,11 +55,13 @@ public class FragmentFetcher {
         this.request = request;
         this.originalResponseString = originalResponseString;
         this.extendedConfiguration = extendedConfiguration;
+        this.cache = cache;
     }
 
-    public Document fetchHtmlFragments() {
-        String pageContent = contentRetriever.getPageContent(buildUrl());
-        return Jsoup.parse(pageContent);
+    public Document fetchHtmlFragments(boolean useCache) {
+        String url = buildUrl();
+        Supplier<Document> runnable = () -> Jsoup.parse(contentRetriever.getPageContent(url));
+        return useCache ? cache.get(url, runnable) : runnable.get();
     }
 
     @SneakyThrows

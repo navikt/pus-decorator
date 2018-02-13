@@ -19,7 +19,7 @@ public class EnonicHelsesjekk implements Helsesjekk {
 
     @Override
     public void helsesjekk() throws Throwable {
-        fragmentFetcher.fetchHtmlFragments();
+        fragmentFetcher.fetchHtmlFragments(false);
     }
 
     private Request requestMock() {

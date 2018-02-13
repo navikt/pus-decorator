@@ -31,48 +31,4 @@ public class InnholdshenterTools {
         return url;
     }
 
-    public static boolean urlMatchesPatternInList(String innerUrl, List<String> list) {
-        for (String patternAsString : list) {
-            if (patternAsString != null && patternAsString.length() > 0) {
-                Pattern pattern = Pattern.compile(patternAsString);
-                Matcher matcher = pattern.matcher(innerUrl);
-                if (matcher.find()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Sanitize url before storage in cache. This part of the url tends to include session specific data,
-     * so it is often unique, and thrashes the cache.
-     * Use this return value as the index in the cache, and not the full url.
-     *
-     * @param url
-     * @return returns a cleaner url, suitable for the cacheline.
-     */
-    public static String sanitizeUrlCacheKey(String url) {
-        URIBuilder uriBuilder;
-        try {
-            uriBuilder = new URIBuilder(url);
-            List<NameValuePair> params = uriBuilder.getQueryParams();
-            params.stream().filter(nameValuePair -> nameValuePair.getName().startsWith("urlPath"))
-                    .forEach(nameValuePair -> {
-                        String urlpath = sanitizeUrlPath(nameValuePair.getValue());
-                        uriBuilder.setParameter("urlPath", urlpath);
-                    });
-        } catch (URISyntaxException e) {
-            logger.debug(e.getMessage());
-            return url;
-        }
-        return uriBuilder.toString();
-    }
-
-    private static String sanitizeUrlPath(String urlParam) {
-        if (urlParam != null && !urlParam.isEmpty()) {
-            return urlParam.split(",")[0];
-        }
-        return urlParam;
-    }
 }

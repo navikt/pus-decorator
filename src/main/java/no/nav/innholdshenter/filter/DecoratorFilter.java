@@ -1,6 +1,8 @@
 package no.nav.innholdshenter.filter;
 
 import net.sf.ehcache.CacheException;
+import no.nav.cache.Cache;
+import no.nav.cache.CacheUtils;
 import no.nav.innholdshenter.common.ContentRetriever;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import static java.util.Arrays.asList;
+import static no.nav.cache.CacheConfig.DEFAULT;
 import static no.nav.innholdshenter.filter.DecoratorFilterUtils.*;
 import static no.nav.pus.decorator.FragmentCreator.createFragmentTemplate;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -30,6 +33,8 @@ public class DecoratorFilter implements Filter {
 
     public static final String ALREADY_DECORATED_HEADER = "X-NAV-decorator";
     private static final List<String> DEFAULT_NO_DECORATE_PATTERNS = asList(".*isAlive.*");
+
+    private static final int ONE_HOUR = 60 * 60 * 1000;
 
     private ContentRetriever contentRetriever;
     private List<String> fragmentNames;
@@ -43,6 +48,8 @@ public class DecoratorFilter implements Filter {
     private Map<String, String> excludeHeaders;
     private ExtendedConfiguration extendedConfiguration;
     private Map<String, String> additionalOptions;
+
+    private Cache<String, Document> cache = CacheUtils.buildCache(DEFAULT.withTimeToLive(ONE_HOUR));
 
     @Deprecated
     /* Vi tar bort denne for A tvinge at feltene settes i konstruktoeren. Da kan vi dra ut hele Spring fra prosjeketet */
@@ -207,10 +214,11 @@ public class DecoratorFilter implements Filter {
     }
 
     private String mergeWithFragments(String originalResponseString, HttpServletRequest request) {
+
         FragmentFetcher fragmentFetcher = createFragmentFetcher(originalResponseString, request);
         Document htmlFragments;
         try {
-            htmlFragments = fragmentFetcher.fetchHtmlFragments();
+            htmlFragments = fragmentFetcher.fetchHtmlFragments(true);
         } catch (CacheException e) {
             logger.warn("Klarte ikke å hente HTML fragment. Returnerer tom streng", e);
             htmlFragments = Jsoup.parse(StringUtils.EMPTY);
@@ -220,8 +228,19 @@ public class DecoratorFilter implements Filter {
     }
 
     public FragmentFetcher createFragmentFetcher(String originalResponseString, HttpServletRequest request) {
-        return new FragmentFetcher(contentRetriever, fragmentsUrl, applicationName, shouldIncludeActiveItem, subMenuPath, fragmentNames, additionalOptions,
-                    request, originalResponseString, extendedConfiguration);
+        return new FragmentFetcher(
+                contentRetriever,
+                fragmentsUrl,
+                applicationName,
+                shouldIncludeActiveItem,
+                subMenuPath,
+                fragmentNames,
+                additionalOptions,
+                request,
+                originalResponseString,
+                extendedConfiguration,
+                cache
+        );
     }
 
     @Override

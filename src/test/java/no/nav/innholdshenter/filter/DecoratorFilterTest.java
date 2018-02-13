@@ -1,7 +1,6 @@
 package no.nav.innholdshenter.filter;
 
 import no.nav.innholdshenter.common.ContentRetriever;
-import no.nav.innholdshenter.common.EnonicContentRetriever;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class DecoratorFilterTest {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
 
-        contentRetriever = mock(EnonicContentRetriever.class);
+        contentRetriever = mock(ContentRetriever.class);
         when(contentRetriever.getPageContent(anyString())).thenReturn("<div id=\"header\"><nav></nav></div><div id=\"footer\"><footer></footer></div>");
 
         List<String> fragmentNames = Collections.emptyList();

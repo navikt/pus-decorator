@@ -9,5 +9,7 @@ https://github.com/navikt/jobbsokerkompetanse/commit/a24450465ee4b49e7772f7739c8
 
 ## configuration
 configure using the following environment variables:
- - FOOTER_TYPE 
+ - APPLICATION_NAME (required)
+ - APPRES_CMS_URL (required) example: https://appres.nav.no
+ - FOOTER_TYPE (optional)
  https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java 

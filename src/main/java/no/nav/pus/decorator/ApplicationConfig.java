@@ -42,6 +42,9 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         FilterRegistration.Dynamic docratorfilter = servletContext.addFilter("docratorfilter", getDecoratorFilter());
         docratorfilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.FORWARD), false, "/index.html");
 
+        ServletRegistration.Dynamic enviorment = servletContext.addServlet("environment", new EnvironmentServlet());
+        enviorment.addMapping("/environment.js");
+
         ServletRegistration.Dynamic reactapp = servletContext.addServlet("reactapp", new ApplicationServlet());
         reactapp.addMapping("/*");
     }

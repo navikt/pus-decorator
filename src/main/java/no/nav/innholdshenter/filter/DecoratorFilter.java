@@ -219,7 +219,7 @@ public class DecoratorFilter implements Filter {
         Document htmlFragments;
         try {
             htmlFragments = fragmentFetcher.fetchHtmlFragments(true);
-        } catch (CacheException e) {
+        } catch (Throwable e) {
             logger.warn("Klarte ikke å hente HTML fragment. Returnerer tom streng", e);
             htmlFragments = Jsoup.parse(StringUtils.EMPTY);
         }

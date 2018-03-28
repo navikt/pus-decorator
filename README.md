@@ -13,5 +13,16 @@ configure using the following environment variables:
  - APPRES_CMS_URL (required) example: https://appres.nav.no
  - FOOTER_TYPE (optional)
  https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java
- - ENVIORMENT_PREFIX (optional) sets prefiks for /environment.js deafults to enviorment
- - PUBLIC_ (optional)  that starts with gets eksposed as /environment.js with ENVIORMENT_PREFIX
+ - ENVIRONMENT_CONTEXT (optional) sets context name for `/environment.js`. Defaults to application name (see below)
+ 
+ 
+## /environment.js
+endpoint that exposes system properties/environment variables matching this regex: `^PUBLIC_.+`. Example:
+
+```
+GET /myapp/environment.js
+
+myapp={};
+myapp.my_property='content of PUBLIC_MY_PROPERTY';
+myapp.another_property='content of PUBLIC_ANOTHER_PROPERTY';
+```

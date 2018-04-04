@@ -11,7 +11,9 @@
     <option name="ENV_VARIABLES" />
     <option name="PASS_PARENT_ENVS" value="true" />
     <module name="pus-decorator" />
-    <envs />
+    <envs>
+      <env name="PUBLIC_MY_ENV_VARIABLE" value="tester environment" />
+    </envs>
     <method />
   </configuration>
 </component>

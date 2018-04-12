@@ -24,7 +24,7 @@ public class FragmentCreator {
     }
 
     private static void updateHead(Element head) {
-        head.append("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}");
+        head.prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}");
     }
 
     private static void updateBody(Element body) {

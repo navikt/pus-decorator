@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import java.nio.charset.Charset;
 
 import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT;
+import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT;
 
 public class FragmentCreator {
 
@@ -24,6 +25,7 @@ public class FragmentCreator {
     }
 
     private static void updateHead(Element head) {
+        HEADER_FRAGMENT.ifPresent(fragment -> head.prepend(" " + fragment));
         head.prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}");
     }
 

@@ -12,6 +12,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 import static no.nav.pus.decorator.ApplicationConfig.APPLICATION_NAME;
 import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT_NAME;
+import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 public class DecoratorUtils {
@@ -36,7 +37,7 @@ public class DecoratorUtils {
     private static List<String> fragmentNames() {
         return of(
                 "webstats-ga-notrack",
-                "header-withmenu",
+                HEADER_FRAGMENT_NAME.orElse("header-withmenu"),
                 FOOTER_FRAGMENT_NAME.orElse(""),
                 "styles",
                 "scripts",

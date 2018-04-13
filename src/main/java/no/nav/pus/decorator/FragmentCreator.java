@@ -25,7 +25,6 @@ public class FragmentCreator {
     }
 
     private static void updateHead(Element head) {
-        HEADER_FRAGMENT.ifPresent(fragment -> head.prepend(" " + fragment));
         head.prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}");
     }
 
@@ -39,6 +38,7 @@ public class FragmentCreator {
         for (Element element : template.body().children()) {
             body.appendChild(element);
         }
+        HEADER_FRAGMENT.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment));
         FOOTER_FRAGMENT.ifPresent(fragment -> body.append(" " + fragment));
     }
 

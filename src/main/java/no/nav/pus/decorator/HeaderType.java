@@ -6,7 +6,6 @@ import static no.nav.sbl.util.StringUtils.of;
 
 @SuppressWarnings("unused")
 public enum HeaderType {
-    NO_HEADER(null),
     WITHOUT_MENU("header"),
     WITH_MENU("header-withmenu");
 

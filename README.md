@@ -11,6 +11,7 @@ https://github.com/navikt/jobbsokerkompetanse/commit/a24450465ee4b49e7772f7739c8
 configure using the following environment variables:
  - APPLICATION_NAME (required)
  - APPRES_CMS_URL (required) example: https://appres.nav.no
+ - HEADER_TYPE (optional:https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/HeaderType.java)
  - FOOTER_TYPE (optional)
  https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java
  - ENVIRONMENT_CONTEXT (optional) sets context name for `/environment.js`. Defaults to application name (see below)

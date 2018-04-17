@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import java.nio.charset.Charset;
 
 import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT;
+import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT;
 
 public class FragmentCreator {
 
@@ -37,6 +38,7 @@ public class FragmentCreator {
         for (Element element : template.body().children()) {
             body.appendChild(element);
         }
+        HEADER_FRAGMENT.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment));
         FOOTER_FRAGMENT.ifPresent(fragment -> body.append(" " + fragment));
     }
 

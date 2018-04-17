@@ -12,6 +12,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
 import static no.nav.pus.decorator.ApplicationConfig.APPLICATION_NAME;
 import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT_NAME;
+import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT_NAME;
+import static no.nav.pus.decorator.HeaderType.WITH_MENU;
 import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 public class DecoratorUtils {
@@ -22,6 +24,7 @@ public class DecoratorUtils {
     public static final String appresUrl = getRequiredProperty(APPRES_CMS_URL_PROPERTY);
 
     private static final SimpleEnonicClient enonicClient = new SimpleEnonicClient(appresUrl);
+    private static final String HEADER_WITH_MENU_FRAGMENT_NAME = String.valueOf(WITH_MENU.getFragmentName());
 
     public static DecoratorFilter getDecoratorFilter() {
         DecoratorFilter decoratorFilter = new DecoratorFilter();
@@ -36,7 +39,7 @@ public class DecoratorUtils {
     private static List<String> fragmentNames() {
         return of(
                 "webstats-ga-notrack",
-                "header-withmenu",
+                HEADER_FRAGMENT_NAME.orElse(HEADER_WITH_MENU_FRAGMENT_NAME),
                 FOOTER_FRAGMENT_NAME.orElse(""),
                 "styles",
                 "scripts",

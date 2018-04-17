@@ -9,8 +9,8 @@ public class HeaderTypeTest {
 
     @Test
     public void getFragmentName(){
-        assertThat(WITH_MENU.getFragmentName()).hasValue("header-withmenu");
-        assertThat(WITHOUT_MENU.getFragmentName()).hasValue("header");
+        assertThat(WITH_MENU.getFragmentName()).hasValue("footer-withmenu");
+        assertThat(WITHOUT_MENU.getFragmentName()).hasValue("footer");
     }
 
     @Test

@@ -10,7 +10,7 @@
     <option name="ENABLE_SWING_INSPECTOR" value="false" />
     <option name="ENV_VARIABLES" />
     <option name="PASS_PARENT_ENVS" value="true" />
-    <module name="pus-decorator" />
+    <module name="decorator" />
     <envs>
       <env name="PUBLIC_MY_ENV_VARIABLE" value="tester environment" />
     </envs>

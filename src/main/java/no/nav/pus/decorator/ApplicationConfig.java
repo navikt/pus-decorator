@@ -2,6 +2,7 @@ package no.nav.pus.decorator;
 
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -40,6 +41,9 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
     @Override
     public void startup(ServletContext servletContext) {
+        FilterRegistration.Dynamic dynamic = servletContext.addFilter("csrf", CsrfDoubleSubmitCookieFilter.class);
+        dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
+
         FilterRegistration.Dynamic docratorfilter = servletContext.addFilter("docratorfilter", getDecoratorFilter());
         docratorfilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.FORWARD), false, "/index.html");
 

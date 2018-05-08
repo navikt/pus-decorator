@@ -10,9 +10,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FragmentCreatorTest {
 
+    private FragmentCreator fragmentCreator = new FragmentCreator("testapp");
+
     @Test
     public void createFragmentTemplate(){
-        String fragmentTemplate = FragmentCreator.createFragmentTemplate(readTemplate("/fragmentCreatorTest/original.html"));
+        String fragmentTemplate = fragmentCreator.createFragmentTemplate(readTemplate("/fragmentCreatorTest/original.html"));
         System.out.println(fragmentTemplate);
         assertThat(normalize(fragmentTemplate)).isEqualTo(normalize(readTemplate("/fragmentCreatorTest/merged.html")));
     }

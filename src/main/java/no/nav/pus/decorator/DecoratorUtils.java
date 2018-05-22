@@ -27,12 +27,13 @@ public class DecoratorUtils {
     private static final String HEADER_WITH_MENU_FRAGMENT_NAME = String.valueOf(WITH_MENU.getFragmentName());
 
     public static DecoratorFilter getDecoratorFilter() {
-        DecoratorFilter decoratorFilter = new DecoratorFilter();
-        decoratorFilter.setFragmentsUrl(FRAGMENTS_URL);
-        decoratorFilter.setContentRetriever(enonicClient);
-        decoratorFilter.setApplicationName(APPLICATION_NAME);
+        DecoratorFilter decoratorFilter = new DecoratorFilter(
+                FRAGMENTS_URL,
+                enonicClient,
+                fragmentNames(),
+                APPLICATION_NAME
+        );
         decoratorFilter.setNoDecoratePatterns(NO_DECORATOR_PATTERNS);
-        decoratorFilter.setFragmentNames(fragmentNames());
         return decoratorFilter;
     }
 

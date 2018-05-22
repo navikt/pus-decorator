@@ -10,6 +10,8 @@ import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 
 public class MainTest {
 
+    public static final String TEST_PORT = "8765";
+
     public static void main(String... args) throws Exception {
         ApiAppTest.setupTestContext();
         setProperty(VIS_DETALJER_VED_FEIL, Boolean.TRUE.toString(), PUBLIC);
@@ -19,7 +21,7 @@ public class MainTest {
         setProperty(PUBLIC_PREFIX + "prop1", "content1", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop2", "content2", PUBLIC);
 
-        Main.main(args);
+        Main.main(TEST_PORT);
     }
 
 }

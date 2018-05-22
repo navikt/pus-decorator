@@ -4,6 +4,8 @@ import net.sf.ehcache.CacheException;
 import no.nav.cache.Cache;
 import no.nav.cache.CacheUtils;
 import no.nav.innholdshenter.common.ContentRetriever;
+import no.nav.pus.decorator.ApplicationConfig;
+import no.nav.pus.decorator.FragmentCreator;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,7 +26,6 @@ import java.util.regex.Matcher;
 import static java.util.Arrays.asList;
 import static no.nav.cache.CacheConfig.DEFAULT;
 import static no.nav.innholdshenter.filter.DecoratorFilterUtils.*;
-import static no.nav.pus.decorator.FragmentCreator.createFragmentTemplate;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class DecoratorFilter implements Filter {
@@ -49,18 +50,8 @@ public class DecoratorFilter implements Filter {
     private ExtendedConfiguration extendedConfiguration;
     private Map<String, String> additionalOptions;
 
-    private Cache<String, Document> cache = CacheUtils.buildCache(DEFAULT.withTimeToLive(ONE_HOUR));
-
-    @Deprecated
-    /* Vi tar bort denne for A tvinge at feltene settes i konstruktoeren. Da kan vi dra ut hele Spring fra prosjeketet */
-    public DecoratorFilter() {
-        fragmentNames = new ArrayList<>();
-        noDecoratePatterns = new ArrayList<>(DEFAULT_NO_DECORATE_PATTERNS);
-        noSubmenuPatterns = new ArrayList<>();
-        additionalOptions = new HashMap<>();
-        setDefaultIncludeContentTypes();
-        setDefaultExcludeHeaders();
-    }
+    private final Cache<String, Document> cache = CacheUtils.buildCache(DEFAULT.withTimeToLive(ONE_HOUR));
+    private final FragmentCreator fragmentCreator;
 
     public DecoratorFilter(String fragmentsUrl, ContentRetriever contentRetriever, List<String> fragmentNames, String applicationName) {
         if (fragmentsUrl == null || contentRetriever == null || fragmentNames == null || applicationName == null) {
@@ -77,6 +68,7 @@ public class DecoratorFilter implements Filter {
         this.applicationName = applicationName;
         setDefaultIncludeContentTypes();
         setDefaultExcludeHeaders();
+        this.fragmentCreator = new FragmentCreator(applicationName);
     }
 
     @SuppressWarnings("PMD.UnusedPrivateMethod")
@@ -223,7 +215,7 @@ public class DecoratorFilter implements Filter {
             logger.warn("Klarte ikke å hente HTML fragment. Returnerer tom streng", e);
             htmlFragments = Jsoup.parse(StringUtils.EMPTY);
         }
-        MarkupMerger markupMerger = new MarkupMerger(fragmentNames, noSubmenuPatterns, createFragmentTemplate(originalResponseString), htmlFragments, request, applicationName);
+        MarkupMerger markupMerger = new MarkupMerger(fragmentNames, noSubmenuPatterns, fragmentCreator.createFragmentTemplate(originalResponseString), htmlFragments, request, applicationName);
         return markupMerger.merge();
     }
 
@@ -245,14 +237,6 @@ public class DecoratorFilter implements Filter {
 
     @Override
     public void destroy() {
-    }
-
-    public void setFragmentsUrl(String fragmentsUrl) {
-        this.fragmentsUrl = fragmentsUrl;
-    }
-
-    public void setContentRetriever(ContentRetriever contentRetriever) {
-        this.contentRetriever = contentRetriever;
     }
 
     public void setFragmentNames(List<String> fragmentNames) {

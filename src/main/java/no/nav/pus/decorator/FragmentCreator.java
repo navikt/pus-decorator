@@ -17,6 +17,7 @@ public class FragmentCreator {
 
     private static final String TEMPLATE = readTemplate("/body-template.html");
     private final String frontendLoggerHtml;
+    private final String environmentHtml;
 
     public FragmentCreator(String applicationName) {
         // https://github.com/navikt/fo-frontendlogger
@@ -26,6 +27,8 @@ public class FragmentCreator {
                 "window.frontendlogger.appname = '" + applicationName + "';\n" +
                 "</script>\n" +
                 "<script type=\"application/javascript\" src=\"/frontendlogger/logger.js\"></script>";
+
+        this.environmentHtml = "<script>\n" + new EnvironmentScriptGenerator().generate() + "\n</script>";
     }
 
     public String createFragmentTemplate(String orginalHtml) {
@@ -36,7 +39,10 @@ public class FragmentCreator {
     }
 
     private void updateHead(Element head) {
-        head.prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}" + frontendLoggerHtml);
+        head
+                .prepend(this.frontendLoggerHtml)
+                .prepend(this.environmentHtml)
+                .prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}");
     }
 
     private void updateBody(Element body) {

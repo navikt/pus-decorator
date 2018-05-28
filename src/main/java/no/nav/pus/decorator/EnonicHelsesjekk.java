@@ -32,7 +32,7 @@ public class EnonicHelsesjekk implements Helsesjekk {
                 "enonic",
                 url,
                 "henter hode-fot fra enonic",
-                true
+                false
         );
     }
 }

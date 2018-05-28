@@ -1,6 +1,7 @@
 package no.nav.innholdshenter.filter;
 
 import no.nav.innholdshenter.common.ContentRetriever;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static no.nav.innholdshenter.filter.DecoratorFilter.ALREADY_DECORATED_HEADER;
+import static no.nav.pus.decorator.EnvironmentScriptGenerator.ENVIRONMENT_CONTEXT_PROPERTY_NAME;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
@@ -41,15 +43,21 @@ public class DecoratorFilterTest {
 
     @Before
     public void setUp() throws IOException {
+        System.setProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "appname");
+
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-
         contentRetriever = mock(ContentRetriever.class);
         when(contentRetriever.getPageContent(anyString())).thenReturn("<div id=\"header\"><nav></nav></div><div id=\"footer\"><footer></footer></div>");
 
         List<String> fragmentNames = Collections.emptyList();
 
-        decoratorFilter = new DecoratorFilter("http://nav.no/fragments", contentRetriever ,fragmentNames , "arbeid");
+        decoratorFilter = new DecoratorFilter("http://nav.no/fragments", contentRetriever, fragmentNames, "arbeid");
+    }
+
+    @After
+    public void tearDown() {
+        System.clearProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME);
     }
 
     private void withFragments(String... fragments) {
@@ -470,8 +478,8 @@ public class DecoratorFilterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void throwsWhenArgumentsAreMissing(){
+    public void throwsWhenArgumentsAreMissing() {
         List<String> fragmentNames = asList("header", "footer");
-        new DecoratorFilter("http://nav.no/fragments", contentRetriever ,fragmentNames , null);
+        new DecoratorFilter("http://nav.no/fragments", contentRetriever, fragmentNames, null);
     }
 }

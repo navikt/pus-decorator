@@ -49,7 +49,7 @@ public class FragmentCreator {
         for (Element element : template.body().children()) {
             body.appendChild(element);
         }
-        HEADER_FRAGMENT.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment));
+        HEADER_FRAGMENT.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment).prepend("{{fragment.skiplinks}}"));
         FOOTER_FRAGMENT.ifPresent(fragment -> body.append(" " + fragment));
     }
 

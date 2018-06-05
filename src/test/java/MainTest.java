@@ -16,7 +16,7 @@ public class MainTest {
         ApiAppTest.setupTestContext();
         setProperty(VIS_DETALJER_VED_FEIL, Boolean.TRUE.toString(), PUBLIC);
         setProperty(APPLICATION_NAME_PROPERTY, "decorator", PUBLIC);
-        setProperty(APPRES_CMS_URL_PROPERTY, FasitUtils.getBaseUrl("appres.cms"),PUBLIC);
+        setProperty(APPRES_CMS_URL_PROPERTY, "https://appres.nav.no", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop", "content", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop1", "content1", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop2", "content2", PUBLIC);

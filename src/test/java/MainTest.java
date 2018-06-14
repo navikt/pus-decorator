@@ -1,4 +1,3 @@
-import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.testconfig.ApiAppTest;
 
 import static no.nav.apiapp.feil.FeilMapper.VIS_DETALJER_VED_FEIL;

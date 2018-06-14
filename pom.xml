@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.sbl</groupId>
         <artifactId>mor-pom</artifactId>
-        <version>2018.06.04.15.16</version>
+        <version>2018.06.18.15.42</version>
     </parent>
 
     <groupId>no.nav.pus</groupId>
@@ -20,7 +20,7 @@
             <dependency>
                 <groupId>no.nav.sbl</groupId>
                 <artifactId>bom</artifactId>
-                <version>2018.06.04.15.16</version>
+                <version>2018.06.18.15.42</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -61,7 +61,27 @@
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>common-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>feature-toggle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.finn.unleash</groupId>
+            <artifactId>unleash-client-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bitbucket.b_c</groupId>
+            <artifactId>jose4j</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.hk2.external</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>

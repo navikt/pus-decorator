@@ -15,6 +15,7 @@ configure using the following environment variables:
  - FOOTER_TYPE (optional)
  https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java
  - ENVIRONMENT_CONTEXT (optional) sets context name for `/environment.js`. Defaults to application name (see below)
+ - APP_NAME_AS_CONTEXT_PATH (optional) if set to false, APPLICATION_NAME is not set as context root. Defaults to true
  - UNLEASH_API_URL (optional) unleash server url. Defaults to `https://unleashproxy.nais.oera.no/api/`
  
  

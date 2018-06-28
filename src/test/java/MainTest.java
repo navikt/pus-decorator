@@ -12,7 +12,7 @@ public class MainTest {
     public static final String TEST_PORT = "8765";
 
     public static void main(String... args) throws Exception {
-        ApiAppTest.setupTestContext();
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName("decorator").build());
         setProperty(VIS_DETALJER_VED_FEIL, Boolean.TRUE.toString(), PUBLIC);
         setProperty(APPLICATION_NAME_PROPERTY, "decorator", PUBLIC);
         setProperty(APPRES_CMS_URL_PROPERTY, "https://appres.nav.no", PUBLIC);

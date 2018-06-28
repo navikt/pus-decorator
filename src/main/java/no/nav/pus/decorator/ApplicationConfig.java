@@ -30,13 +30,8 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
     public static final String APPLICATION_NAME_PROPERTY = "APPLICATION_NAME";
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "APP_NAME";
-    public static final String INGEN_CONTEXT_PATH_PROPERTY_NAME = "APP_NAME_AS_CONTEXT_PATH";
+    public static final String CONTEXT_PATH_PROPERTY_NAME = "CONTEXT_PATH";
     public static final String APPLICATION_NAME = getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
-
-    @Override
-    public String getApplicationName() {
-        return APPLICATION_NAME;
-    }
 
     @Override
     public boolean brukSTSHelsesjekk() {
@@ -44,9 +39,8 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     }
 
     @Override
-    public boolean brukContextPath() {
-        String useAppnameAsContextRoot = getOptionalProperty(INGEN_CONTEXT_PATH_PROPERTY_NAME).orElse("true");
-        return Boolean.getBoolean(useAppnameAsContextRoot);
+    public String getContextPath() {
+        return getOptionalProperty(CONTEXT_PATH_PROPERTY_NAME).orElse(APPLICATION_NAME);
     }
 
     @Override

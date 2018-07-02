@@ -31,6 +31,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public static final String APPLICATION_NAME_PROPERTY = "APPLICATION_NAME";
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "APP_NAME";
     public static final String CONTEXT_PATH_PROPERTY_NAME = "CONTEXT_PATH";
+    public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
     public static final String APPLICATION_NAME = getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
 
     @Override
@@ -54,7 +55,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         ServletRegistration.Dynamic enviorment = servletContext.addServlet("environment", new EnvironmentServlet());
         enviorment.addMapping("/environment.js");
 
-        ServletRegistration.Dynamic reactapp = servletContext.addServlet("reactapp", new ApplicationServlet());
+        ServletRegistration.Dynamic reactapp = servletContext.addServlet("reactapp", new ApplicationServlet(getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)));
         reactapp.addMapping("/*");
     }
 

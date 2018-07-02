@@ -59,6 +59,7 @@ public class FragmentCreator {
         }
         HEADER_FRAGMENT.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment).prepend("{{fragment.skiplinks}}"));
         FOOTER_FRAGMENT.ifPresent(fragment -> body.append(" " + fragment));
+        body.prepend("<noscript>Du må aktivere javascript for å kjøre denne appen.</noscript>");
     }
 
     @SneakyThrows

@@ -15,7 +15,8 @@ import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT;
 
 public class FragmentCreator {
 
-    private static final String TEMPLATE = readTemplate("/body-template.html");
+    private static final String BODY_TEMPLATE = readTemplate("/body-template.html");
+    private static final String HEAD_TEMPLATE = readTemplate("/head-template.html");
     private final String frontendLoggerHtml;
     private final String environmentHtml;
 
@@ -42,13 +43,14 @@ public class FragmentCreator {
         head
                 .prepend(this.frontendLoggerHtml)
                 .prepend(this.environmentHtml)
-                .prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}");
+                .prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}")
+                .prepend(HEAD_TEMPLATE);
     }
 
     private void updateBody(Element body) {
         Elements children = body.children();
         body.children().clear();
-        Document template = Jsoup.parse(TEMPLATE);
+        Document template = Jsoup.parse(BODY_TEMPLATE);
         for (Element child : children) {
             template.getElementById("maincontent").appendChild(child);
         }

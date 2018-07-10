@@ -32,6 +32,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public static final String APPLICATION_NAME_PROPERTY = "APPLICATION_NAME";
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "APP_NAME";
     public static final String CONTEXT_PATH_PROPERTY_NAME = "CONTEXT_PATH";
+    public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
     public static final String APPLICATION_NAME = getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
 
     @Override
@@ -52,7 +53,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
                 .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, "/index.html");
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
-        leggTilServlet(servletContext, ApplicationServlet.class, "/*");
+        leggTilServlet(servletContext, new ApplicationServlet(getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)), "/*");
     }
 
 

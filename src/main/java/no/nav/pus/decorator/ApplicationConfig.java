@@ -1,8 +1,8 @@
 package no.nav.pus.decorator;
 
 import no.nav.apiapp.ApiApplication;
-import no.nav.apiapp.ServletUtil;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.innholdshenter.filter.DecoratorFilter;
 import no.nav.pus.decorator.feature.FeatureResource;
 import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
@@ -15,6 +15,7 @@ import javax.servlet.ServletContext;
 import java.util.EnumSet;
 
 import static javax.servlet.DispatcherType.FORWARD;
+import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.leggTilFilter;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
 import static no.nav.pus.decorator.DecoratorUtils.getDecoratorFilter;
@@ -49,8 +50,12 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public void startup(ServletContext servletContext) {
         leggTilFilter(servletContext,CsrfDoubleSubmitCookieFilter.class);
 
-        servletContext.addFilter("decoratorFilter", getDecoratorFilter())
+        DecoratorFilter decoratorFilter = getDecoratorFilter();
+        servletContext.addFilter("decoratorFilter", decoratorFilter)
                 .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, "/index.html");
+
+        servletContext.addFilter("demoDecoratorFilter", decoratorFilter)
+                .addMappingForUrlPatterns(EnumSet.of(REQUEST), false, "/demo/*");
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
         leggTilServlet(servletContext, new ApplicationServlet(getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)), "/*");

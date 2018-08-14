@@ -23,8 +23,8 @@ public class FragmentCreator {
     public FragmentCreator(String applicationName) {
         // https://github.com/navikt/fo-frontendlogger
         this.frontendLoggerHtml = "" +
-                "<script>\n" +
-                "window.frontendlogger = { info: function(){}, warn: function(){}, error: function(){}};\n" +
+                "<script>\n window.frontendlogger = { " +
+                "info: function(){}, warn: function(){}, error: function(){}, event: function(){}};\n" +
                 "window.frontendlogger.appname = '" + applicationName + "';\n" +
                 "</script>\n" +
                 "<script type=\"application/javascript\" src=\"/frontendlogger/logger.js\"></script>";

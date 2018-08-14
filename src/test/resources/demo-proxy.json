@@ -1,0 +1,10 @@
+[
+  {
+    "contextPath": "/api",
+    "baseUrl": "http://backend-api"
+  },
+  {
+    "contextPath": "/log",
+    "baseUrl": "http://logger"
+  }
+]

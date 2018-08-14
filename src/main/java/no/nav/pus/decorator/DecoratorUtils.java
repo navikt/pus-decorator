@@ -10,7 +10,6 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.of;
-import static no.nav.pus.decorator.ApplicationConfig.APPLICATION_NAME;
 import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT_NAME;
 import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT_NAME;
 import static no.nav.pus.decorator.HeaderType.WITH_MENU;
@@ -31,7 +30,7 @@ public class DecoratorUtils {
                 FRAGMENTS_URL,
                 enonicClient,
                 fragmentNames(),
-                APPLICATION_NAME
+                ApplicationConfig.resolveApplicationName()
         );
         decoratorFilter.setNoDecoratePatterns(NO_DECORATOR_PATTERNS);
         return decoratorFilter;

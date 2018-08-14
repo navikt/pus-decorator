@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static no.nav.pus.decorator.ApplicationConfig.APPLICATION_NAME;
+import static no.nav.pus.decorator.ApplicationConfig.resolveApplicationName;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public class EnvironmentScriptGenerator {
@@ -12,7 +12,7 @@ public class EnvironmentScriptGenerator {
     public static final String ENVIRONMENT_CONTEXT_PROPERTY_NAME = "ENVIRONMENT_CONTEXT";
     private static final String PUBLIC_PREFIX_PATTERN = "^" + PUBLIC_PREFIX + ".+";
 
-    private final String environmentContext = getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(() -> APPLICATION_NAME);
+    private final String environmentContext = getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName);
 
     public String generate() {
         String values = getEnvironmentVariablesAndSystemProperties()

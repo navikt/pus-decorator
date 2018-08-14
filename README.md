@@ -19,6 +19,22 @@ configure using the following environment variables:
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk
  - UNLEASH_API_URL (optional) unleash server url. Defaults to `https://unleashproxy.nais.oera.no/api/`
  
+### proxy configuration
+if the file `/proxy.json` exists in the docker container, it will be parsed and used to configure proxying against other services. It should have the following format:
+```
+[
+  {
+    "contextPath": "/api",
+    "serviceName": "backend-api"
+  },
+  {
+    "contextPath": "/log",
+    "serviceName": "logger"
+  },
+  ...
+]
+```
+
  
 ## /environment.js
 endpoint that exposes system properties/environment variables matching this regex: `^PUBLIC_.+`. Example:

@@ -5,8 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.ServletUtil;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
+import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
+import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
 import no.nav.innholdshenter.filter.DecoratorFilter;
 import no.nav.pus.decorator.feature.FeatureResource;
+import no.nav.pus.decorator.login.LoginService;
+import no.nav.pus.decorator.login.NoLoginService;
+import no.nav.pus.decorator.login.OidcLoginService;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.pus.decorator.proxy.BackendProxyServlet;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
@@ -31,6 +37,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
+import static java.util.Collections.singletonList;
 import static java.util.EnumSet.of;
 import static java.util.stream.Collectors.toMap;
 import static javax.servlet.DispatcherType.FORWARD;
@@ -55,6 +62,8 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "APP_NAME";
     public static final String CONTEXT_PATH_PROPERTY_NAME = "CONTEXT_PATH";
     public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
+    public static final String OIDC_LOGIN_URL_PROPERTY_NAME = "OIDC_LOGIN_URL";
+
     private static final String BACKEND_PROXY_CONTEXTS_PROPERTY_NAME = "PROXY_CONTEXTS";
 
     public static String resolveApplicationName() {
@@ -83,11 +92,21 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
                 .addMappingForUrlPatterns(EnumSet.of(REQUEST), false, "/demo/*");
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
-        leggTilServlet(servletContext, new ApplicationServlet(getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)), "/*");
+        leggTilServlet(servletContext, new ApplicationServlet(
+                getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
+                getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)
+        ), "/*");
 
         SingletonBeanRegistry singletonBeanRegistry = ((AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext)).getBeanFactory();
         Collection<BackendProxyServlet> backendProxyServlets = (Collection<BackendProxyServlet>) servletContext.getAttribute(BACKEND_PROXY_CONTEXTS_PROPERTY_NAME);
         backendProxyServlets.forEach(backendProxyServlet -> singletonBeanRegistry.registerSingleton(backendProxyServlet.getId(), backendProxyServlet));
+    }
+
+    private LoginService oidcLoginService(String oidcLoginUrl) {
+        AzureADB2CConfig azureADB2CConfig = AzureADB2CConfig.readFromSystemProperties();
+        AzureADB2CProvider azureADB2CProvider = new AzureADB2CProvider(azureADB2CConfig);
+        OidcAuthModule oidcAuthModule = new OidcAuthModule(singletonList(azureADB2CProvider));
+        return new OidcLoginService(oidcLoginUrl, oidcAuthModule);
     }
 
     @Bean

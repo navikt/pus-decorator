@@ -1,6 +1,7 @@
 package no.nav.pus.decorator;
 
 import lombok.SneakyThrows;
+import no.nav.pus.decorator.login.LoginService;
 import no.nav.sbl.rest.RestUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -29,8 +30,10 @@ public class ApplicationServlet extends HttpServlet {
 
     private final String contentUrl;
     private final Client client;
+    private final LoginService loginService;
 
-    public ApplicationServlet(String contentUrl) {
+    public ApplicationServlet(LoginService loginService, String contentUrl) {
+        this.loginService = loginService;
         this.contentUrl = contentUrl;
         this.client = contentUrl == null ? null : RestUtils.createClient();
     }
@@ -41,8 +44,13 @@ public class ApplicationServlet extends HttpServlet {
         String fileRequestPattern = "^(.+\\..{1,4})$";
 
         if (!request.getRequestURI().matches(fileRequestPattern)) {
-            RequestDispatcher index = getServletContext().getRequestDispatcher("/index.html");
-            index.forward(request, response);
+            String redirectUrl = loginService.getRedirectUrl(request, response).orElse(null);
+            if (redirectUrl != null) {
+                response.sendRedirect(redirectUrl);
+            } else {
+                RequestDispatcher index = getServletContext().getRequestDispatcher("/index.html");
+                index.forward(request, response);
+            }
         } else {
             if (contentUrl != null) {
                 getExternalContent(request, response);

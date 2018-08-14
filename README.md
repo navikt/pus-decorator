@@ -18,6 +18,7 @@ configure using the following environment variables:
  - CONTEXT_PATH (optional) if set is the contextpath of the application. Defaults to APPLICATION_NAME
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk
  - UNLEASH_API_URL (optional) unleash server url. Defaults to `https://unleashproxy.nais.oera.no/api/`
+ - OIDC_LOGIN_URL (optional) url to be used to login users with AzureAD B2C. If undefined, users are not logged in by pus-decorator 
  
 ### proxy configuration
 if the file `/proxy.json` exists in the docker container, it will be parsed and used to configure proxying against other services. It should have the following format:

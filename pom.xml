@@ -212,6 +212,10 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+        </dependency>
 
         <!-- TODO kjipe innholdshenter-avhengigheter som vi bør kunne kvitte oss med! -->
         <dependency>

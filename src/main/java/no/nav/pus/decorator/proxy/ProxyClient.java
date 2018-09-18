@@ -5,6 +5,10 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class ProxyClient extends HttpClient {
 
+    public ProxyClient() {
+        setRequestBufferSize(8192);
+    }
+
     @Override
     protected void doStart() throws Exception {
         super.doStart();

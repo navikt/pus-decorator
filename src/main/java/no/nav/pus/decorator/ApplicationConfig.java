@@ -65,6 +65,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public static final String OIDC_LOGIN_URL_PROPERTY_NAME = "OIDC_LOGIN_URL";
 
     private static final String BACKEND_PROXY_CONTEXTS_PROPERTY_NAME = "PROXY_CONTEXTS";
+    public static final String PROXY_CONFIGURATION_PATH_PROPERTY_NAME = "PROXY_CONFIGURATION_PATH";
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
@@ -139,7 +140,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     }
 
     public static List<BackendProxyConfig> resolveProxyConfiguration() {
-        return resolveProxyConfiguration(new File("/proxy.json"));
+        return resolveProxyConfiguration(new File(getOptionalProperty(PROXY_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/proxy.json")));
     }
 
     @SneakyThrows

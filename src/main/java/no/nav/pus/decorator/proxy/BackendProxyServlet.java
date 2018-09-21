@@ -9,6 +9,7 @@ import org.eclipse.jetty.proxy.ProxyServlet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
 import static no.nav.sbl.util.StringUtils.of;
 
 @Slf4j
@@ -18,11 +19,16 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
     private final String id;
     private final HelsesjekkMetadata helsesjekkMetadata;
     private final String pingUrl;
+    private final boolean removeContextPath;
+    private final int contextPathLength;
 
     public BackendProxyServlet(BackendProxyConfig backendProxyConfig) {
         this.backendProxyConfig = backendProxyConfig;
         this.id = (BackendProxyServlet.class.getSimpleName() + "_" + backendProxyConfig.contextPath.substring(1)).toLowerCase();
-        this.pingUrl = targetUrl(backendProxyConfig.contextPath + "/api/ping");
+        this.removeContextPath = backendProxyConfig.requestRewrite == REMOVE_CONTEXT_PATH;
+        this.contextPathLength = backendProxyConfig.contextPath.length();
+
+        this.pingUrl = targetUrl(backendProxyConfig.contextPath + backendProxyConfig.pingRequestPath);
         this.helsesjekkMetadata = new HelsesjekkMetadata(
                 "proxy_" + id,
                 pingUrl,
@@ -32,7 +38,11 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
     }
 
     private String targetUrl(String requestURI) {
-        return backendProxyConfig.baseUrl + requestURI;
+        return backendProxyConfig.baseUrl + targetPath(requestURI);
+    }
+
+    private String targetPath(String requestURI) {
+        return removeContextPath ? requestURI.substring(contextPathLength) : requestURI;
     }
 
     public BackendProxyConfig getBackendProxyConfig() {
@@ -41,6 +51,10 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
 
     public String getId() {
         return id;
+    }
+
+    public String getPingUrl() {
+        return pingUrl;
     }
 
     @Override

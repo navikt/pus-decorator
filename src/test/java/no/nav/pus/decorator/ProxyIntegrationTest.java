@@ -23,6 +23,7 @@ import static java.util.Arrays.asList;
 import static no.nav.json.JsonUtils.toJson;
 import static no.nav.pus.decorator.ApplicationConfig.PROXY_CONFIGURATION_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
+import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
 import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +48,16 @@ public class ProxyIntegrationTest {
 
         int applicationPort = randomPort();
         applicationBasePath = localBasePath(applicationPort);
-        File proxyConfigurationFile = writeProxyConfiguration(new BackendProxyConfig().setBaseUrl(new URL(wiremockBasePath)).setContextPath("/proxy"));
+        File proxyConfigurationFile = writeProxyConfiguration(
+                new BackendProxyConfig()
+                        .setBaseUrl(new URL(wiremockBasePath))
+                        .setContextPath("/proxy"),
+
+                new BackendProxyConfig()
+                        .setBaseUrl(new URL(wiremockBasePath))
+                        .setContextPath("/remove-context-path")
+                        .setRequestRewrite(REMOVE_CONTEXT_PATH)
+        );
 
         setTemporaryProperty(PROXY_CONFIGURATION_PATH_PROPERTY_NAME, proxyConfigurationFile.getAbsolutePath(), () -> {
             setTemporaryProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath, () -> {
@@ -71,9 +81,9 @@ public class ProxyIntegrationTest {
 
     @Test
     public void smoketest() throws Exception {
-
         withClient(client -> {
             assertThat(client.target(applicationBasePath).path("/proxy/teapot").request().get().getStatus()).isEqualTo(418);
+            assertThat(client.target(applicationBasePath).path("/remove-context-path/proxy/teapot").request().get().getStatus()).isEqualTo(418);
             return null;
         });
     }

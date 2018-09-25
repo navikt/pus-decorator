@@ -25,16 +25,39 @@ if the file `/proxy.json` exists in the docker container, it will be parsed and 
 ```
 [
   {
-    "contextPath": "/api",
-    "serviceName": "backend-api"
+    "contextPath": "/backend",
+    "baseUrl": "http://my-backend-api"
   },
   {
-    "contextPath": "/log",
-    "serviceName": "logger"
+    "contextPath": "/logger",
+    "baseUrl": "http://my-logger"
+    "requestRewrite": "REMOVE_CONTEXT_PATH"
   },
+  {
+    "contextPath": "/example",
+    "baseUrl": "https://www.example.com"
+    "requestRewrite": "REMOVE_CONTEXT_PATH",
+    "pingRequestPath": "/ping" 
+  }
   ...
 ]
 ```
+the above example will create the following proxy-setup:
+
+| end-user request                                         | proxied request url                       |
+|----------------------------------------------------------|-------------------------------------------|
+| https://my-decorated-app.com/backend/hello-world         | http://my-backend-api/backend/hello-world |
+| https://my-decorated-app.com/logger/log                  | http://my-logger/log                      |
+| https://my-decorated-app.com/example/a/great/example     | https://www.example.com/a/great/example   |
+
+
+| context-path | ping request url                       |
+|--------------|----------------------------------------|
+| /backend     | http://my-backend-api/backend/api/ping |
+| /logger      | http://my-logger/api/ping              |
+| /example     | https://www.example.com/ping           |
+
+
 
  
 ## /environment.js

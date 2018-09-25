@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.net.URI;
 import java.net.URL;
 
 @Data
@@ -20,6 +19,18 @@ public class BackendProxyConfig {
     @NotNull
     public URL baseUrl;
 
+    @NotNull
+    public RequestRewrite requestRewrite = RequestRewrite.INCLUDE_CONTEXT_PATH;
+
+    @NotEmpty
+    public String pingRequestPath = "/api/ping";
+
     public boolean skipCsrfProtection;
+
+
+    public enum RequestRewrite {
+        INCLUDE_CONTEXT_PATH,
+        REMOVE_CONTEXT_PATH,
+    }
 
 }

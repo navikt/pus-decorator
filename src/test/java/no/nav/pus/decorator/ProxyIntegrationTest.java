@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import no.nav.testconfig.ApiAppTest;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -21,6 +22,7 @@ import java.util.stream.IntStream;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.Arrays.asList;
 import static no.nav.json.JsonUtils.toJson;
+import static no.nav.pus.decorator.ApplicationConfig.CONTEXT_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.ApplicationConfig.PROXY_CONFIGURATION_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
@@ -33,8 +35,13 @@ public class ProxyIntegrationTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
 
+    @Rule
+    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
+
     private Jetty jetty;
+
     private String applicationBasePath;
+    private int applicationPort;
 
     @Before
     public void setup() throws Exception {
@@ -46,7 +53,7 @@ public class ProxyIntegrationTest {
                         .withBody("I'm a teapot!"))
         );
 
-        int applicationPort = randomPort();
+        applicationPort = randomPort();
         applicationBasePath = localBasePath(applicationPort);
         File proxyConfigurationFile = writeProxyConfiguration(
                 new BackendProxyConfig()
@@ -59,13 +66,12 @@ public class ProxyIntegrationTest {
                         .setRequestRewrite(REMOVE_CONTEXT_PATH)
         );
 
-        setTemporaryProperty(PROXY_CONFIGURATION_PATH_PROPERTY_NAME, proxyConfigurationFile.getAbsolutePath(), () -> {
-            setTemporaryProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath, () -> {
 
-                ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(getClass().getSimpleName()).build());
-                jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
-            });
-        });
+        systemPropertiesRule.setProperty(PROXY_CONFIGURATION_PATH_PROPERTY_NAME, proxyConfigurationFile.getAbsolutePath());
+        systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
+
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(getClass().getSimpleName()).build());
+        jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
     }
 
     private String localBasePath(int port) {
@@ -86,6 +92,15 @@ public class ProxyIntegrationTest {
             assertThat(client.target(applicationBasePath).path("/remove-context-path/proxy/teapot").request().get().getStatus()).isEqualTo(418);
             return null;
         });
+    }
+
+    @Test
+    public void smoketest__no_context_path() throws Exception {
+        cleanup();
+        systemPropertiesRule.setProperty(CONTEXT_PATH_PROPERTY_NAME, "/");
+
+        jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
+        smoketest();
     }
 
     @Test

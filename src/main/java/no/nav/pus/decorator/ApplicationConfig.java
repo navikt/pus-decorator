@@ -133,9 +133,8 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
         Server server = jetty.server;
         HandlerCollection handlerCollection = new HandlerCollection();
-        handlerCollection.addHandler(server.getHandler());
-
         backendProxyServlets.forEach((contextPath, backendProxyServlet) -> handlerCollection.addHandler(proxyHandler(contextPath, backendProxyServlet)));
+        handlerCollection.addHandler(server.getHandler());
         server.setHandler(handlerCollection);
     }
 

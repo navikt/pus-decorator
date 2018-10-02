@@ -3,6 +3,7 @@ package no.nav.pus.decorator;
 import lombok.SneakyThrows;
 import no.nav.pus.decorator.login.LoginService;
 import no.nav.sbl.rest.RestUtils;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.RequestDispatcher;
@@ -20,6 +21,7 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public class ApplicationServlet extends HttpServlet {
 
@@ -27,6 +29,16 @@ public class ApplicationServlet extends HttpServlet {
             LOCATION,
             CONTENT_TYPE
     ));
+
+    private static final String CSP_DIRECTIVES = ""
+            + " default-src 'self' appres.nav.no tjenester.nav.no;"
+            + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no www.googletagmanager.com www.google-analytics.com static.hotjar.com;"
+            + " style-src 'self' 'unsafe-inline' appres.nav.no;"
+            + " font-src 'self' data: ;"
+            + " report-uri /frontendlogger/api/warn;"
+            ;
+
+    private static final boolean DISABLE_CSP = getOptionalProperty("DISABLE_CSP").map(Boolean::parseBoolean).orElse(false);
 
     private final String contentUrl;
     private final Client client;
@@ -49,6 +61,10 @@ public class ApplicationServlet extends HttpServlet {
                 response.sendRedirect(redirectUrl);
             } else {
                 RequestDispatcher index = getServletContext().getRequestDispatcher("/index.html");
+                if (!DISABLE_CSP) {
+                    response.addHeader("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
+//                    response.addHeader("Content-Security-Policy", CSP_DIRECTIVES);
+                }
                 index.forward(request, response);
             }
         } else {

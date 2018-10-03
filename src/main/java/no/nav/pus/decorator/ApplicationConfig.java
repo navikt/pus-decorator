@@ -26,8 +26,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.servlet.ServletContext;
@@ -45,16 +45,15 @@ import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.leggTilFilter;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
 import static no.nav.json.JsonUtils.fromJsonArray;
+import static no.nav.pus.decorator.ConfigurationService.Feature.DECORATOR;
+import static no.nav.pus.decorator.ConfigurationService.Feature.PROXY;
+import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.pus.decorator.DecoratorUtils.getDecoratorFilter;
 import static no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig.UNLEASH_API_URL_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 @Configuration
-@Import({
-        EnonicHelsesjekk.class,
-        FeatureResource.class
-})
 @Slf4j
 public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
@@ -83,14 +82,16 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
     @Override
     public void startup(ServletContext servletContext) {
-        leggTilFilter(servletContext,CsrfDoubleSubmitCookieFilter.class);
+        leggTilFilter(servletContext, CsrfDoubleSubmitCookieFilter.class);
 
-        DecoratorFilter decoratorFilter = getDecoratorFilter();
-        servletContext.addFilter("decoratorFilter", decoratorFilter)
-                .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, "/index.html");
+        if(isEnabled(DECORATOR)){
+            DecoratorFilter decoratorFilter = getDecoratorFilter();
+            servletContext.addFilter("decoratorFilter", decoratorFilter)
+                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, "/index.html");
 
-        servletContext.addFilter("demoDecoratorFilter", decoratorFilter)
-                .addMappingForUrlPatterns(EnumSet.of(REQUEST), false, "/demo/*");
+            servletContext.addFilter("demoDecoratorFilter", decoratorFilter)
+                    .addMappingForUrlPatterns(EnumSet.of(REQUEST), false, "/demo/*");
+        }
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
         leggTilServlet(servletContext, new ApplicationServlet(
@@ -98,9 +99,11 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
                 getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)
         ), "/*");
 
-        SingletonBeanRegistry singletonBeanRegistry = ((AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext)).getBeanFactory();
-        Collection<BackendProxyServlet> backendProxyServlets = (Collection<BackendProxyServlet>) servletContext.getAttribute(BACKEND_PROXY_CONTEXTS_PROPERTY_NAME);
-        backendProxyServlets.forEach(backendProxyServlet -> singletonBeanRegistry.registerSingleton(backendProxyServlet.getId(), backendProxyServlet));
+        if (isEnabled(PROXY)) {
+            SingletonBeanRegistry singletonBeanRegistry = ((AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext)).getBeanFactory();
+            Collection<BackendProxyServlet> backendProxyServlets = (Collection<BackendProxyServlet>) servletContext.getAttribute(BACKEND_PROXY_CONTEXTS_PROPERTY_NAME);
+            backendProxyServlets.forEach(backendProxyServlet -> singletonBeanRegistry.registerSingleton(backendProxyServlet.getId(), backendProxyServlet));
+        }
     }
 
     private LoginService oidcLoginService(String oidcLoginUrl) {
@@ -111,6 +114,13 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     }
 
     @Bean
+    @Conditional({ConfigurationService.DecoratorEnabled.class})
+    public EnonicHelsesjekk enonicHelsesjekk() {
+        return new EnonicHelsesjekk();
+    }
+
+    @Bean
+    @Conditional({ConfigurationService.UnleashEnabled.class})
     public UnleashService unleashService() {
         return new UnleashService(UnleashServiceConfig.builder()
                 .applicationName(ApplicationConfig.resolveApplicationName())
@@ -119,9 +129,17 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         );
     }
 
+    @Bean
+    @Conditional({ConfigurationService.UnleashEnabled.class})
+    public FeatureResource featureResource(UnleashService unleashService) {
+        return new FeatureResource(unleashService);
+    }
+
     @Override
     public void configure(ApiAppConfigurator apiAppConfigurator) {
-        apiAppConfigurator.customizeJetty(this::addBackendProxies);
+        if (isEnabled(PROXY)) {
+            apiAppConfigurator.customizeJetty(this::addBackendProxies);
+        }
     }
 
     private void addBackendProxies(Jetty jetty) {

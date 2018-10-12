@@ -21,6 +21,8 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
+import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.Q;
+import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public class ApplicationServlet extends HttpServlet {
@@ -30,14 +32,7 @@ public class ApplicationServlet extends HttpServlet {
             CONTENT_TYPE
     ));
 
-    private static final String CSP_DIRECTIVES = ""
-            + " default-src 'self' appres.nav.no tjenester.nav.no;"
-            + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no www.googletagmanager.com www.google-analytics.com static.hotjar.com;"
-            + " style-src 'self' 'unsafe-inline' appres.nav.no;"
-            + " font-src 'self' data: ;"
-            + " report-uri /frontendlogger/api/warn;"
-            ;
-
+    private static final String CSP_DIRECTIVES = CspService.generateCspDirectives();
     private static final boolean DISABLE_CSP = getOptionalProperty("DISABLE_CSP").map(Boolean::parseBoolean).orElse(false);
 
     private final String contentUrl;

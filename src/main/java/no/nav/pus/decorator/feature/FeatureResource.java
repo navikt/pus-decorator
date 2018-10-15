@@ -19,9 +19,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
 import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider.AZUREADB2C_OIDC_COOKIE_NAME;
 
@@ -30,11 +34,14 @@ import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider.AZUR
 @Slf4j
 public class FeatureResource {
 
+    private static final String QUERY_PARAM_PROPERTY_NAME = "queryParam";
+    private static final String QUERY_VALUES_PROPERTY_NAME = "queryValues";
     private static final String UNLEASH_SESSION_ID_COOKIE_NAME = "UNLEASH_SESSION_ID";
     private static final JwtConsumer JWT_PARSER = new JwtConsumerBuilder()
             .setSkipAllValidators()
             .setSkipSignatureVerification()
             .build();
+    public static final String FEATURE_QUERY_PARAM_NAME = "feature";
 
     private final UnleashService unleashService;
 
@@ -52,16 +59,23 @@ public class FeatureResource {
             @Context HttpServletRequest request,
             @Context HttpServletResponse response
     ) {
-        UnleashContext unleashContext = UnleashContext.builder()
+        UnleashContext.Builder unleashContextBuilder = UnleashContext.builder()
                 .userId(userIdFromJwt(azureAdB2cOidcToken, issoOidcToken).orElse(null))
-                .sessionId(no.nav.sbl.util.StringUtils.of(sessionId).orElseGet(() -> generateSessionId(response)))
-                .remoteAddress(request.getRemoteAddr())
-                .build();
-        return features.stream().collect(Collectors.toMap(e -> e, e -> unleashService.isEnabled(e, unleashContext)));
+                .sessionId(StringUtils.of(sessionId).orElseGet(() -> generateSessionId(response)))
+                .remoteAddress(request.getRemoteAddr());
+
+        request.getParameterMap().forEach((queryParamName, queryParamValues) -> {
+            if (!queryParamName.equals(FEATURE_QUERY_PARAM_NAME)) {
+                unleashContextBuilder.addProperty(QUERY_PARAM_PROPERTY_NAME, queryParamName);
+                stream(queryParamValues).forEach(value -> unleashContextBuilder.addProperty(QUERY_VALUES_PROPERTY_NAME, value));
+            }
+        });
+
+        return features.stream().collect(Collectors.toMap(e -> e, e -> unleashService.isEnabled(e, unleashContextBuilder.build())));
     }
 
     static Optional<String> userIdFromJwt(String... jwts) {
-        return Arrays.stream(jwts)
+        return stream(jwts)
                 .filter(StringUtils::notNullOrEmpty)
                 .map(FeatureResource::getSubject)
                 .filter(StringUtils::notNullOrEmpty)

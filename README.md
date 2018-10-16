@@ -1,6 +1,20 @@
 # pus-decorator
 Decorates a static web application for use on nav.no
 
+## supported functionality
+ - dynamic decoration of static web applications at runtime with resources from appres.nav.no
+ - [reverse proxy](https://github.com/navikt/pus-decorator#proxy-configuration) for api calls
+ - [feature toggling](https://github.com/navikt/pus-decorator#apifeature) with unleash
+ - [environment variables](https://github.com/navikt/pus-decorator#environmentjs) exposed to frontend
+ - CSP (content security policy) for added security
+ - enforced login
+
+pus-decorator comes with much functionality out of the box, but may be deactivated using the following environment variables:
+ - `DISABLE_DECORATOR`
+ - `DISABLE_PROXY`
+ - `DISABLE_UNLEASH`
+
+
 ## usage
 convert your application like this:
 

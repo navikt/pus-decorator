@@ -9,6 +9,7 @@ import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
 import no.nav.innholdshenter.filter.DecoratorFilter;
+import no.nav.pus.decorator.feature.ByQueryParamStrategy;
 import no.nav.pus.decorator.feature.FeatureResource;
 import no.nav.pus.decorator.login.LoginService;
 import no.nav.pus.decorator.login.NoLoginService;
@@ -30,7 +31,9 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import javax.inject.Provider;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -121,11 +124,12 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
     @Bean
     @Conditional({ConfigurationService.UnleashEnabled.class})
-    public UnleashService unleashService() {
+    public UnleashService unleashService(Provider<HttpServletRequest> httpServletRequestProvider) {
         return new UnleashService(UnleashServiceConfig.builder()
                 .applicationName(ApplicationConfig.resolveApplicationName())
                 .unleashApiUrl(getOptionalProperty(UNLEASH_API_URL_PROPERTY_NAME).orElse("https://unleashproxy.nais.oera.no/api/"))
-                .build()
+                .build(),
+                new ByQueryParamStrategy(httpServletRequestProvider)
         );
     }
 

@@ -14,9 +14,12 @@ public class CspServiceTest {
         assertThat(CspService.generateCspDirectives()).isEqualTo("" +
                 " default-src 'self' appres.nav.no tjenester.nav.no;" +
                 " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no www.googletagmanager.com www.google-analytics.com static.hotjar.com;" +
+                " img-src 'self' appres.nav.no static.hotjar.com data: ;" +
                 " style-src 'self' 'unsafe-inline' appres.nav.no;" +
                 " font-src 'self' data: ;" +
-                " report-uri /frontendlogger/api/warn;");
+                " frame-src video.qbrick.com;" +
+                " report-uri /frontendlogger/api/warn;"
+        );
     }
 
     @Test
@@ -25,8 +28,10 @@ public class CspServiceTest {
             assertThat(CspService.generateCspDirectives()).isEqualTo("" +
                     " default-src 'self' appres.nav.no appres-q6.nav.no tjenester.nav.no tjenester-q6.nav.no;" +
                     " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no appres-q6.nav.no www.googletagmanager.com www.google-analytics.com static.hotjar.com;" +
+                    " img-src 'self' appres.nav.no appres-q6.nav.no static.hotjar.com data: ;" +
                     " style-src 'self' 'unsafe-inline' appres.nav.no appres-q6.nav.no;" +
                     " font-src 'self' data: ;" +
+                    " frame-src video.qbrick.com;" +
                     " report-uri /frontendlogger/api/warn;"
             );
         });

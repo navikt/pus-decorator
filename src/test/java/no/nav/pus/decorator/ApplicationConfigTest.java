@@ -31,6 +31,28 @@ public class ApplicationConfigTest {
                 .hasMessageContaining("baseUrl");
     }
 
+    @Test
+    public void resolveDecoratorConfiguration_defaul() {
+        assertThat(ApplicationConfig.resolveDecoratorConfiguration()).isEqualTo(asList(
+                "/index.html"
+        ));
+    }
+
+    @Test
+    public void resolveDecoratorConfiguration_nonExistingFile() {
+        assertThat(ApplicationConfig.resolveDecoratorConfiguration(new File("/non-existing-file.json"))).isEqualTo(asList(
+                "/index.html"
+        ));
+    }
+
+    @Test
+    public void resolveDecoratorConfiguration_withFile() {
+        assertThat(ApplicationConfig.resolveDecoratorConfiguration(proxyJson("/demo-decorate.json"))).isEqualTo(asList(
+                "/additional.html",
+                "/path/*"
+        ));
+    }
+
     private File proxyJson(String name) {
         return new File(ApplicationConfigTest.class.getResource(name).getFile());
     }

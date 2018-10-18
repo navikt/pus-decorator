@@ -72,6 +72,15 @@ the above example will create the following proxy-setup:
 | /example     | https://www.example.com/ping           |
 
 
+### Decorator configuration
+If the file `/decorate.json` exists in the docker container, it will be parsed and used to configure URL patterns to be decorated.
+It should have the following format:
+```
+[
+  "/additional.html",
+  "/path/*"
+]
+``` 
 
  
 ## /environment.js

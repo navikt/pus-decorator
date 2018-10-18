@@ -36,10 +36,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.EnumSet.of;
 import static java.util.stream.Collectors.toMap;
@@ -68,6 +70,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
     private static final String BACKEND_PROXY_CONTEXTS_PROPERTY_NAME = "PROXY_CONTEXTS";
     public static final String PROXY_CONFIGURATION_PATH_PROPERTY_NAME = "PROXY_CONFIGURATION_PATH";
+    private static final String DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME = "DECORATOR_CONFIGURATION_PATH";
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
@@ -90,7 +93,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         if(isEnabled(DECORATOR)){
             DecoratorFilter decoratorFilter = getDecoratorFilter();
             servletContext.addFilter("decoratorFilter", decoratorFilter)
-                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, "/index.html");
+                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, resolveDecoratorConfiguration().stream().toArray(String[]::new));
 
             servletContext.addFilter("demoDecoratorFilter", decoratorFilter)
                     .addMappingForUrlPatterns(EnumSet.of(REQUEST), false, "/demo/*");
@@ -204,4 +207,29 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         return servletContextHandler;
     }
 
+    public static List<String> resolveDecoratorConfiguration() {
+        return resolveDecoratorConfiguration(new File(getOptionalProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/decorate.json")));
+    }
+
+    @SneakyThrows
+    public static List<String> resolveDecoratorConfiguration(File file) {
+        List<String> decoratorPaths = new ArrayList<>();
+        if (file.exists()) {
+            log.info("reading decorator configuration from {}", file.getAbsolutePath());
+            decoratorPaths.addAll(parseDecoratorConfiguration(file));
+        } else {
+            log.info("no decorator configuration found at {}", file.getAbsolutePath());
+            decoratorPaths = asList("/index.html");
+        }
+
+        log.info("decorator configuration: {}", decoratorPaths);
+        return decoratorPaths;
+    }
+
+    private static List<String> parseDecoratorConfiguration(File file) throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            List<String> decoratorPaths = fromJsonArray(fileInputStream, String.class);
+            return decoratorPaths;
+        }
+    }
 }

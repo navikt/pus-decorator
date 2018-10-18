@@ -3,7 +3,6 @@ package no.nav.pus.decorator;
 import lombok.SneakyThrows;
 import no.nav.pus.decorator.login.LoginService;
 import no.nav.sbl.rest.RestUtils;
-import no.nav.sbl.util.EnvironmentUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.RequestDispatcher;
@@ -21,8 +20,6 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
-import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.Q;
-import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public class ApplicationServlet extends HttpServlet {
@@ -38,11 +35,13 @@ public class ApplicationServlet extends HttpServlet {
     private final String contentUrl;
     private final Client client;
     private final LoginService loginService;
+    private final String forwardTarget;
 
-    public ApplicationServlet(LoginService loginService, String contentUrl) {
+    public ApplicationServlet(LoginService loginService, String contentUrl, String forwardTarget) {
         this.loginService = loginService;
         this.contentUrl = contentUrl;
         this.client = contentUrl == null ? null : RestUtils.createClient();
+        this.forwardTarget = forwardTarget;
     }
 
     @Override
@@ -55,7 +54,7 @@ public class ApplicationServlet extends HttpServlet {
             if (redirectUrl != null) {
                 response.sendRedirect(redirectUrl);
             } else {
-                RequestDispatcher index = getServletContext().getRequestDispatcher("/index.html");
+                RequestDispatcher index = getServletContext().getRequestDispatcher(forwardTarget);
                 if (!DISABLE_CSP) {
                     response.addHeader("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
 //                    response.addHeader("Content-Security-Policy", CSP_DIRECTIVES);

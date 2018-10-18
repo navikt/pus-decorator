@@ -16,6 +16,7 @@ import no.nav.pus.decorator.login.NoLoginService;
 import no.nav.pus.decorator.login.OidcLoginService;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.pus.decorator.proxy.BackendProxyServlet;
+import no.nav.pus.decorator.spa.SPAConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
@@ -33,15 +34,14 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import javax.inject.Provider;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.EnumSet.of;
 import static java.util.stream.Collectors.toMap;
@@ -90,20 +90,29 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public void startup(ServletContext servletContext) {
         leggTilFilter(servletContext, CsrfDoubleSubmitCookieFilter.class);
 
+        List<SPAConfig> spaConfigs = resolveDecoratorConfiguration();
+        log.info("spa configuration: {}", spaConfigs);
+
         if(isEnabled(DECORATOR)){
             DecoratorFilter decoratorFilter = getDecoratorFilter();
-            servletContext.addFilter("decoratorFilter", decoratorFilter)
-                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, resolveDecoratorConfiguration().stream().toArray(String[]::new));
 
-            servletContext.addFilter("demoDecoratorFilter", decoratorFilter)
-                    .addMappingForUrlPatterns(EnumSet.of(REQUEST), false, "/demo/*");
+            servletContext.addFilter("decoratorFilter", decoratorFilter)
+                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, spaConfigs.stream().map(s -> s.forwardTarget).toArray(String[]::new));
         }
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
-        leggTilServlet(servletContext, new ApplicationServlet(
-                getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
-                getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)
-        ), "/*");
+        spaConfigs.forEach(spaConfig -> {
+            ApplicationServlet servlet = new ApplicationServlet(
+                    getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
+                    getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null),
+                    spaConfig.forwardTarget
+            );
+            ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(spaConfig.forwardTarget, servlet);
+            servletRegistration.setLoadOnStartup(0);
+            servletRegistration.addMapping(spaConfig.urlPattern);
+            log.info("la til SPA under {} -> {}", spaConfig.urlPattern, spaConfig.forwardTarget);
+        });
+
 
         if (isEnabled(PROXY)) {
             SingletonBeanRegistry singletonBeanRegistry = ((AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext)).getBeanFactory();
@@ -207,29 +216,34 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         return servletContextHandler;
     }
 
-    public static List<String> resolveDecoratorConfiguration() {
-        return resolveDecoratorConfiguration(new File(getOptionalProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/decorate.json")));
+    public static List<SPAConfig> resolveDecoratorConfiguration() {
+        return resolveDecoratorConfiguration(new File(getOptionalProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/spa.config.json")));
     }
 
     @SneakyThrows
-    public static List<String> resolveDecoratorConfiguration(File file) {
-        List<String> decoratorPaths = new ArrayList<>();
+    public static List<SPAConfig> resolveDecoratorConfiguration(File file) {
         if (file.exists()) {
             log.info("reading decorator configuration from {}", file.getAbsolutePath());
-            decoratorPaths.addAll(parseDecoratorConfiguration(file));
+            return parseDecoratorConfiguration(file);
         } else {
             log.info("no decorator configuration found at {}", file.getAbsolutePath());
-            decoratorPaths = asList("/index.html");
-        }
+            return Arrays.asList(
+                    SPAConfig.builder()
+                            .forwardTarget("/index.html")
+                            .urlPattern("/*")
+                            .build(),
 
-        log.info("decorator configuration: {}", decoratorPaths);
-        return decoratorPaths;
+                    SPAConfig.builder()
+                            .forwardTarget("/demo/index.html")
+                            .urlPattern("/demo/*")
+                            .build()
+            );
+        }
     }
 
-    private static List<String> parseDecoratorConfiguration(File file) throws IOException {
+    private static List<SPAConfig> parseDecoratorConfiguration(File file) throws IOException {
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            List<String> decoratorPaths = fromJsonArray(fileInputStream, String.class);
-            return decoratorPaths;
+            return fromJsonArray(fileInputStream, SPAConfig.class);
         }
     }
 }

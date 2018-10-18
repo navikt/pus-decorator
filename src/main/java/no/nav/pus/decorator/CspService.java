@@ -13,7 +13,7 @@ public class CspService {
         return ""
                 + " default-src 'self' appres.nav.no" + appresTest() + " tjenester.nav.no" + tjenesterTest() + ";"
                 + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no" + appresTest() + " www.googletagmanager.com www.google-analytics.com script.hotjar.com static.hotjar.com;"
-                + " img-src 'self' appres.nav.no" + appresTest() + " static.hotjar.com data: ;"
+                + " img-src 'self' appres.nav.no" + appresTest() + " static.hotjar.com www.google-analytics.com data: ;"
                 + " style-src 'self' 'unsafe-inline' appres.nav.no" + appresTest() + ";"
                 + " font-src 'self' static.hotjar.com data: ;"
                 + " frame-src vars.hotjar.com video.qbrick.com;" // video i aktivitetsplan, mulig den bør ha spesialisert CSP

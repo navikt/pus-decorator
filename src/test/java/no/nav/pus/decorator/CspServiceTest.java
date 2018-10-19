@@ -17,6 +17,7 @@ public class CspServiceTest {
                 " img-src 'self' appres.nav.no static.hotjar.com www.google-analytics.com data: ;" +
                 " style-src 'self' 'unsafe-inline' appres.nav.no;" +
                 " font-src 'self' static.hotjar.com data: ;" +
+                " connect-src 'self' in.hotjar.com www.google-analytics.com;" +
                 " frame-src vars.hotjar.com video.qbrick.com;" +
                 " report-uri /frontendlogger/api/warn;"
         );
@@ -31,6 +32,7 @@ public class CspServiceTest {
                     " img-src 'self' appres.nav.no appres-q6.nav.no static.hotjar.com www.google-analytics.com data: ;" +
                     " style-src 'self' 'unsafe-inline' appres.nav.no appres-q6.nav.no;" +
                     " font-src 'self' static.hotjar.com data: ;" +
+                    " connect-src 'self' in.hotjar.com www.google-analytics.com;" +
                     " frame-src vars.hotjar.com video.qbrick.com;" +
                     " report-uri /frontendlogger/api/warn;"
             );

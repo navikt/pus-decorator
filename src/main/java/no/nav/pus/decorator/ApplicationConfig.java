@@ -90,7 +90,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public void startup(ServletContext servletContext) {
         leggTilFilter(servletContext, CsrfDoubleSubmitCookieFilter.class);
 
-        List<SPAConfig> spaConfigs = resolveDecoratorConfiguration();
+        List<SPAConfig> spaConfigs = resolveSpaConfiguration();
         log.info("spa configuration: {}", spaConfigs);
 
         if(isEnabled(DECORATOR)){
@@ -216,12 +216,12 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         return servletContextHandler;
     }
 
-    public static List<SPAConfig> resolveDecoratorConfiguration() {
-        return resolveDecoratorConfiguration(new File(getOptionalProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/spa.config.json")));
+    public static List<SPAConfig> resolveSpaConfiguration() {
+        return resolveSpaConfiguration(new File(getOptionalProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/spa.config.json")));
     }
 
     @SneakyThrows
-    public static List<SPAConfig> resolveDecoratorConfiguration(File file) {
+    public static List<SPAConfig> resolveSpaConfiguration(File file) {
         if (file.exists()) {
             log.info("reading decorator configuration from {}", file.getAbsolutePath());
             return parseDecoratorConfiguration(file);

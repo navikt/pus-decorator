@@ -72,15 +72,23 @@ the above example will create the following proxy-setup:
 | /example     | https://www.example.com/ping           |
 
 
-### Decorator configuration
-If the file `/decorate.json` exists in the docker container, it will be parsed and used to configure URL patterns to be decorated.
-It should have the following format:
+### Multiple single page applications
+If the file `/spa.config.json` exists in the docker container, it will be parsed and used to configure 
+specified url patterns to forward targets. All applications will be decorated. It should have the following format:
 ```
 [
-  "/additional.html",
-  "/path/*"
-]
-``` 
+    {
+        "forwardTarget": "app-1.html",
+        "urlPattern": "/app1"
+    },
+    {
+        "forwardTarget": "smaller-app.html",
+        "urlPattern": "/small/app"
+    }
+] 
+```
+
+If no config exists, urlpattern `/*` forwards to `index.html` and `/demo/*` forwards to `/demo/index.html`.
 
  
 ## /environment.js

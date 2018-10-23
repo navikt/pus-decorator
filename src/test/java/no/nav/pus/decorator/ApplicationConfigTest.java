@@ -2,7 +2,6 @@ package no.nav.pus.decorator;
 
 
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
-import org.apache.http.client.utils.URIBuilder;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,6 +12,7 @@ import java.net.URL;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class ApplicationConfigTest {
 
@@ -32,25 +32,35 @@ public class ApplicationConfigTest {
     }
 
     @Test
-    public void resolveDecoratorConfiguration_defaul() {
-        assertThat(ApplicationConfig.resolveDecoratorConfiguration()).isEqualTo(asList(
-                "/index.html"
-        ));
+    public void resolveSpaConfiguration_defaul() {
+        assertThat(ApplicationConfig.resolveSpaConfiguration())
+                .extracting("forwardTarget", "urlPattern")
+                .containsExactly(
+                        tuple("/index.html", "/*"),
+                        tuple("/demo/index.html", "/demo/*"));
+
+
+        }
+
+    @Test
+    public void resolveSpaConfiguration_nonExistingFile() {
+        assertThat(ApplicationConfig.resolveSpaConfiguration(new File("/non-existing-file.json")))
+                .extracting("forwardTarget", "urlPattern")
+                .containsExactly(
+                        tuple("/index.html", "/*"),
+                        tuple("/demo/index.html", "/demo/*"));
     }
 
     @Test
-    public void resolveDecoratorConfiguration_nonExistingFile() {
-        assertThat(ApplicationConfig.resolveDecoratorConfiguration(new File("/non-existing-file.json"))).isEqualTo(asList(
-                "/index.html"
-        ));
-    }
+    public void resolveSpaConfiguration_withFile() {
+        assertThat(ApplicationConfig
+                .resolveSpaConfiguration(proxyJson("/demo-spa.config.json"))).extracting("forwardTarget", "urlPattern")
+                .containsExactly(
+                        tuple("app-1.html", "/app1"),
+                        tuple("small/smaller-app.html", "/small/app/*"));
 
-    @Test
-    public void resolveDecoratorConfiguration_withFile() {
-        assertThat(ApplicationConfig.resolveDecoratorConfiguration(proxyJson("/demo-decorate.json"))).isEqualTo(asList(
-                "/additional.html",
-                "/path/*"
-        ));
+
+
     }
 
     private File proxyJson(String name) {

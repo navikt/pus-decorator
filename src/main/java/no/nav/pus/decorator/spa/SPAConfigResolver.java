@@ -15,7 +15,7 @@ import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 @Slf4j
 public class SPAConfigResolver {
 
-    private static final String DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME = "DECORATOR_CONFIGURATION_PATH";
+    public static final String DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME = "DECORATOR_CONFIGURATION_PATH";
 
     public static List<SPAConfig> resolveSpaConfiguration() {
         return resolveSpaConfiguration(new File(getOptionalProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/spa.config.json")));

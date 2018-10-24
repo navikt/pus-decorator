@@ -8,7 +8,7 @@ import java.io.File;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-class SPAConfigResolverTest {
+public class SPAConfigResolverTest {
 
     @Test
     public void resolveSpaConfiguration_defaul() {

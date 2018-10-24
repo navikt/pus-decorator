@@ -103,15 +103,17 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
         spaConfigs.forEach(spaConfig -> {
+            String forwardTarget = spaConfig.forwardTarget;
+            String urlPattern = spaConfig.urlPattern;
             ApplicationServlet servlet = new ApplicationServlet(
                     getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
                     getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null),
-                    spaConfig.forwardTarget
+                    forwardTarget
             );
-            ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(spaConfig.forwardTarget, servlet);
+            ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(urlPattern, servlet);
             servletRegistration.setLoadOnStartup(0);
-            servletRegistration.addMapping(spaConfig.urlPattern);
-            log.info("la til SPA under {} -> {}", spaConfig.urlPattern, spaConfig.forwardTarget);
+            servletRegistration.addMapping(urlPattern);
+            log.info("la til SPA under {} -> {}", urlPattern, forwardTarget);
         });
 
 

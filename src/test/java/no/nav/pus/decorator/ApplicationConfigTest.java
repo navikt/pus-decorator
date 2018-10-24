@@ -31,38 +31,6 @@ public class ApplicationConfigTest {
                 .hasMessageContaining("baseUrl");
     }
 
-    @Test
-    public void resolveSpaConfiguration_defaul() {
-        assertThat(ApplicationConfig.resolveSpaConfiguration())
-                .extracting("forwardTarget", "urlPattern")
-                .containsExactly(
-                        tuple("/index.html", "/*"),
-                        tuple("/demo/index.html", "/demo/*"));
-
-
-        }
-
-    @Test
-    public void resolveSpaConfiguration_nonExistingFile() {
-        assertThat(ApplicationConfig.resolveSpaConfiguration(new File("/non-existing-file.json")))
-                .extracting("forwardTarget", "urlPattern")
-                .containsExactly(
-                        tuple("/index.html", "/*"),
-                        tuple("/demo/index.html", "/demo/*"));
-    }
-
-    @Test
-    public void resolveSpaConfiguration_withFile() {
-        assertThat(ApplicationConfig
-                .resolveSpaConfiguration(proxyJson("/demo-spa.config.json"))).extracting("forwardTarget", "urlPattern")
-                .containsExactly(
-                        tuple("app-1.html", "/app1"),
-                        tuple("small/smaller-app.html", "/small/app/*"));
-
-
-
-    }
-
     private File proxyJson(String name) {
         return new File(ApplicationConfigTest.class.getResource(name).getFile());
     }

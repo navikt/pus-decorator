@@ -54,6 +54,7 @@ import static no.nav.pus.decorator.ConfigurationService.Feature.DECORATOR;
 import static no.nav.pus.decorator.ConfigurationService.Feature.PROXY;
 import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.pus.decorator.DecoratorUtils.getDecoratorFilter;
+import static no.nav.pus.decorator.spa.SPAConfigResolver.resolveSpaConfiguration;
 import static no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig.UNLEASH_API_URL_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
@@ -70,7 +71,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
     private static final String BACKEND_PROXY_CONTEXTS_PROPERTY_NAME = "PROXY_CONTEXTS";
     public static final String PROXY_CONFIGURATION_PATH_PROPERTY_NAME = "PROXY_CONFIGURATION_PATH";
-    private static final String DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME = "DECORATOR_CONFIGURATION_PATH";
+
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
@@ -216,34 +217,5 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         return servletContextHandler;
     }
 
-    public static List<SPAConfig> resolveSpaConfiguration() {
-        return resolveSpaConfiguration(new File(getOptionalProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/spa.config.json")));
-    }
 
-    @SneakyThrows
-    public static List<SPAConfig> resolveSpaConfiguration(File file) {
-        if (file.exists()) {
-            log.info("reading decorator configuration from {}", file.getAbsolutePath());
-            return parseDecoratorConfiguration(file);
-        } else {
-            log.info("no decorator configuration found at {}", file.getAbsolutePath());
-            return Arrays.asList(
-                    SPAConfig.builder()
-                            .forwardTarget("/index.html")
-                            .urlPattern("/*")
-                            .build(),
-
-                    SPAConfig.builder()
-                            .forwardTarget("/demo/index.html")
-                            .urlPattern("/demo/*")
-                            .build()
-            );
-        }
-    }
-
-    private static List<SPAConfig> parseDecoratorConfiguration(File file) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            return fromJsonArray(fileInputStream, SPAConfig.class);
-        }
-    }
 }

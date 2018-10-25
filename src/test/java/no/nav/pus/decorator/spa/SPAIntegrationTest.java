@@ -24,6 +24,7 @@ import static java.util.Arrays.asList;
 import static no.nav.json.JsonUtils.toJson;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME;
+import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
 import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,6 +78,7 @@ public class SPAIntegrationTest {
 
         );
 
+        systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWarPath().getAbsolutePath());
         systemPropertiesRule.setProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
 
@@ -150,8 +152,13 @@ public class SPAIntegrationTest {
         public void configure(ApiAppConfigurator apiAppConfigurator) {
             super.configure(apiAppConfigurator);
             apiAppConfigurator.customizeJettyBuilder(jettyBuilder -> {
-                jettyBuilder.war(new File(SPAIntegrationTest.class.getResource("/spaIntegrationTest").getFile()));
+                jettyBuilder.war(getWarPath());
             });
         }
     }
+
+    private static File getWarPath() {
+        return new File(SPAIntegrationTest.class.getResource("/spaIntegrationTest").getFile());
+    }
+
 }

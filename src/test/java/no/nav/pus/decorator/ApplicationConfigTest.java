@@ -29,6 +29,9 @@ public class ApplicationConfigTest {
     public void resolveProxyConfiguration_invalidConfig() {
         assertThatThrownBy(() -> ApplicationConfig.resolveProxyConfiguration(proxyJson("/invalid-proxy.json")))
                 .hasMessageContaining("baseUrl");
+
+        assertThatThrownBy(() -> ApplicationConfig.resolveProxyConfiguration(proxyJson("/incomplete-proxy.json")))
+                .hasMessageContaining("contextPath");
     }
 
     private File proxyJson(String name) {

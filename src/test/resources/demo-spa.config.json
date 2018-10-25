@@ -1,10 +1,10 @@
 [
   {
-    "forwardTarget": "app-1.html",
+    "forwardTarget": "/app-1.html",
     "urlPattern": "/app1"
   },
   {
-    "forwardTarget": "small/smaller-app.html",
+    "forwardTarget": "/small/smaller-app.html",
     "urlPattern": "/small/app/*"
   }
 ]

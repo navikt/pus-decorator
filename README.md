@@ -78,11 +78,11 @@ specified url patterns to forward targets. All applications will be decorated. I
 ```
 [
     {
-        "forwardTarget": "app-1.html",
+        "forwardTarget": "/app-1.html",
         "urlPattern": "/app1"
     },
     {
-        "forwardTarget": "smaller-app.html",
+        "forwardTarget": "/smaller-app.html",
         "urlPattern": "/small/app"
     }
 ] 

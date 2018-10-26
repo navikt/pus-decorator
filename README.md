@@ -3,6 +3,7 @@ Decorates a static web application for use on nav.no
 
 ## supported functionality
  - dynamic decoration of static web applications at runtime with resources from appres.nav.no
+ - [multiple single page apps](https://github.com/navikt/pus-decorator#multiple-single-page-applications) 
  - [reverse proxy](https://github.com/navikt/pus-decorator#proxy-configuration) for api calls
  - [feature toggling](https://github.com/navikt/pus-decorator#apifeature) with unleash
  - [environment variables](https://github.com/navikt/pus-decorator#environmentjs) exposed to frontend
@@ -16,6 +17,10 @@ pus-decorator comes with much functionality out of the box, but may be deactivat
 
 
 ## usage
+use this image as baseimage and set the required configuration parameters. 
+The new image will serve a static web application from `index.html` 
+found in directory `/app` with the enabled functionality.
+
 convert your application like this:
 
 https://github.com/navikt/jobbsokerkompetanse/commit/a24450465ee4b49e7772f7739c8249ae95a59a97
@@ -72,6 +77,24 @@ the above example will create the following proxy-setup:
 | /example     | https://www.example.com/ping           |
 
 
+### Multiple single page applications
+If the file `/spa.config.json` exists in the docker container, it will be parsed and used to configure 
+specified url patterns to forward targets. Files as forward targets are expected under `/app` and will 
+be decorated. The configuration should have the following format:
+```
+[
+    {
+        "forwardTarget": "/app-1.html",
+        "urlPattern": "/app1/*"
+    },
+    {
+        "forwardTarget": "/smaller-app.html",
+        "urlPattern": "/small/app/*"
+    }
+] 
+```
+
+If no config exists, urlpattern `/*` forwards to `index.html` and `/demo/*` forwards to `/demo/index.html`.
 
  
 ## /environment.js

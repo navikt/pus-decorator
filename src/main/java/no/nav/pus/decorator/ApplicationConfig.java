@@ -16,6 +16,7 @@ import no.nav.pus.decorator.login.NoLoginService;
 import no.nav.pus.decorator.login.OidcLoginService;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.pus.decorator.proxy.BackendProxyServlet;
+import no.nav.pus.decorator.spa.SPAConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
@@ -33,6 +34,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import javax.inject.Provider;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +54,7 @@ import static no.nav.pus.decorator.ConfigurationService.Feature.DECORATOR;
 import static no.nav.pus.decorator.ConfigurationService.Feature.PROXY;
 import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.pus.decorator.DecoratorUtils.getDecoratorFilter;
+import static no.nav.pus.decorator.spa.SPAConfigResolver.resolveSpaConfiguration;
 import static no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig.UNLEASH_API_URL_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
@@ -68,6 +71,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
     private static final String BACKEND_PROXY_CONTEXTS_PROPERTY_NAME = "PROXY_CONTEXTS";
     public static final String PROXY_CONFIGURATION_PATH_PROPERTY_NAME = "PROXY_CONFIGURATION_PATH";
+
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
@@ -87,20 +91,31 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public void startup(ServletContext servletContext) {
         leggTilFilter(servletContext, CsrfDoubleSubmitCookieFilter.class);
 
+        List<SPAConfig> spaConfigs = resolveSpaConfiguration();
+        log.info("spa configuration: {}", spaConfigs);
+
         if(isEnabled(DECORATOR)){
             DecoratorFilter decoratorFilter = getDecoratorFilter();
-            servletContext.addFilter("decoratorFilter", decoratorFilter)
-                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, "/index.html");
 
-            servletContext.addFilter("demoDecoratorFilter", decoratorFilter)
-                    .addMappingForUrlPatterns(EnumSet.of(REQUEST), false, "/demo/*");
+            servletContext.addFilter("decoratorFilter", decoratorFilter)
+                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, spaConfigs.stream().map(s -> s.forwardTarget).toArray(String[]::new));
         }
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
-        leggTilServlet(servletContext, new ApplicationServlet(
-                getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
-                getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null)
-        ), "/*");
+        spaConfigs.forEach(spaConfig -> {
+            String forwardTarget = spaConfig.forwardTarget;
+            String urlPattern = spaConfig.urlPattern;
+            ApplicationServlet servlet = new ApplicationServlet(
+                    getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
+                    getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null),
+                    forwardTarget
+            );
+            ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(urlPattern, servlet);
+            servletRegistration.setLoadOnStartup(0);
+            servletRegistration.addMapping(urlPattern);
+            log.info("la til SPA under {} -> {}", urlPattern, forwardTarget);
+        });
+
 
         if (isEnabled(PROXY)) {
             SingletonBeanRegistry singletonBeanRegistry = ((AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext)).getBeanFactory();
@@ -203,5 +218,6 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         servletContextHandler.setContextPath(contextPath);
         return servletContextHandler;
     }
+
 
 }

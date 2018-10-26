@@ -50,7 +50,7 @@ public class DecoratorFilter implements Filter {
     private ExtendedConfiguration extendedConfiguration;
     private Map<String, String> additionalOptions;
 
-    private final Cache<String, Document> cache = CacheUtils.buildCache(DEFAULT.withTimeToLive(ONE_HOUR));
+    private final Cache<String, Document> cache = CacheUtils.buildCache(DEFAULT.withTimeToLiveMillis(ONE_HOUR));
     private final FragmentCreator fragmentCreator;
 
     public DecoratorFilter(String fragmentsUrl, ContentRetriever contentRetriever, List<String> fragmentNames, String applicationName) {

@@ -59,6 +59,10 @@ public class ApplicationServlet extends HttpServlet {
                     response.addHeader("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
 //                    response.addHeader("Content-Security-Policy", CSP_DIRECTIVES);
                 }
+                response.addHeader("X-Content-Type-Options", "nosniff");
+                response.addHeader("X-Frame-options", "nosniff");
+                response.addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+                response.addHeader("X-XSS-Protection", "1; mode=block");
                 index.forward(request, response);
             }
         } else {

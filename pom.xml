@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>no.nav.sbl</groupId>
+        <groupId>no.nav.common</groupId>
         <artifactId>mor-pom</artifactId>
-        <version>2018.10.15.09.46</version>
+        <version>2018.10.26.15.55</version>
     </parent>
 
     <groupId>no.nav.pus</groupId>
@@ -18,9 +18,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>bom</artifactId>
-                <version>2018.10.15.09.46</version>
+                <version>2018.10.26.15.55</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -30,11 +30,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>api-app</artifactId>
         </dependency>
         <dependency>
@@ -70,15 +70,15 @@
             <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>cache</artifactId>
         </dependency>
         <dependency>
@@ -86,15 +86,15 @@
             <artifactId>auth</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>oidc-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>common-web</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>web</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>feature-toggle</artifactId>
         </dependency>
         <dependency>
@@ -144,8 +144,8 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>common-jetty</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>jetty</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -181,19 +181,19 @@
 
         <!-- test -->
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>test-config</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>common-test</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>fasit</artifactId>
         </dependency>
         <dependency>

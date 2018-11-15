@@ -9,6 +9,7 @@ import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
 import no.nav.innholdshenter.filter.DecoratorFilter;
+import no.nav.pus.decorator.feature.ByApplicationStrategy;
 import no.nav.pus.decorator.feature.ByQueryParamStrategy;
 import no.nav.pus.decorator.feature.FeatureResource;
 import no.nav.pus.decorator.login.LoginService;
@@ -102,13 +103,17 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         }
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
+
+        AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext);
+
         spaConfigs.forEach(spaConfig -> {
             String forwardTarget = spaConfig.forwardTarget;
             String urlPattern = spaConfig.urlPattern;
             ApplicationServlet servlet = new ApplicationServlet(
                     getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
                     getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null),
-                    forwardTarget
+                    forwardTarget,
+                    annotationConfigWebApplicationContext.getBean(UnleashService.class)
             );
             ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(urlPattern, servlet);
             servletRegistration.setLoadOnStartup(0);
@@ -118,7 +123,8 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
 
 
         if (isEnabled(PROXY)) {
-            SingletonBeanRegistry singletonBeanRegistry = ((AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext)).getBeanFactory();
+
+            SingletonBeanRegistry singletonBeanRegistry = annotationConfigWebApplicationContext.getBeanFactory();
             Collection<BackendProxyServlet> backendProxyServlets = (Collection<BackendProxyServlet>) servletContext.getAttribute(BACKEND_PROXY_CONTEXTS_PROPERTY_NAME);
             backendProxyServlets.forEach(backendProxyServlet -> singletonBeanRegistry.registerSingleton(backendProxyServlet.getId(), backendProxyServlet));
         }
@@ -144,7 +150,8 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
                 .applicationName(ApplicationConfig.resolveApplicationName())
                 .unleashApiUrl(getOptionalProperty(UNLEASH_API_URL_PROPERTY_NAME).orElse("https://unleashproxy.nais.oera.no/api/"))
                 .build(),
-                new ByQueryParamStrategy(httpServletRequestProvider)
+                new ByQueryParamStrategy(httpServletRequestProvider),
+                new ByApplicationStrategy()
         );
     }
 

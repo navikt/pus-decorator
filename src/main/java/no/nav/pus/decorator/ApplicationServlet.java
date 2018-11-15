@@ -2,7 +2,9 @@ package no.nav.pus.decorator;
 
 import lombok.SneakyThrows;
 import no.nav.pus.decorator.login.LoginService;
+import no.nav.sbl.featuretoggle.unleash.UnleashService;
 import no.nav.sbl.rest.RestUtils;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.RequestDispatcher;
@@ -36,12 +38,15 @@ public class ApplicationServlet extends HttpServlet {
     private final Client client;
     private final LoginService loginService;
     private final String forwardTarget;
+    private final UnleashService unleashService;
+    private final String cspFeatureToggleName = EnvironmentUtils.requireApplicationName() + ".csp";
 
-    public ApplicationServlet(LoginService loginService, String contentUrl, String forwardTarget) {
+    public ApplicationServlet(LoginService loginService, String contentUrl, String forwardTarget, UnleashService unleashService) {
         this.loginService = loginService;
         this.contentUrl = contentUrl;
         this.client = contentUrl == null ? null : RestUtils.createClient();
         this.forwardTarget = forwardTarget;
+        this.unleashService = unleashService;
     }
 
     @Override
@@ -55,9 +60,13 @@ public class ApplicationServlet extends HttpServlet {
                 response.sendRedirect(redirectUrl);
             } else {
                 RequestDispatcher index = getServletContext().getRequestDispatcher(forwardTarget);
+
                 if (!DISABLE_CSP) {
-                    response.addHeader("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
-//                    response.addHeader("Content-Security-Policy", CSP_DIRECTIVES);
+                    if (unleashService.isEnabled(cspFeatureToggleName)) {
+                        response.addHeader("Content-Security-Policy", CSP_DIRECTIVES);
+                    } else if (unleashService.isEnabled("pus-decorator.csp-reporting")) {
+                        response.addHeader("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
+                    }
                 }
                 response.addHeader("X-Content-Type-Options", "nosniff");
                 response.addHeader("X-Frame-options", "SAMEORIGIN");

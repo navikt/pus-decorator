@@ -12,10 +12,10 @@ public class CspService {
     public static String generateCspDirectives() {
         return ""
                 + " default-src 'self' appres.nav.no" + appresTest() + " tjenester.nav.no" + tjenesterTest() + ";"
-                + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no" + appresTest() + " www.googletagmanager.com www.google-analytics.com script.hotjar.com static.hotjar.com;"
+                + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no" + appresTest() + " www.googletagmanager.com www.google-analytics.com *.psplugin.com *.hotjar.com;"
                 + " img-src 'self' appres.nav.no" + appresTest() + " static.hotjar.com www.google-analytics.com data: ;"
                 + " style-src 'self' 'unsafe-inline' appres.nav.no" + appresTest() + ";"
-                + " font-src 'self' static.hotjar.com data: ;"
+                + " font-src 'self' *.psplugin.com *.vergic.com static.hotjar.com data: ;"
                 + " connect-src 'self' in.hotjar.com www.google-analytics.com;"
                 + " frame-src vars.hotjar.com video.qbrick.com;" // video i aktivitetsplan, mulig den bør ha spesialisert CSP
                 + " report-uri /frontendlogger/api/warn;";

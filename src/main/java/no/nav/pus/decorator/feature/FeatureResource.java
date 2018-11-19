@@ -2,6 +2,7 @@ package no.nav.pus.decorator.feature;
 
 import lombok.extern.slf4j.Slf4j;
 import no.finn.unleash.UnleashContext;
+import no.nav.pus.decorator.EnvironmentScriptGenerator;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
 import no.nav.sbl.util.StringUtils;
 import org.jose4j.jwt.MalformedClaimException;
@@ -14,18 +15,16 @@ import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider.AZUREADB2C_OIDC_COOKIE_NAME;
 
-@Path("/feature")
+@Path("/")
 @Component
 @Slf4j
 public class FeatureResource {
@@ -44,6 +43,7 @@ public class FeatureResource {
     }
 
     @GET
+    @Path("/feature")
     public Map<String, Boolean> getFeatures(
             @QueryParam("feature") List<String> features,
             @CookieParam(UNLEASH_SESSION_ID_COOKIE_NAME) String sessionId,
@@ -52,9 +52,34 @@ public class FeatureResource {
             @Context HttpServletRequest request,
             @Context HttpServletResponse response
     ) {
+        return getString(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response);
+    }
+
+    @GET
+    @Path("/feature.js")
+    @Produces("application/javascript")
+    public String getFeaturesAsJs(
+            @QueryParam("feature") List<String> features,
+            @CookieParam(UNLEASH_SESSION_ID_COOKIE_NAME) String sessionId,
+            @CookieParam(AZUREADB2C_OIDC_COOKIE_NAME) String azureAdB2cOidcToken,
+            @CookieParam(ID_TOKEN_COOKIE_NAME) String issoOidcToken,
+            @Context HttpServletRequest request,
+            @Context HttpServletResponse response
+    ) {
+        return new EnvironmentScriptGenerator().formatMapAsJs(getString(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response));
+    }
+
+    private Map<String, Boolean> getString(
+            List<String> features,
+            String sessionId,
+            String azureAdB2cOidcToken,
+            String issoOidcToken,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
         UnleashContext unleashContext = UnleashContext.builder()
                 .userId(userIdFromJwt(azureAdB2cOidcToken, issoOidcToken).orElse(null))
-                .sessionId(no.nav.sbl.util.StringUtils.of(sessionId).orElseGet(() -> generateSessionId(response)))
+                .sessionId(StringUtils.of(sessionId).orElseGet(() -> generateSessionId(response)))
                 .remoteAddress(request.getRemoteAddr())
                 .build();
         return features.stream().collect(Collectors.toMap(e -> e, e -> unleashService.isEnabled(e, unleashContext)));

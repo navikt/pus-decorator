@@ -19,13 +19,14 @@ public class MainTest {
     public static final String TEST_PORT = "8765";
 
     public static void main(String... args) throws Exception {
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName("decorator").build());
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName("dagpenger").build());
         setProperty(VIS_DETALJER_VED_FEIL, Boolean.TRUE.toString(), PUBLIC);
-        setProperty(APPLICATION_NAME_PROPERTY, "decorator", PUBLIC);
+        setProperty(APPLICATION_NAME_PROPERTY, "dagpenger", PUBLIC);
         setProperty(APPRES_CMS_URL_PROPERTY, "https://appres.nav.no", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop", "content", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop1", "content1", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop2", "content2", PUBLIC);
+        setProperty("TOGGLE_1", "test-toggle", PUBLIC);
 
         if (getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).isPresent()) {
             ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");

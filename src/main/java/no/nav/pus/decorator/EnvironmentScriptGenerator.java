@@ -1,7 +1,11 @@
 package no.nav.pus.decorator;
 
+import no.finn.unleash.Unleash;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static no.nav.pus.decorator.ApplicationConfig.resolveApplicationName;
@@ -15,27 +19,38 @@ public class EnvironmentScriptGenerator {
     private final String environmentContext = getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName);
 
     public String generate() {
-        String values = getEnvironmentVariablesAndSystemProperties()
+        Map<String, String> environmentVariablesAndSystemProperties = getEnvironmentVariablesAndSystemProperties();
+        return formatMapAsJs(environmentVariablesAndSystemProperties);
+    }
+
+    public String formatMapAsJs(Map<String, ?> environmentVariablesAndSystemProperties) {
+        String values = environmentVariablesAndSystemProperties
                 .entrySet()
                 .stream()
-                .filter(prop -> prop.getKey().matches(PUBLIC_PREFIX_PATTERN))
                 .map(this::toJs)
                 .collect(Collectors.joining(""));
 
-        return environmentContext + "={};\n" + values;
+        return environmentContext + " = window." + environmentContext + " || {};\n" + values;
     }
 
     private Map<String, String> getEnvironmentVariablesAndSystemProperties() {
-        Map<String, String> map = new HashMap<>(System.getenv());
-        System.getProperties().stringPropertyNames().forEach(n -> map.put(n, System.getProperty(n)));
-        return map;
+        Properties properties = new Properties();
+        properties.putAll(System.getenv());
+        properties.putAll(System.getProperties());
+
+        return properties
+                .stringPropertyNames()
+                .stream()
+                .filter(prop -> prop.matches(PUBLIC_PREFIX_PATTERN))
+                .collect(Collectors.toMap(this::removePublicPrefix, properties::getProperty));
     }
 
-    private String toJs(Map.Entry<String, String> prop) {
-        return String.format("%s.%s='%s';\n",
+    private String toJs(Map.Entry<String, ?> prop) {
+        Object value = prop.getValue();
+        return String.format("%s['%s']=%s;\n",
                 environmentContext,
-                removePublicPrefix(prop.getKey()),
-                prop.getValue()
+                prop.getKey(),
+                value instanceof String ? "'" + value + "'" : value
         );
     }
 

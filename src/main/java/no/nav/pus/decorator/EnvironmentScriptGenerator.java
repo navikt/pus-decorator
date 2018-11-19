@@ -18,8 +18,8 @@ public class EnvironmentScriptGenerator {
         return formatMapAsJs(environmentVariablesAndSystemProperties);
     }
 
-    public String formatMapAsJs(Map<String, ?> environmentVariablesAndSystemProperties) {
-        String values = environmentVariablesAndSystemProperties
+    public String formatMapAsJs(Map<String, ?> map) {
+        String values = map
                 .entrySet()
                 .stream()
                 .map(this::toJs)

@@ -1,14 +1,9 @@
 package no.nav.pus.decorator;
 
-import no.finn.unleash.Unleash;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static no.nav.pus.decorator.ApplicationConfig.resolveApplicationName;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public class EnvironmentScriptGenerator {

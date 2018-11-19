@@ -17,10 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import java.util.*;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toMap;
 import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider.AZUREADB2C_OIDC_COOKIE_NAME;
 
@@ -52,7 +51,7 @@ public class FeatureResource {
             @Context HttpServletRequest request,
             @Context HttpServletResponse response
     ) {
-        return getString(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response);
+        return evaluateFeatures(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response);
     }
 
     @GET
@@ -66,10 +65,12 @@ public class FeatureResource {
             @Context HttpServletRequest request,
             @Context HttpServletResponse response
     ) {
-        return new EnvironmentScriptGenerator().formatMapAsJs(getString(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response));
+        return new EnvironmentScriptGenerator()
+                .formatMapAsJs(
+                        evaluateFeatures(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response));
     }
 
-    private Map<String, Boolean> getString(
+    private Map<String, Boolean> evaluateFeatures(
             List<String> features,
             String sessionId,
             String azureAdB2cOidcToken,
@@ -82,7 +83,10 @@ public class FeatureResource {
                 .sessionId(StringUtils.of(sessionId).orElseGet(() -> generateSessionId(response)))
                 .remoteAddress(request.getRemoteAddr())
                 .build();
-        return features.stream().collect(Collectors.toMap(e -> e, e -> unleashService.isEnabled(e, unleashContext)));
+        return features
+                .stream()
+                .collect(
+                        toMap(e -> e, e -> unleashService.isEnabled(e, unleashContext)));
     }
 
     static Optional<String> userIdFromJwt(String... jwts) {

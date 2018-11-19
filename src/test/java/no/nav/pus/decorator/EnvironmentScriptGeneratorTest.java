@@ -10,7 +10,8 @@ public class EnvironmentScriptGeneratorTest {
     @Test
     public void resolvePublicEnvironment__no_public_environment() {
         setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, EnvironmentScriptGeneratorTest.class.getSimpleName(), () -> {
-            assertThat(new EnvironmentScriptGenerator().generate()).isEqualTo("EnvironmentScriptGeneratorTest={};\n");
+            assertThat(new EnvironmentScriptGenerator().generate())
+                    .isEqualTo("EnvironmentScriptGeneratorTest = window.EnvironmentScriptGeneratorTest || {};\n");
         });
     }
 
@@ -21,9 +22,9 @@ public class EnvironmentScriptGeneratorTest {
                 setTemporaryProperty("PUBLIC_DEF", "def", () -> {
                     setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, EnvironmentScriptGeneratorTest.class.getSimpleName(), () -> {
                         assertThat(new EnvironmentScriptGenerator().generate()).isEqualTo("" +
-                                "EnvironmentScriptGeneratorTest={};\n" +
-                                "EnvironmentScriptGeneratorTest.DEF='def';\n" +
-                                "EnvironmentScriptGeneratorTest.ABC='abc';\n"
+                                "EnvironmentScriptGeneratorTest = window.EnvironmentScriptGeneratorTest || {};\n" +
+                                "EnvironmentScriptGeneratorTest['ABC']='abc';\n" +
+                                "EnvironmentScriptGeneratorTest['DEF']='def';\n"
                         );
                     });
                 });

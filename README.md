@@ -98,7 +98,7 @@ If no config exists, urlpattern `/*` forwards to `index.html` and `/demo/*` forw
 
  
 ## /environment.js
-endpoint that exposes system properties/environment variables matching this regex: `^PUBLIC_.+` or evaluates toogles matching TOGGLE=togglename1,togglename2. Example:
+endpoint that exposes system properties/environment variables matching this regex: `^PUBLIC_.+`. Example:
 
 ```
 GET /myapp/environment.js

@@ -26,7 +26,6 @@ public class MainTest {
         setProperty(PUBLIC_PREFIX + "prop", "content", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop1", "content1", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop2", "content2", PUBLIC);
-        setProperty("TOGGLE_1", "test-toggle", PUBLIC);
 
         if (getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).isPresent()) {
             ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");

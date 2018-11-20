@@ -19,9 +19,10 @@ public class MainTest {
     public static final String TEST_PORT = "8765";
 
     public static void main(String... args) throws Exception {
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName("dagpenger").build());
+        String applicationName = "decorator";
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
         setProperty(VIS_DETALJER_VED_FEIL, Boolean.TRUE.toString(), PUBLIC);
-        setProperty(APPLICATION_NAME_PROPERTY, "dagpenger", PUBLIC);
+        setProperty(APPLICATION_NAME_PROPERTY, applicationName, PUBLIC);
         setProperty(APPRES_CMS_URL_PROPERTY, "https://appres.nav.no", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop", "content", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop1", "content1", PUBLIC);

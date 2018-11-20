@@ -131,9 +131,9 @@ GET /myapp/api/feature.js?feature=toggle-a&feature=toggle-b&feature=toggle-c
 
 Returns application/javascript
 
-dagpenger = window.dagpenger || {};
-dagpenger['toggle-b']=false;
-dagpenger['toggle-a']=true;
-dagpenger['toggle-c']=false;
+myapp = window.myapp || {};
+myapp['toggle-b']=false;
+myapp['toggle-a']=true;
+myapp['toggle-c']=false;
  
 ```

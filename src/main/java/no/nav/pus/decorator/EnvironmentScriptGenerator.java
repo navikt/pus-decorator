@@ -14,8 +14,7 @@ public class EnvironmentScriptGenerator {
     private final String environmentContext = getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName);
 
     public String generate() {
-        Map<String, String> environmentVariablesAndSystemProperties = getEnvironmentVariablesAndSystemProperties();
-        return formatMapAsJs(environmentVariablesAndSystemProperties);
+        return formatMapAsJs(getEnvironmentVariablesAndSystemProperties());
     }
 
     public String formatMapAsJs(Map<String, ?> map) {

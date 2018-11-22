@@ -41,9 +41,8 @@ public class FeatureResource {
         this.unleashService = unleashService;
     }
 
-    @GET
-    @Path("/feature")
-    public Map<String, Boolean> getFeatures(
+    @Path("/")
+    public FeatureEvaluator evaluate(
             @QueryParam("feature") List<String> features,
             @CookieParam(UNLEASH_SESSION_ID_COOKIE_NAME) String sessionId,
             @CookieParam(AZUREADB2C_OIDC_COOKIE_NAME) String azureAdB2cOidcToken,
@@ -51,43 +50,44 @@ public class FeatureResource {
             @Context HttpServletRequest request,
             @Context HttpServletResponse response
     ) {
-        return evaluateFeatures(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response);
+        return new FeatureEvaluator(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response);
     }
 
-    @GET
-    @Path("/feature.js")
-    @Produces("application/javascript")
-    public String getFeaturesAsJs(
-            @QueryParam("feature") List<String> features,
-            @CookieParam(UNLEASH_SESSION_ID_COOKIE_NAME) String sessionId,
-            @CookieParam(AZUREADB2C_OIDC_COOKIE_NAME) String azureAdB2cOidcToken,
-            @CookieParam(ID_TOKEN_COOKIE_NAME) String issoOidcToken,
-            @Context HttpServletRequest request,
-            @Context HttpServletResponse response
-    ) {
-        return new EnvironmentScriptGenerator()
-                .formatMapAsJs(
-                        evaluateFeatures(features, sessionId, azureAdB2cOidcToken, issoOidcToken, request, response));
+    public class FeatureEvaluator {
+        private final Map<String, Boolean> evaluation;
+
+        FeatureEvaluator(List<String> features,
+                         String sessionId,
+                         String azureAdB2cOidcToken,
+                         String issoOidcToken,
+                         HttpServletRequest request,
+                         HttpServletResponse response) {
+            UnleashContext unleashContext = UnleashContext.builder()
+                    .userId(userIdFromJwt(azureAdB2cOidcToken, issoOidcToken).orElse(null))
+                    .sessionId(StringUtils.of(sessionId).orElseGet(() -> generateSessionId(response)))
+                    .remoteAddress(request.getRemoteAddr())
+                    .build();
+            evaluation = features
+                    .stream()
+                    .collect(
+                            toMap(e -> e, e -> unleashService.isEnabled(e, unleashContext)));
+        }
+
+        @GET
+        @Path("/feature")
+        public Map<String, Boolean> getFeatures() {
+            return evaluation;
+        }
+
+        @GET
+        @Path("/feature.js")
+        @Produces("application/javascript")
+        public String getFeaturesAsJs() {
+            return new EnvironmentScriptGenerator().formatMapAsJs(evaluation);
+        }
+
     }
 
-    private Map<String, Boolean> evaluateFeatures(
-            List<String> features,
-            String sessionId,
-            String azureAdB2cOidcToken,
-            String issoOidcToken,
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
-        UnleashContext unleashContext = UnleashContext.builder()
-                .userId(userIdFromJwt(azureAdB2cOidcToken, issoOidcToken).orElse(null))
-                .sessionId(StringUtils.of(sessionId).orElseGet(() -> generateSessionId(response)))
-                .remoteAddress(request.getRemoteAddr())
-                .build();
-        return features
-                .stream()
-                .collect(
-                        toMap(e -> e, e -> unleashService.isEnabled(e, unleashContext)));
-    }
 
     static Optional<String> userIdFromJwt(String... jwts) {
         return Arrays.stream(jwts)

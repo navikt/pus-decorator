@@ -1,19 +1,31 @@
 package no.nav.pus.decorator.proxy;
 
 import lombok.extern.slf4j.Slf4j;
+import net.logstash.logback.marker.ObjectAppendingMarker;
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
+import no.nav.log.LogFilter;
+import no.nav.log.MDCConstants;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.proxy.ProxyServlet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
+import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 import static no.nav.sbl.util.StringUtils.of;
 
 @Slf4j
 public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
+
+    private static final String CALL_ID = "callId";
+
+    private final String applicationName = EnvironmentUtils.requireApplicationName();
 
     private final BackendProxyConfig backendProxyConfig;
     private final String id;
@@ -70,8 +82,22 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
             sb.append(q);
         });
         String target = sb.toString();
-        log.info("{}", target);
+
+        String callId = LogFilter.resolveCallId(clientRequest);
+        clientRequest.setAttribute(CALL_ID, callId);
+        log.info(new ObjectAppendingMarker(MDCConstants.MDC_CALL_ID, callId), "{}", target);
         return target;
+    }
+
+    @Override
+    protected void copyRequestHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
+        super.copyRequestHeaders(clientRequest, proxyRequest);
+        if (nullOrEmpty(clientRequest.getHeader(CONSUMER_ID_HEADER_NAME))) {
+            proxyRequest.header(CONSUMER_ID_HEADER_NAME, applicationName);
+        }
+        if (nullOrEmpty(clientRequest.getHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME))) {
+            proxyRequest.header(PREFERRED_NAV_CALL_ID_HEADER_NAME, (String) clientRequest.getAttribute(CALL_ID));
+        }
     }
 
     @Override

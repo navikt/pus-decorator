@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.common</groupId>
         <artifactId>mor-pom</artifactId>
-        <version>2018.10.26.15.55</version>
+        <version>2018.11.21.12.20</version>
     </parent>
 
     <groupId>no.nav.pus</groupId>
@@ -20,7 +20,7 @@
             <dependency>
                 <groupId>no.nav.common</groupId>
                 <artifactId>bom</artifactId>
-                <version>2018.10.26.15.55</version>
+                <version>2018.11.21.12.20</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -219,6 +219,10 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-standalone</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>test</artifactId>
         </dependency>
 
         <!-- TODO kjipe innholdshenter-avhengigheter som vi bør kunne kvitte oss med! -->

@@ -16,7 +16,7 @@ public class CspService {
                 + " img-src 'self' appres.nav.no" + appresTest() + " static.hotjar.com www.google-analytics.com data: ;"
                 + " style-src 'self' 'unsafe-inline' appres.nav.no" + appresTest() + ";"
                 + " font-src 'self' *.psplugin.com *.vergic.com static.hotjar.com data: ;"
-                + " connect-src 'self' in.hotjar.com www.google-analytics.com;"
+                + " connect-src 'self' *.psplugin.com in.hotjar.com www.google-analytics.com;"
                 + " frame-src vars.hotjar.com video.qbrick.com;" // video i aktivitetsplan, mulig den bør ha spesialisert CSP
                 + " report-uri /frontendlogger/api/warn;";
     }

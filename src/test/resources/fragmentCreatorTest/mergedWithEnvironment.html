@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" /> {{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}
     <script>
-        testapp={};
-        testapp.MY_PROPERTY='public_value';
+        testapp = window.testapp || {};
+        testapp['MY_PROPERTY']='public_value';
 
     </script>
     <script>

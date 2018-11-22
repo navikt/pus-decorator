@@ -33,7 +33,7 @@ configure using the following environment variables:
  - HEADER_TYPE (optional:https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/HeaderType.java)
  - FOOTER_TYPE (optional)
  https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java
- - ENVIRONMENT_CONTEXT (optional) sets context name for `/environment.js`. Defaults to application name (see below)
+ - ENVIRONMENT_CONTEXT (optional) sets context name for `/environment.js` and `/api/feature.js`. Defaults to application name (see below)
  - CONTEXT_PATH (optional) if set is the contextpath of the application. Defaults to APPLICATION_NAME
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk
  - UNLEASH_API_URL (optional) unleash server url. Defaults to `https://unleashproxy.nais.oera.no/api/`
@@ -103,16 +103,37 @@ endpoint that exposes system properties/environment variables matching this rege
 ```
 GET /myapp/environment.js
 
-myapp={};
-myapp.my_property='content of PUBLIC_MY_PROPERTY';
-myapp.another_property='content of PUBLIC_ANOTHER_PROPERTY';
+myapp = window.myapp || {};
+myapp['prop2']='content2';
+myapp['prop1']='content1';
+myapp['MY_ENV_VARIABLE']='tester environment';
+myapp['prop']='content';
 ```
 
 
-## /api/feature
-endpoint that evaluates a list of feature toggles using unleash.
+## Feature-evaluation 
+Two different endpoints that evaluates a list of feature toggles using Unleash.
 
 Example that evaluates `toggle-a`, `toggle-b` and `toggle-c`
 ```
 GET /myapp/api/feature?feature=toggle-a&feature=toggle-b&feature=toggle-c
+
+Returns application/json
+
+{
+    "toggle-b":false,
+    "toggle-a":true,
+    "toggle-c":false    
+}
+
+
+GET /myapp/api/feature.js?feature=toggle-a&feature=toggle-b&feature=toggle-c
+
+Returns application/javascript
+
+myapp = window.myapp || {};
+myapp['toggle-b']=false;
+myapp['toggle-a']=true;
+myapp['toggle-c']=false;
+ 
 ```

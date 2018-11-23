@@ -76,6 +76,8 @@ the above example will create the following proxy-setup:
 | /logger      | http://my-logger/api/ping              |
 | /example     | https://www.example.com/ping           |
 
+add the following line to the `Dockerfile` to add `proxy.json` to the docker-container:
+`ADD proxy.json /proxy.json`
 
 ### Multiple single page applications
 If the file `/spa.config.json` exists in the docker container, it will be parsed and used to configure 

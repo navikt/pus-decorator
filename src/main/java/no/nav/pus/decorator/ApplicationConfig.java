@@ -1,6 +1,5 @@
 package no.nav.pus.decorator;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.ServletUtil;
@@ -22,12 +21,10 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
 import no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig;
-import no.nav.validation.ValidationUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -37,24 +34,20 @@ import javax.inject.Provider;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static java.util.EnumSet.of;
-import static java.util.stream.Collectors.toMap;
 import static javax.servlet.DispatcherType.FORWARD;
 import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.leggTilFilter;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
-import static no.nav.json.JsonUtils.fromJsonArray;
 import static no.nav.pus.decorator.ConfigurationService.Feature.DECORATOR;
 import static no.nav.pus.decorator.ConfigurationService.Feature.PROXY;
 import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.pus.decorator.DecoratorUtils.getDecoratorFilter;
+import static no.nav.pus.decorator.proxy.ProxyConfigResolver.resolveProxyConfiguration;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.resolveSpaConfiguration;
 import static no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig.UNLEASH_API_URL_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
@@ -70,7 +63,6 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
     public static final String OIDC_LOGIN_URL_PROPERTY_NAME = "OIDC_LOGIN_URL";
 
-    private static final String BACKEND_PROXY_CONTEXTS_PROPERTY_NAME = "PROXY_CONTEXTS";
     public static final String PROXY_CONFIGURATION_PATH_PROPERTY_NAME = "PROXY_CONFIGURATION_PATH";
 
 
@@ -120,14 +112,6 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
             servletRegistration.addMapping(urlPattern);
             log.info("la til SPA under {} -> {}", urlPattern, forwardTarget);
         });
-
-
-        if (isEnabled(PROXY)) {
-
-            SingletonBeanRegistry singletonBeanRegistry = annotationConfigWebApplicationContext.getBeanFactory();
-            Collection<BackendProxyServlet> backendProxyServlets = (Collection<BackendProxyServlet>) servletContext.getAttribute(BACKEND_PROXY_CONTEXTS_PROPERTY_NAME);
-            backendProxyServlets.forEach(backendProxyServlet -> singletonBeanRegistry.registerSingleton(backendProxyServlet.getId(), backendProxyServlet));
-        }
     }
 
     private LoginService oidcLoginService(String oidcLoginUrl) {
@@ -164,65 +148,34 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     @Override
     public void configure(ApiAppConfigurator apiAppConfigurator) {
         if (isEnabled(PROXY)) {
-            apiAppConfigurator.customizeJetty(this::addBackendProxies);
+            apiAppConfigurator.customizeJetty(jetty -> addBackendProxies(jetty, apiAppConfigurator));
         }
     }
 
-    private void addBackendProxies(Jetty jetty) {
-        Map<String, BackendProxyServlet> backendProxyServlets = resolveProxyConfiguration()
-                .stream()
-                .collect(toMap(BackendProxyConfig::getContextPath, BackendProxyServlet::new));
+    private void addBackendProxies(Jetty jetty, ApiAppConfigurator apiAppConfigurator) {
+        HandlerCollection handlerCollection = new HandlerCollection();
 
-        jetty.context.setAttribute(BACKEND_PROXY_CONTEXTS_PROPERTY_NAME, backendProxyServlets.values());
+        resolveProxyConfiguration()
+                .stream()
+                .map(BackendProxyServlet::new)
+                .forEach(backendProxyServlet -> {
+                    handlerCollection.addHandler(proxyHandler(backendProxyServlet));
+                    apiAppConfigurator.selfTest(backendProxyServlet);
+                });
 
         Server server = jetty.server;
-        HandlerCollection handlerCollection = new HandlerCollection();
-        backendProxyServlets.forEach((contextPath, backendProxyServlet) -> handlerCollection.addHandler(proxyHandler(contextPath, backendProxyServlet)));
         handlerCollection.addHandler(server.getHandler());
         server.setHandler(handlerCollection);
     }
 
-    public static List<BackendProxyConfig> resolveProxyConfiguration() {
-        return resolveProxyConfiguration(new File(getOptionalProperty(PROXY_CONFIGURATION_PATH_PROPERTY_NAME).orElse("/proxy.json")));
-    }
-
-    @SneakyThrows
-    static List<BackendProxyConfig> resolveProxyConfiguration(File file) {
-        List<BackendProxyConfig> backendProxyConfig = new ArrayList<>();
-        if (file.exists()) {
-            log.info("reading proxy configuration from {}", file.getAbsolutePath());
-            backendProxyConfig.addAll(parseProxyConfiguration(file));
-        } else {
-            log.info("no proxy configuration found at {}", file.getAbsolutePath());
-        }
-
-        if (backendProxyConfig.stream().noneMatch(proxyConfig -> "/frontendlogger".equals(proxyConfig.contextPath))) {
-            backendProxyConfig.add(new BackendProxyConfig()
-                    .setBaseUrl(URI.create("http://frontendlogger").toURL())
-                    .setContextPath("/frontendlogger")
-                    .setSkipCsrfProtection(true) // unntak for frontendlogger
-            );
-        }
-
-        log.info("proxy configuration: {}", backendProxyConfig);
-        return backendProxyConfig;
-    }
-
-    private static List<BackendProxyConfig> parseProxyConfiguration(File file) throws IOException {
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            List<BackendProxyConfig> backendProxyConfigs = fromJsonArray(fileInputStream, BackendProxyConfig.class);
-            backendProxyConfigs.forEach(ValidationUtils::validate);
-            return backendProxyConfigs;
-        }
-    }
-
-    private static ServletContextHandler proxyHandler(String contextPath, BackendProxyServlet backendProxyServlet) {
+    private static ServletContextHandler proxyHandler(BackendProxyServlet backendProxyServlet) {
+        BackendProxyConfig backendProxyConfig = backendProxyServlet.getBackendProxyConfig();
         ServletContextHandler servletContextHandler = new ServletContextHandler();
-        if (!backendProxyServlet.getBackendProxyConfig().isSkipCsrfProtection()) {
+        if (!backendProxyConfig.isSkipCsrfProtection()) {
             servletContextHandler.addFilter(CsrfDoubleSubmitCookieFilter.class, "/*", of(REQUEST));
         }
         servletContextHandler.addServlet(new ServletHolder(backendProxyServlet), "/*");
-        servletContextHandler.setContextPath(contextPath);
+        servletContextHandler.setContextPath(backendProxyConfig.getContextPath());
         return servletContextHandler;
     }
 

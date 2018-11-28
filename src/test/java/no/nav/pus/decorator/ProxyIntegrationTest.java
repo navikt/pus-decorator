@@ -8,6 +8,8 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import no.nav.testconfig.ApiAppTest;
 import org.apache.commons.io.FileUtils;
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,14 +22,15 @@ import java.net.URL;
 import java.util.stream.IntStream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 import static java.util.Arrays.asList;
 import static no.nav.json.JsonUtils.toJson;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.ApplicationConfig.CONTEXT_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.ApplicationConfig.PROXY_CONFIGURATION_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
-import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
-import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProxyIntegrationTest {
@@ -40,8 +43,10 @@ public class ProxyIntegrationTest {
 
     private Jetty jetty;
 
+    private String applicationName = getClass().getSimpleName();
     private String applicationBasePath;
     private int applicationPort;
+    private JerseyClient client = JerseyClientBuilder.createClient();
 
     @Before
     public void setup() throws Exception {
@@ -70,7 +75,7 @@ public class ProxyIntegrationTest {
         systemPropertiesRule.setProperty(PROXY_CONFIGURATION_PATH_PROPERTY_NAME, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
 
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(getClass().getSimpleName()).build());
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
         jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
     }
 
@@ -86,16 +91,16 @@ public class ProxyIntegrationTest {
     }
 
     @Test
-    public void smoketest() throws Exception {
-        withClient(client -> {
-            assertThat(client.target(applicationBasePath).path("/proxy/teapot").request().get().getStatus()).isEqualTo(418);
-            assertThat(client.target(applicationBasePath).path("/remove-context-path/proxy/teapot").request().get().getStatus()).isEqualTo(418);
-            return null;
-        });
+    public void smoketest() {
+        assertThat(client.target(applicationBasePath).path("/proxy/teapot").request().get().getStatus()).isEqualTo(418);
+        assertThat(client.target(applicationBasePath).path("/remove-context-path/proxy/teapot").request().get().getStatus()).isEqualTo(418);
+
+        verify(allRequests().withHeader(CONSUMER_ID_HEADER_NAME, equalTo(applicationName)));
+        verify(allRequests().withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, matching("\\w{32}")));
     }
 
     @Test
-    public void smoketest__no_context_path() throws Exception {
+    public void smoketest__no_context_path() {
         cleanup();
         systemPropertiesRule.setProperty(CONTEXT_PATH_PROPERTY_NAME, "/");
 
@@ -104,15 +109,23 @@ public class ProxyIntegrationTest {
     }
 
     @Test
-    public void largeRequestHeader() throws Exception {
+    public void largeRequestHeader() {
         String largeValue = IntStream.range(0, 6000).mapToObj(i -> "x").reduce("", (a, b) -> a + b);
 
-        withClient(client -> {
-            assertThat(client.target(applicationBasePath).path("/proxy/teapot").request()
-                    .header("LARGE_HEADER", largeValue)
-                    .get().getStatus()).isEqualTo(418);
-            return null;
-        });
+        assertThat(client.target(applicationBasePath).path("/proxy/teapot").request()
+                .header("LARGE_HEADER", largeValue)
+                .get().getStatus()).isEqualTo(418);
+    }
+
+    @Test
+    public void customCorrelationIds() {
+        client.target(applicationBasePath).path("/proxy/teapot").request()
+                .header(CONSUMER_ID_HEADER_NAME, "customConsumer")
+                .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, "customCallId")
+                .get();
+
+        verify(allRequests().withHeader(CONSUMER_ID_HEADER_NAME, equalTo("customConsumer")));
+        verify(allRequests().withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, equalTo("customCallId")));
     }
 
     private File writeProxyConfiguration(BackendProxyConfig... backendProxyConfigs) throws IOException {

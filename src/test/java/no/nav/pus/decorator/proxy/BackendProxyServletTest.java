@@ -1,5 +1,8 @@
 package no.nav.pus.decorator.proxy;
 
+import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -8,9 +11,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
+import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BackendProxyServletTest {
+
+    @Rule
+    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
+
+    @Before
+    public void setup() {
+        systemPropertiesRule.setProperty(APP_NAME_PROPERTY_NAME, "asdfasdf");
+    }
 
     @Test
     public void defaultRewrite() throws MalformedURLException {

@@ -1,6 +1,5 @@
 package no.nav.pus.decorator.spa;
 
-import no.nav.pus.decorator.ApplicationConfigTest;
 import org.junit.Test;
 
 import java.io.File;
@@ -73,7 +72,7 @@ public class SPAConfigResolverTest {
     }
 
     private File json(String name) {
-        return new File(ApplicationConfigTest.class.getResource(name).getFile());
+        return new File(getClass().getResource(name).getFile());
     }
 
 

@@ -1,7 +1,6 @@
-package no.nav.pus.decorator;
+package no.nav.pus.decorator.proxy;
 
 
-import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import org.junit.Test;
 
 import java.io.File;
@@ -12,13 +11,12 @@ import java.net.URL;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 
-public class ApplicationConfigTest {
+public class ProxyConfigResolverTest {
 
     @Test
     public void resolveProxyConfiguration() throws MalformedURLException {
-        assertThat(ApplicationConfig.resolveProxyConfiguration(proxyJson("/demo-proxy.json"))).isEqualTo(asList(
+        assertThat(ProxyConfigResolver.resolveProxyConfiguration(proxyJson("/demo-proxy.json"))).isEqualTo(asList(
                 new BackendProxyConfig().setContextPath("/api").setBaseUrl(url("http://backend-api")),
                 new BackendProxyConfig().setContextPath("/log").setBaseUrl(url("http://logger")),
                 new BackendProxyConfig().setContextPath("/frontendlogger").setBaseUrl(url("http://frontendlogger")).setSkipCsrfProtection(true)
@@ -27,15 +25,15 @@ public class ApplicationConfigTest {
 
     @Test
     public void resolveProxyConfiguration_invalidConfig() {
-        assertThatThrownBy(() -> ApplicationConfig.resolveProxyConfiguration(proxyJson("/invalid-proxy.json")))
+        assertThatThrownBy(() -> ProxyConfigResolver.resolveProxyConfiguration(proxyJson("/invalid-proxy.json")))
                 .hasMessageContaining("baseUrl");
 
-        assertThatThrownBy(() -> ApplicationConfig.resolveProxyConfiguration(proxyJson("/incomplete-proxy.json")))
+        assertThatThrownBy(() -> ProxyConfigResolver.resolveProxyConfiguration(proxyJson("/incomplete-proxy.json")))
                 .hasMessageContaining("contextPath");
     }
 
     private File proxyJson(String name) {
-        return new File(ApplicationConfigTest.class.getResource(name).getFile());
+        return new File(getClass().getResource(name).getFile());
     }
 
     private URL url(String str) throws MalformedURLException {

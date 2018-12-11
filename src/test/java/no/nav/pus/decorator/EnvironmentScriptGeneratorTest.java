@@ -50,4 +50,18 @@ public class EnvironmentScriptGeneratorTest {
             });
         });
     }
+
+    @Test
+    public void resolvePublicEnvironment__with_public_environment_camel_case() {
+        setTemporaryProperty("PRIVATE_NOT_INCLUDE", "secret", () -> {
+            setTemporaryProperty("PUBLIC_ABC", "abc", () -> {
+                setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "camel-case-property", () -> {
+                    assertThat(new EnvironmentScriptGenerator().generate()).isEqualTo("" +
+                            "camelCaseProperty = window.camelCaseProperty || {};\n" +
+                            "camelCaseProperty['ABC']='abc';\n"
+                    );
+                });
+            });
+        });
+    }
 }

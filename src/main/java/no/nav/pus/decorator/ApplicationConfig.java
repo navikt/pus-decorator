@@ -11,6 +11,7 @@ import no.nav.innholdshenter.filter.DecoratorFilter;
 import no.nav.pus.decorator.feature.ByApplicationStrategy;
 import no.nav.pus.decorator.feature.ByQueryParamStrategy;
 import no.nav.pus.decorator.feature.FeatureResource;
+import no.nav.pus.decorator.login.AuthenticationResource;
 import no.nav.pus.decorator.login.LoginService;
 import no.nav.pus.decorator.login.NoLoginService;
 import no.nav.pus.decorator.login.OidcLoginService;
@@ -25,6 +26,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -97,12 +99,17 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
 
         AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext);
+        SingletonBeanRegistry singletonBeanRegistry = annotationConfigWebApplicationContext.getBeanFactory();
+
+        LoginService loginService = getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(oidcLoginUrl -> oidcLoginService(oidcLoginUrl,servletContext.getContextPath())).orElse(new NoLoginService());
+
+        singletonBeanRegistry.registerSingleton(AuthenticationResource.class.getName(), new AuthenticationResource(loginService, servletContext.getContextPath()));
 
         spaConfigs.forEach(spaConfig -> {
             String forwardTarget = spaConfig.forwardTarget;
             String urlPattern = spaConfig.urlPattern;
             ApplicationServlet servlet = new ApplicationServlet(
-                    getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(this::oidcLoginService).orElse(new NoLoginService()),
+                    loginService,
                     getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null),
                     forwardTarget,
                     annotationConfigWebApplicationContext.getBean(UnleashService.class)
@@ -114,11 +121,11 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
         });
     }
 
-    private LoginService oidcLoginService(String oidcLoginUrl) {
+    private LoginService oidcLoginService(String oidcLoginUrl, String contextPath) {
         AzureADB2CConfig azureADB2CConfig = AzureADB2CConfig.readFromSystemProperties();
         AzureADB2CProvider azureADB2CProvider = new AzureADB2CProvider(azureADB2CConfig);
         OidcAuthModule oidcAuthModule = new OidcAuthModule(singletonList(azureADB2CProvider));
-        return new OidcLoginService(oidcLoginUrl, oidcAuthModule);
+        return new OidcLoginService(oidcLoginUrl, oidcAuthModule, contextPath);
     }
 
     @Bean

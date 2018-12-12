@@ -55,7 +55,7 @@ public class ApplicationServlet extends HttpServlet {
         String fileRequestPattern = "^(.+\\..{1,4})$";
 
         if (!request.getRequestURI().matches(fileRequestPattern)) {
-            String redirectUrl = loginService.getRedirectUrl(request, response).orElse(null);
+            String redirectUrl = loginService.getLoginRedirectUrl(request, response).orElse(null);
             if (redirectUrl != null) {
                 response.sendRedirect(redirectUrl);
             } else {

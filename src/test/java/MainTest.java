@@ -29,9 +29,15 @@ public class MainTest {
         setProperty(PUBLIC_PREFIX + "prop2", "content2", PUBLIC);
 
         if (getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).isPresent()) {
-            ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
-            setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, FasitUtils.getBaseUrl("aad_b2c_discovery"), PUBLIC);
+            ServiceUser azureADClientId;
+            if (FasitUtils.usingMock()) {
+                azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "dev-proxy");
+                setProperty(OIDC_LOGIN_URL_PROPERTY_NAME,"http://localhost:8080/mock/azureadb2c/authorize", PUBLIC);
+            } else {
+                azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
+            }
             setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, azureADClientId.username, SECRET);
+            setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, FasitUtils.getBaseUrl("aad_b2c_discovery"), PUBLIC);
         }
 
         Main.main(TEST_PORT);

@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface LoginService {
 
-    Optional<String> getRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
+    AuthenticationStatusDTO getStatus(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
+    Optional<String> getLoginRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
+    Optional<String> getDestinationUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
 
 }

@@ -55,10 +55,10 @@ public class EnvironmentScriptGeneratorTest {
     public void resolvePublicEnvironment__with_public_environment_camel_case() {
         setTemporaryProperty("PRIVATE_NOT_INCLUDE", "secret", () -> {
             setTemporaryProperty("PUBLIC_ABC", "abc", () -> {
-                setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "camel-case-property", () -> {
+                setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "property-with-hyphens", () -> {
                     assertThat(new EnvironmentScriptGenerator().generate()).isEqualTo("" +
-                            "camelCaseProperty = window.camelCaseProperty || {};\n" +
-                            "camelCaseProperty['ABC']='abc';\n"
+                            "property_with_hyphens = window.property_with_hyphens || {};\n" +
+                            "property_with_hyphens['ABC']='abc';\n"
                     );
                 });
             });

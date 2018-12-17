@@ -13,7 +13,7 @@ public class EnvironmentScriptGenerator {
     public static final String ENVIRONMENT_CONTEXT_PROPERTY_NAME = "ENVIRONMENT_CONTEXT";
     private static final String PUBLIC_PREFIX_PATTERN = "^" + PUBLIC_PREFIX + ".+";
 
-    private final String environmentContext = camelCaselize(getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName));
+    private final String environmentContext = hyphensToUnderscores(getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName));
 
     public String generate() {
         return formatMapAsJs(getEnvironmentVariablesAndSystemProperties());
@@ -29,11 +29,8 @@ public class EnvironmentScriptGenerator {
         return environmentContext + " = window." + environmentContext + " || {};\n" + values;
     }
 
-    private String camelCaselize(final String envContext) {
-        return Arrays.stream(envContext.split("-"))
-                .sorted(Collections.reverseOrder())
-                .reduce((s, r) -> r += Character.toUpperCase(s.charAt(0)) + s.substring(1))
-                .get();
+    private String hyphensToUnderscores(final String envContext) {
+        return envContext.replaceAll("-", "_");
     }
 
     private Map<String, String> getEnvironmentVariablesAndSystemProperties() {

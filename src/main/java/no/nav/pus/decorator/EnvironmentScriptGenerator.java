@@ -1,5 +1,7 @@
 package no.nav.pus.decorator;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -11,7 +13,7 @@ public class EnvironmentScriptGenerator {
     public static final String ENVIRONMENT_CONTEXT_PROPERTY_NAME = "ENVIRONMENT_CONTEXT";
     private static final String PUBLIC_PREFIX_PATTERN = "^" + PUBLIC_PREFIX + ".+";
 
-    private final String environmentContext = getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName);
+    private final String environmentContext = hyphensToUnderscores(getOptionalProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName));
 
     public String generate() {
         return formatMapAsJs(getEnvironmentVariablesAndSystemProperties());
@@ -25,6 +27,10 @@ public class EnvironmentScriptGenerator {
                 .collect(Collectors.joining(""));
 
         return environmentContext + " = window." + environmentContext + " || {};\n" + values;
+    }
+
+    private String hyphensToUnderscores(final String envContext) {
+        return envContext.replaceAll("-", "_");
     }
 
     private Map<String, String> getEnvironmentVariablesAndSystemProperties() {

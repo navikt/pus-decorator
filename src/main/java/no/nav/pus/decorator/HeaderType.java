@@ -7,7 +7,8 @@ import static no.nav.sbl.util.StringUtils.of;
 @SuppressWarnings("unused")
 public enum HeaderType {
     WITHOUT_MENU("header"),
-    WITH_MENU("header-withmenu");
+    WITH_MENU("header-withmenu"),
+    MOBILE_MENU_ONLY("header-withmenu");
 
     private final String fragmentName;
 

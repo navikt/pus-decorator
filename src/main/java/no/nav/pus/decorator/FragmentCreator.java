@@ -8,10 +8,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 
-import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT;
-import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT;
+import static no.nav.pus.decorator.FragmentConfig.*;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public class FragmentCreator {
 
@@ -45,6 +46,19 @@ public class FragmentCreator {
                 .prepend(this.environmentHtml)
                 .prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}")
                 .prepend(HEAD_TEMPLATE);
+
+        HeaderType headerType = getOptionalProperty(HEADER_TYPE_PROPERTY).map(HeaderType::valueOf).orElse(HeaderType.WITH_MENU);
+
+        if(headerType == HeaderType.MOBILE_MENU_ONLY){
+            String menuStyleHtml = "<style>" +
+                    ".topnavsection-wrapper { display: none; }" +
+                    "@media (max-width: 750px) {" +
+                    ".topnavsection-wrapper { display: inherit; }" +
+                    "}" +
+                    "</style>";
+            head.prepend(menuStyleHtml);
+        }
+
     }
 
     private void updateBody(Element body) {

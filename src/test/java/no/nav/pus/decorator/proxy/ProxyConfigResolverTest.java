@@ -19,7 +19,7 @@ public class ProxyConfigResolverTest {
         assertThat(ProxyConfigResolver.resolveProxyConfiguration(proxyJson("/demo-proxy.json"))).isEqualTo(asList(
                 new BackendProxyConfig().setContextPath("/api").setBaseUrl(url("http://backend-api")),
                 new BackendProxyConfig().setContextPath("/log").setBaseUrl(url("http://logger")),
-                new BackendProxyConfig().setContextPath("/frontendlogger").setBaseUrl(url("http://frontendlogger")).setSkipCsrfProtection(true)
+                new BackendProxyConfig().setContextPath("/frontendlogger").setBaseUrl(url("http://frontendlogger.default")).setSkipCsrfProtection(true)
         ));
     }
 

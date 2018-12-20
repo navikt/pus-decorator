@@ -34,7 +34,7 @@ public class ProxyConfigResolver {
 
         if (backendProxyConfig.stream().noneMatch(proxyConfig -> "/frontendlogger".equals(proxyConfig.contextPath))) {
             backendProxyConfig.add(new BackendProxyConfig()
-                    .setBaseUrl(URI.create("http://frontendlogger").toURL())
+                    .setBaseUrl(URI.create("http://frontendlogger.default").toURL())
                     .setContextPath("/frontendlogger")
                     .setSkipCsrfProtection(true) // unntak for frontendlogger
             );

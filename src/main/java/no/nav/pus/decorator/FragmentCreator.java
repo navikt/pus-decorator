@@ -10,6 +10,8 @@ import org.jsoup.select.Elements;
 
 import java.nio.charset.Charset;
 
+import static no.nav.pus.decorator.ConfigurationService.Feature.FRONTEND_LOGGER;
+import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT;
 import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT;
 
@@ -22,14 +24,21 @@ public class FragmentCreator {
 
     public FragmentCreator(String applicationName) {
         // https://github.com/navikt/fo-frontendlogger
-        this.frontendLoggerHtml = "" +
-                "<script>\n window.frontendlogger = { " +
-                "info: function(){}, warn: function(){}, error: function(){}, event: function(){}};\n" +
-                "window.frontendlogger.appname = '" + applicationName + "';\n" +
-                "</script>\n" +
-                "<script type=\"application/javascript\" src=\"/frontendlogger/logger.js\"></script>";
-
+        this.frontendLoggerHtml = getFrontendLoggerHtml(applicationName);
         this.environmentHtml = "<script>\n" + new EnvironmentScriptGenerator().generate() + "\n</script>";
+    }
+
+    private String getFrontendLoggerHtml(String applicationName) {
+        if (isEnabled(FRONTEND_LOGGER)) {
+            return "" +
+                    "<script>\n window.frontendlogger = { " +
+                    "info: function(){}, warn: function(){}, error: function(){}, event: function(){}};\n" +
+                    "window.frontendlogger.appname = '" + applicationName + "';\n" +
+                    "</script>\n" +
+                    "<script type=\"application/javascript\" src=\"/frontendlogger/logger.js\"></script>";
+        } else {
+            return "";
+        }
     }
 
     public String createFragmentTemplate(String orginalHtml) {

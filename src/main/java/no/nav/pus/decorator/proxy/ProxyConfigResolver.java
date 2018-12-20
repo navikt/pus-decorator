@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.json.JsonUtils.fromJsonArray;
+import static no.nav.pus.decorator.ConfigurationService.Feature.FRONTEND_LOGGER;
+import static no.nav.pus.decorator.ConfigurationService.Feature.PROXY;
+import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 @Slf4j
@@ -32,7 +35,7 @@ public class ProxyConfigResolver {
             log.info("no proxy configuration found at {}", file.getAbsolutePath());
         }
 
-        if (backendProxyConfig.stream().noneMatch(proxyConfig -> "/frontendlogger".equals(proxyConfig.contextPath))) {
+        if (isEnabled(FRONTEND_LOGGER) && nothingOnFrontendloggerPath(backendProxyConfig)) {
             backendProxyConfig.add(new BackendProxyConfig()
                     .setBaseUrl(URI.create("http://frontendlogger").toURL())
                     .setContextPath("/frontendlogger")
@@ -42,6 +45,10 @@ public class ProxyConfigResolver {
 
         log.info("proxy configuration: {}", backendProxyConfig);
         return backendProxyConfig;
+    }
+
+    private static boolean nothingOnFrontendloggerPath(List<BackendProxyConfig> backendProxyConfig) {
+        return backendProxyConfig.stream().noneMatch(proxyConfig -> "/frontendlogger".equals(proxyConfig.contextPath));
     }
 
     private static List<BackendProxyConfig> parseProxyConfiguration(File file) throws IOException {

@@ -22,8 +22,7 @@ public class BackendProxyConfig {
     @NotNull
     public RequestRewrite requestRewrite = RequestRewrite.INCLUDE_CONTEXT_PATH;
 
-    @NotEmpty
-    public String pingRequestPath = "/api/ping";
+    public String pingRequestPath;
 
     public boolean skipCsrfProtection;
 

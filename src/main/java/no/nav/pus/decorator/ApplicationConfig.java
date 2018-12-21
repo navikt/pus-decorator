@@ -178,6 +178,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     private static ServletContextHandler proxyHandler(BackendProxyServlet backendProxyServlet) {
         BackendProxyConfig backendProxyConfig = backendProxyServlet.getBackendProxyConfig();
         ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.setAllowNullPathInfo(true);
         if (!backendProxyConfig.isSkipCsrfProtection()) {
             servletContextHandler.addFilter(CsrfDoubleSubmitCookieFilter.class, "/*", of(REQUEST));
         }

@@ -14,6 +14,7 @@ pus-decorator comes with much functionality out of the box, but may be deactivat
  - `DISABLE_DECORATOR`
  - `DISABLE_PROXY`
  - `DISABLE_UNLEASH`
+ - `DISABLE_FRONTEND_LOGGER`
 
 
 ## usage

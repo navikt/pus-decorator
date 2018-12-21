@@ -21,6 +21,7 @@ public class ConfigurationService {
         PROXY("DISABLE_PROXY"),
         DECORATOR("DISABLE_DECORATOR"),
         UNLEASH("DISABLE_UNLEASH"),
+        FRONTEND_LOGGER("DISABLE_FRONTEND_LOGGER"),
         ;
 
         final String propertyName;

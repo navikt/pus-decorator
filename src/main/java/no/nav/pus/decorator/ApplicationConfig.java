@@ -57,7 +57,7 @@ import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 @Configuration
 @Slf4j
-public class ApplicationConfig implements ApiApplication.NaisApiApplication {
+public class ApplicationConfig implements ApiApplication {
 
     public static final String APPLICATION_NAME_PROPERTY = "APPLICATION_NAME";
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "APP_NAME";

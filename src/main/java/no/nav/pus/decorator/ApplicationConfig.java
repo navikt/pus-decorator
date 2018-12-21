@@ -47,6 +47,7 @@ import static no.nav.apiapp.ServletUtil.leggTilFilter;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
 import static no.nav.pus.decorator.ConfigurationService.Feature.DECORATOR;
 import static no.nav.pus.decorator.ConfigurationService.Feature.PROXY;
+import static no.nav.pus.decorator.ConfigurationService.Feature.UNLEASH;
 import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.pus.decorator.DecoratorUtils.getDecoratorFilter;
 import static no.nav.pus.decorator.proxy.ProxyConfigResolver.resolveProxyConfiguration;
@@ -112,7 +113,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
                     loginService,
                     getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null),
                     forwardTarget,
-                    annotationConfigWebApplicationContext.getBean(UnleashService.class)
+                    isEnabled(UNLEASH) ? annotationConfigWebApplicationContext.getBean(UnleashService.class) : null
             );
             ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(urlPattern, servlet);
             servletRegistration.setLoadOnStartup(0);

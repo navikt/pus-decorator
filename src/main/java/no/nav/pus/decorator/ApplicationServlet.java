@@ -62,9 +62,9 @@ public class ApplicationServlet extends HttpServlet {
                 RequestDispatcher index = getServletContext().getRequestDispatcher(forwardTarget);
 
                 if (!DISABLE_CSP) {
-                    if (unleashService.isEnabled(cspFeatureToggleName)) {
+                    if (isEnabled(cspFeatureToggleName)) {
                         response.addHeader("Content-Security-Policy", CSP_DIRECTIVES);
-                    } else if (unleashService.isEnabled("pus-decorator.csp-reporting")) {
+                    } else if (isEnabled("pus-decorator.csp-reporting")) {
                         response.addHeader("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
                     }
                 }
@@ -81,6 +81,10 @@ public class ApplicationServlet extends HttpServlet {
                 dispatcher.forward(request, response);
             }
         }
+    }
+
+    private boolean isEnabled(String toggleName) {
+        return unleashService != null && unleashService.isEnabled(toggleName);
     }
 
     @SneakyThrows

@@ -32,6 +32,7 @@ import static no.nav.pus.decorator.ApplicationConfig.PROXY_CONFIGURATION_PATH_PR
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.glassfish.jersey.client.ClientProperties.FOLLOW_REDIRECTS;
 
 public class ProxyIntegrationTest {
 
@@ -50,8 +51,16 @@ public class ProxyIntegrationTest {
 
     @Before
     public void setup() throws Exception {
+        client.property(FOLLOW_REDIRECTS, false);
+
         int wiremockPort = wireMockRule.port();
         String wiremockBasePath = localBasePath(wiremockPort);
+        givenThat(get(urlEqualTo("/proxy"))
+                .willReturn(aResponse()
+                        .withStatus(599)
+                        .withBody("Unknown error!"))
+        );
+
         givenThat(get(urlEqualTo("/proxy/teapot"))
                 .willReturn(aResponse()
                         .withStatus(418)
@@ -92,6 +101,7 @@ public class ProxyIntegrationTest {
 
     @Test
     public void smoketest() {
+        assertThat(client.target(applicationBasePath).path("/proxy").request().get().getStatus()).isEqualTo(599);
         assertThat(client.target(applicationBasePath).path("/proxy/teapot").request().get().getStatus()).isEqualTo(418);
         assertThat(client.target(applicationBasePath).path("/remove-context-path/proxy/teapot").request().get().getStatus()).isEqualTo(418);
 

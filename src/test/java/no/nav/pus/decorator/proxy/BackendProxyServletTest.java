@@ -52,7 +52,7 @@ public class BackendProxyServletTest {
                 .setBaseUrl(new URL("http://www.example.com"))
                 .setPingRequestPath("/my/custom/ping")
         );
-        assertThat(backendProxyServlet.getPingUrl()).isEqualTo("http://www.example.com/context/my/custom/ping");
+        assertThat(backendProxyServlet.getPingUrl()).isEqualTo("http://www.example.com/my/custom/ping");
         assertThat(backendProxyServlet.rewriteTarget(target("/context/request/path"))).isEqualTo("http://www.example.com/context/request/path");
     }
 

@@ -14,6 +14,7 @@ import org.eclipse.jetty.proxy.ProxyServlet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static java.util.Optional.ofNullable;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
@@ -40,7 +41,8 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         this.removeContextPath = backendProxyConfig.requestRewrite == REMOVE_CONTEXT_PATH;
         this.contextPathLength = backendProxyConfig.contextPath.length();
 
-        this.pingUrl = targetUrl(backendProxyConfig.contextPath + backendProxyConfig.pingRequestPath);
+
+        this.pingUrl = targetUrl(ofNullable(backendProxyConfig.pingRequestPath).orElse(backendProxyConfig.contextPath + "/api/ping"));
         this.helsesjekkMetadata = new HelsesjekkMetadata(
                 "proxy_" + id,
                 pingUrl,

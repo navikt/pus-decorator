@@ -58,7 +58,7 @@ import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 @Configuration
 @Slf4j
-public class ApplicationConfig implements ApiApplication.NaisApiApplication {
+public class ApplicationConfig implements ApiApplication {
 
     public static final String APPLICATION_NAME_PROPERTY = "APPLICATION_NAME";
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "APP_NAME";
@@ -179,6 +179,7 @@ public class ApplicationConfig implements ApiApplication.NaisApiApplication {
     private static ServletContextHandler proxyHandler(BackendProxyServlet backendProxyServlet) {
         BackendProxyConfig backendProxyConfig = backendProxyServlet.getBackendProxyConfig();
         ServletContextHandler servletContextHandler = new ServletContextHandler();
+        servletContextHandler.setAllowNullPathInfo(true);
         if (!backendProxyConfig.isSkipCsrfProtection()) {
             servletContextHandler.addFilter(CsrfDoubleSubmitCookieFilter.class, "/*", of(REQUEST));
         }

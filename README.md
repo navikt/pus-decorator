@@ -14,6 +14,7 @@ pus-decorator comes with much functionality out of the box, but may be deactivat
  - `DISABLE_DECORATOR`
  - `DISABLE_PROXY`
  - `DISABLE_UNLEASH`
+ - `DISABLE_FRONTEND_LOGGER`
 
 
 ## usage
@@ -48,6 +49,11 @@ if the file `/proxy.json` exists in the docker container, it will be parsed and 
     "baseUrl": "http://my-backend-api"
   },
   {
+    "contextPath": "/pingable",
+    "baseUrl": "http://pingable-service"
+    "pingRequestPath": "/" 
+  },
+  {
     "contextPath": "/logger",
     "baseUrl": "http://my-logger"
     "requestRewrite": "REMOVE_CONTEXT_PATH"
@@ -66,15 +72,17 @@ the above example will create the following proxy-setup:
 | end-user request                                         | proxied request url                       |
 |----------------------------------------------------------|-------------------------------------------|
 | https://my-decorated-app.com/backend/hello-world         | http://my-backend-api/backend/hello-world |
+| https://my-decorated-app.com/pingable                    | http://pingable-service/pingable          |
 | https://my-decorated-app.com/logger/log                  | http://my-logger/log                      |
 | https://my-decorated-app.com/example/a/great/example     | https://www.example.com/a/great/example   |
 
 
-| context-path | ping request url                       |
-|--------------|----------------------------------------|
-| /backend     | http://my-backend-api/backend/api/ping |
-| /logger      | http://my-logger/api/ping              |
-| /example     | https://www.example.com/ping           |
+| proxy-target     | ping request url                       |
+|------------------|----------------------------------------|
+| my-backend-api   | http://my-backend-api/backend/api/ping |
+| pingable-service | http://pingable-service/               |
+| my-logger        | http://my-logger/api/ping              |
+| www.example.com  | https://www.example.com/ping           |
 
 add the following line to the `Dockerfile` to add `proxy.json` to the docker-container:
 `ADD proxy.json /proxy.json`

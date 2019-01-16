@@ -16,6 +16,8 @@ import java.net.ServerSocket;
 import java.util.Map;
 
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
+import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
+import static no.nav.pus.decorator.spa.SPAConfigResolverTest.getWebappSourceDirectory;
 import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +39,7 @@ public class FeatureResourceIntegrationTest {
         System.out.println("Application basepath:" + applicationBasePath);
 
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, applicationBasePath);
+        systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
 
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
         jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();

@@ -1,20 +1,28 @@
 package no.nav.pus.decorator.spa;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+import java.util.Arrays;
+import java.util.List;
 
-@Value
+import static lombok.AccessLevel.PRIVATE;
+
 @Builder
+@NoArgsConstructor(access = PRIVATE)
+@AllArgsConstructor(access = PRIVATE)
+@ToString
+@Getter
 public class SPAConfig {
 
     @NotEmpty
     @Pattern(regexp = "^/.*")
-    public final String forwardTarget;
+    private String forwardTarget;
 
     @NotEmpty
     @Pattern(regexp = "^/.*")
-    public final String urlPattern;
+    private String urlPattern;
+
 }

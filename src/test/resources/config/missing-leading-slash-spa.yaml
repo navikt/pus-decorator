@@ -1,0 +1,6 @@
+spa:
+ - forwardTarget: invalidForwardTarget.html
+   urlPattern: /abc
+
+ - forwardTarget: /def.html
+   urlPattern: invalidUrlPattern

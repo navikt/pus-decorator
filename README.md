@@ -28,7 +28,23 @@ https://github.com/navikt/jobbsokerkompetanse/commit/a24450465ee4b49e7772f7739c8
 
 
 ## configuration
-configure using the following environment variables:
+
+pus-decorator checks for a configuration file at `/decorator.yaml`. 
+If this file is absent or if some required attributes are undefined, pus-decorator will apply sane and safe default.
+Using a minimalistic configuration file, only overriding or extending default behaviour is therefore fine.
+
+Please see  the 
+[example configuration file](https://github.com/navikt/pus-decorator/blob/master/decorator.example.yaml)
+
+
+typically, you add the following line to the `Dockerfile` to add `decorator.yaml` to the docker-container:
+
+```ADD decorator.yaml /decorator.yaml```
+
+
+### environment variables
+
+in addition to the configuration file the following environment variables are supported:
  - APPLICATION_NAME (required)
  - APPRES_CMS_URL (required) example: https://appres.nav.no
  - HEADER_TYPE (optional:https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/HeaderType.java)
@@ -39,72 +55,14 @@ configure using the following environment variables:
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk
  - UNLEASH_API_URL (optional) unleash server url. Defaults to `https://unleashproxy.nais.oera.no/api/`
  - OIDC_LOGIN_URL (optional) url to be used to login users with AzureAD B2C. If undefined, users are not logged in by pus-decorator 
- 
+
 ### proxy configuration
-if the file `/proxy.json` exists in the docker container, it will be parsed and used to configure proxying against other services. It should have the following format:
-```
-[
-  {
-    "contextPath": "/backend",
-    "baseUrl": "http://my-backend-api"
-  },
-  {
-    "contextPath": "/pingable",
-    "baseUrl": "http://pingable-service"
-    "pingRequestPath": "/" 
-  },
-  {
-    "contextPath": "/logger",
-    "baseUrl": "http://my-logger"
-    "requestRewrite": "REMOVE_CONTEXT_PATH"
-  },
-  {
-    "contextPath": "/example",
-    "baseUrl": "https://www.example.com"
-    "requestRewrite": "REMOVE_CONTEXT_PATH",
-    "pingRequestPath": "/ping" 
-  }
-  ...
-]
-```
-the above example will create the following proxy-setup:
-
-| end-user request                                         | proxied request url                       |
-|----------------------------------------------------------|-------------------------------------------|
-| https://my-decorated-app.com/backend/hello-world         | http://my-backend-api/backend/hello-world |
-| https://my-decorated-app.com/pingable                    | http://pingable-service/pingable          |
-| https://my-decorated-app.com/logger/log                  | http://my-logger/log                      |
-| https://my-decorated-app.com/example/a/great/example     | https://www.example.com/a/great/example   |
-
-
-| proxy-target     | ping request url                       |
-|------------------|----------------------------------------|
-| my-backend-api   | http://my-backend-api/backend/api/ping |
-| pingable-service | http://pingable-service/               |
-| my-logger        | http://my-logger/api/ping              |
-| www.example.com  | https://www.example.com/ping           |
-
-add the following line to the `Dockerfile` to add `proxy.json` to the docker-container:
-`ADD proxy.json /proxy.json`
-
+Please see the 
+[example configuration file](https://github.com/navikt/pus-decorator/blob/master/decorator.example.yaml)
+ 
 ### Multiple single page applications
-If the file `/spa.config.json` exists in the docker container, it will be parsed and used to configure 
-specified url patterns to forward targets. Files as forward targets are expected under `/app` and will 
-be decorated. The configuration should have the following format:
-```
-[
-    {
-        "forwardTarget": "/app-1.html",
-        "urlPattern": "/app1/*"
-    },
-    {
-        "forwardTarget": "/smaller-app.html",
-        "urlPattern": "/small/app/*"
-    }
-] 
-```
-
-If no config exists, urlpattern `/*` forwards to `index.html` and `/demo/*` forwards to `/demo/index.html`.
+Please see  the 
+[example configuration file](https://github.com/navikt/pus-decorator/blob/master/decorator.example.yaml)
 
 ### enforced login
 If your application requires the user to be logged in, the pus-decorator can enforce this:

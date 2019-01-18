@@ -41,14 +41,18 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         this.removeContextPath = backendProxyConfig.requestRewrite == REMOVE_CONTEXT_PATH;
         this.contextPathLength = backendProxyConfig.contextPath.length();
 
-
-        this.pingUrl = targetUrl(ofNullable(backendProxyConfig.pingRequestPath).orElse(backendProxyConfig.contextPath + "/api/ping"));
+        this.pingUrl = backendProxyConfig.baseUrl + ofNullable(backendProxyConfig.pingRequestPath).orElseGet(this::defaultPingPath);
         this.helsesjekkMetadata = new HelsesjekkMetadata(
                 "proxy_" + id,
                 pingUrl,
                 "ping backend for " + backendProxyConfig.contextPath,
                 false
         );
+    }
+
+    private String defaultPingPath() {
+        String pingContextPath = removeContextPath ? "" : backendProxyConfig.contextPath;
+        return pingContextPath + "/api/ping";
     }
 
     private String targetUrl(String requestURI) {

@@ -54,6 +54,15 @@ public class BackendProxyServletTest {
         );
         assertThat(backendProxyServlet.getPingUrl()).isEqualTo("http://www.example.com/my/custom/ping");
         assertThat(backendProxyServlet.rewriteTarget(target("/context/request/path"))).isEqualTo("http://www.example.com/context/request/path");
+
+        backendProxyServlet = new BackendProxyServlet(new BackendProxyConfig()
+                .setContextPath("/context")
+                .setBaseUrl(new URL("http://www.example.com"))
+                .setPingRequestPath("/my/custom/ping")
+                .setRequestRewrite(REMOVE_CONTEXT_PATH)
+        );
+        assertThat(backendProxyServlet.getPingUrl()).isEqualTo("http://www.example.com/my/custom/ping");
+        assertThat(backendProxyServlet.rewriteTarget(target("/context/request/path"))).isEqualTo("http://www.example.com/request/path");
     }
 
     private HttpServletRequest target(String path) {

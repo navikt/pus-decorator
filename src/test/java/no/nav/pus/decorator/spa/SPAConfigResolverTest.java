@@ -1,41 +1,44 @@
 package no.nav.pus.decorator.spa;
 
+import no.nav.apiapp.util.WarFolderFinderUtil;
+import no.nav.pus.decorator.ApplicationConfig;
+import no.nav.pus.decorator.config.ConfigResolver;
+import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 
-import static no.nav.pus.decorator.spa.SPAConfigResolver.parseDecoratorConfiguration;
-import static no.nav.pus.decorator.spa.SPAConfigResolver.resolveSpaConfiguration;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
+import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
+import static org.assertj.core.api.Assertions.*;
 
 public class SPAConfigResolverTest {
 
+    @Rule
+    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
+
+    public static String getWebappSourceDirectory() {
+        return WarFolderFinderUtil.findPath(ApplicationConfig.class).getAbsolutePath();
+    }
+
     @Test
     public void resolveSpaConfiguration_default() {
-        assertThat(resolveSpaConfiguration())
+        systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
+
+        assertThat(SPAConfigResolver.resolveSpaConfiguration())
                 .extracting("forwardTarget", "urlPattern")
                 .containsExactly(
-                        tuple("/index.html", "/*"),
-                        tuple("/demo/index.html", "/demo/*"));
-
-
+                        tuple("/index.html", "/*")
+                );
     }
 
     @Test
-    public void resolveSpaConfiguration_nonExistingFile() {
-        assertThat(resolveSpaConfiguration(new File("/non-existing-file.json")))
-                .extracting("forwardTarget", "urlPattern")
-                .containsExactly(
-                        tuple("/index.html", "/*"),
-                        tuple("/demo/index.html", "/demo/*"));
-    }
+    public void parseDecoratorConfiguration_withDemoFile() {
+        systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, new File("src/test/resources/config/demo-webroot").getAbsolutePath());
 
-    @Test
-    public void parseDecoratorConfiguration_withFile() {
         assertThat(
-                parseDecoratorConfiguration(json("/demo-spa.config.json"))).extracting("forwardTarget", "urlPattern")
+                resolveSpaConfiguration("/config/demo-spa.yaml")).extracting("forwardTarget", "urlPattern")
                 .containsExactly(
                         tuple("/app-1.html", "/app1"),
                         tuple("/small/smaller-app.html", "/small/app/*"));
@@ -43,37 +46,33 @@ public class SPAConfigResolverTest {
 
     @Test
     public void resolveSpaConfiguration_fail_if_forward_target_does_not_exist() {
-        assertThatThrownBy(() -> resolveSpaConfiguration(json("/demo-spa.config.json")))
+        assertThatThrownBy(() -> resolveSpaConfiguration("/config/demo-spa.yaml"))
                 .hasMessageContaining("not found");
     }
 
     @Test
     public void resolveSpaConfiguration_fail_if_duplicated_url_pattern() {
-        assertThatThrownBy(() -> resolveSpaConfiguration(json("/duplicate-url-pattern-spa.config.json")))
+        assertThatThrownBy(() -> resolveSpaConfiguration("/config/duplicate-url-pattern-spa.yaml"))
                 .hasMessageContaining("duplicate");
     }
 
     @Test
     public void resolveSpaConfiguration_fail_if_missing_leading_slash() {
-        assertThatThrownBy(() -> resolveSpaConfiguration(json("/missing-leading-slash-spa.config.json")))
-                .hasMessageContaining("invalidForwardTarget");
-
-
-            // TODO oppdater common validation slik at den kan kaste en
-            // felles exception for alle valideringsfeil for en collection av elementer
-            //     .hasMessageContaining("invalidUrlPattern");
+        assertThatThrownBy(() -> resolveSpaConfiguration("/config/missing-leading-slash-spa.yaml"))
+                .hasMessageContaining("invalidForwardTarget")
+                .hasMessageContaining("invalidUrlPattern");
     }
 
     @Test
     public void resolveSpaConfiguration_fail_if_incomplete() {
-        assertThatThrownBy(() -> resolveSpaConfiguration(json("/incomplete-spa.config.json")))
+        assertThatThrownBy(() -> resolveSpaConfiguration("/config/incomplete-spa.yaml"))
                 .hasMessageContaining("forwardTarget")
                 .hasMessageContaining("urlPattern");
     }
 
-    private File json(String name) {
-        return new File(getClass().getResource(name).getFile());
+    private List<SPAConfig> resolveSpaConfiguration(String name) {
+        systemPropertiesRule.setProperty(ConfigResolver.CONFIGURATION_LOCATION_PROPERTY, getClass().getResource(name).getFile());
+        return SPAConfigResolver.resolveSpaConfiguration();
     }
-
 
 }

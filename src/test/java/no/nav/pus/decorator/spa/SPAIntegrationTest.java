@@ -4,8 +4,10 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.common.yaml.YamlUtils;
 import no.nav.pus.decorator.ApplicationConfig;
 import no.nav.pus.decorator.FragmentConfig;
+import no.nav.pus.decorator.config.Config;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import no.nav.testconfig.ApiAppTest;
@@ -23,7 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.Arrays.asList;
 import static no.nav.json.JsonUtils.toJson;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
-import static no.nav.pus.decorator.spa.SPAConfigResolver.DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME;
+import static no.nav.pus.decorator.config.ConfigResolver.CONFIGURATION_LOCATION_PROPERTY;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
 import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +81,7 @@ public class SPAIntegrationTest {
         );
 
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWarPath().getAbsolutePath());
-        systemPropertiesRule.setProperty(DECORATOR_CONFIGURATION_PATH_PROPERTY_NAME, proxyConfigurationFile.getAbsolutePath());
+        systemPropertiesRule.setProperty(CONFIGURATION_LOCATION_PROPERTY, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
 
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
@@ -131,7 +133,7 @@ public class SPAIntegrationTest {
     @SneakyThrows
     private File writeSPAConfiguration(SPAConfig... spaConfigs) {
         File file = File.createTempFile(getClass().getSimpleName(), ".json");
-        FileUtils.writeStringToFile(file, toJson(asList(spaConfigs)), "UTF-8");
+        FileUtils.writeStringToFile(file, YamlUtils.toYaml(new Config().setSpa(asList(spaConfigs))), "UTF-8");
         return file;
     }
 

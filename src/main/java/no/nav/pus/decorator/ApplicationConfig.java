@@ -66,8 +66,6 @@ public class ApplicationConfig implements ApiApplication {
     public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
     public static final String OIDC_LOGIN_URL_PROPERTY_NAME = "OIDC_LOGIN_URL";
 
-    public static final String PROXY_CONFIGURATION_PATH_PROPERTY_NAME = "PROXY_CONFIGURATION_PATH";
-
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
@@ -94,7 +92,7 @@ public class ApplicationConfig implements ApiApplication {
             DecoratorFilter decoratorFilter = getDecoratorFilter();
 
             servletContext.addFilter("decoratorFilter", decoratorFilter)
-                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, spaConfigs.stream().map(s -> s.forwardTarget).toArray(String[]::new));
+                    .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, spaConfigs.stream().map(SPAConfig::getForwardTarget).toArray(String[]::new));
         }
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");
@@ -107,8 +105,8 @@ public class ApplicationConfig implements ApiApplication {
         singletonBeanRegistry.registerSingleton(AuthenticationResource.class.getName(), new AuthenticationResource(loginService, servletContext.getContextPath()));
 
         spaConfigs.forEach(spaConfig -> {
-            String forwardTarget = spaConfig.forwardTarget;
-            String urlPattern = spaConfig.urlPattern;
+            String forwardTarget = spaConfig.getForwardTarget();
+            String urlPattern = spaConfig.getUrlPattern();
             ApplicationServlet servlet = new ApplicationServlet(
                     loginService,
                     getOptionalProperty(CONTENT_URL_PROPERTY_NAME).orElse(null),

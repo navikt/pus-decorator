@@ -3,6 +3,8 @@ package no.nav.pus.decorator;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
+import no.nav.common.yaml.YamlUtils;
+import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
@@ -24,13 +26,14 @@ import java.util.stream.IntStream;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 import static java.util.Arrays.asList;
-import static no.nav.json.JsonUtils.toJson;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.ApplicationConfig.CONTEXT_PATH_PROPERTY_NAME;
-import static no.nav.pus.decorator.ApplicationConfig.PROXY_CONFIGURATION_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
+import static no.nav.pus.decorator.config.ConfigResolver.CONFIGURATION_LOCATION_PROPERTY;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
+import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
+import static no.nav.pus.decorator.spa.SPAConfigResolverTest.getWebappSourceDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.glassfish.jersey.client.ClientProperties.FOLLOW_REDIRECTS;
 
@@ -81,8 +84,9 @@ public class ProxyIntegrationTest {
         );
 
 
-        systemPropertiesRule.setProperty(PROXY_CONFIGURATION_PATH_PROPERTY_NAME, proxyConfigurationFile.getAbsolutePath());
+        systemPropertiesRule.setProperty(CONFIGURATION_LOCATION_PROPERTY, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
+        systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
 
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
         jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
@@ -140,7 +144,7 @@ public class ProxyIntegrationTest {
 
     private File writeProxyConfiguration(BackendProxyConfig... backendProxyConfigs) throws IOException {
         File file = File.createTempFile(getClass().getSimpleName(), ".json");
-        FileUtils.writeStringToFile(file, toJson(asList(backendProxyConfigs)), "UTF-8");
+        FileUtils.writeStringToFile(file, YamlUtils.toYaml(new Config().setProxy(asList(backendProxyConfigs))), "UTF-8");
         return file;
     }
 

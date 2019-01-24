@@ -1,5 +1,6 @@
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
+import no.nav.pus.decorator.spa.SPAConfigResolverTest;
 import no.nav.testconfig.ApiAppTest;
 
 import static no.nav.apiapp.feil.FeilMapper.VIS_DETALJER_VED_FEIL;
@@ -9,6 +10,7 @@ import static no.nav.pus.decorator.ApplicationConfig.APPLICATION_NAME_PROPERTY;
 import static no.nav.pus.decorator.ApplicationConfig.OIDC_LOGIN_URL_PROPERTY_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.EnvironmentScriptGenerator.PUBLIC_PREFIX;
+import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
@@ -27,6 +29,8 @@ public class MainTest {
         setProperty(PUBLIC_PREFIX + "prop", "content", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop1", "content1", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop2", "content2", PUBLIC);
+
+        setProperty(WEBROOT_PATH_PROPERTY_NAME, SPAConfigResolverTest.getWebappSourceDirectory(), PUBLIC);
 
         if (getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).isPresent()) {
             ServiceUser azureADClientId;

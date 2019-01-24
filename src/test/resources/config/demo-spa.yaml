@@ -1,0 +1,6 @@
+spa:
+ - forwardTarget: /app-1.html
+   urlPattern: /app1
+
+ - forwardTarget: /small/smaller-app.html
+   urlPattern: /small/app/*

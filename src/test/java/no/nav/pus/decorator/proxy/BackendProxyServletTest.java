@@ -26,7 +26,7 @@ public class BackendProxyServletTest {
 
     @Test
     public void defaultRewrite() throws MalformedURLException {
-        BackendProxyServlet backendProxyServlet = new BackendProxyServlet(new BackendProxyConfig()
+        BackendProxyServlet backendProxyServlet = newBackendProxyServlet(new BackendProxyConfig()
                 .setContextPath("/context")
                 .setBaseUrl(new URL("http://www.example.com"))
         );
@@ -34,9 +34,13 @@ public class BackendProxyServletTest {
         assertThat(backendProxyServlet.rewriteTarget(target("/context/request/path"))).isEqualTo("http://www.example.com/context/request/path");
     }
 
+    private BackendProxyServlet newBackendProxyServlet(BackendProxyConfig setBaseUrl) {
+        return new BackendProxyServlet(setBaseUrl, null);
+    }
+
     @Test
     public void removeContextPath() throws MalformedURLException {
-        BackendProxyServlet backendProxyServlet = new BackendProxyServlet(new BackendProxyConfig()
+        BackendProxyServlet backendProxyServlet = newBackendProxyServlet(new BackendProxyConfig()
                 .setContextPath("/context")
                 .setBaseUrl(new URL("http://www.example.com"))
                 .setRequestRewrite(REMOVE_CONTEXT_PATH)
@@ -47,7 +51,7 @@ public class BackendProxyServletTest {
 
     @Test
     public void customPing() throws MalformedURLException {
-        BackendProxyServlet backendProxyServlet = new BackendProxyServlet(new BackendProxyConfig()
+        BackendProxyServlet backendProxyServlet = newBackendProxyServlet(new BackendProxyConfig()
                 .setContextPath("/context")
                 .setBaseUrl(new URL("http://www.example.com"))
                 .setPingRequestPath("/my/custom/ping")
@@ -55,7 +59,7 @@ public class BackendProxyServletTest {
         assertThat(backendProxyServlet.getPingUrl()).isEqualTo("http://www.example.com/my/custom/ping");
         assertThat(backendProxyServlet.rewriteTarget(target("/context/request/path"))).isEqualTo("http://www.example.com/context/request/path");
 
-        backendProxyServlet = new BackendProxyServlet(new BackendProxyConfig()
+        backendProxyServlet = newBackendProxyServlet(new BackendProxyConfig()
                 .setContextPath("/context")
                 .setBaseUrl(new URL("http://www.example.com"))
                 .setPingRequestPath("/my/custom/ping")

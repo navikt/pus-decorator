@@ -26,6 +26,9 @@ public class BackendProxyConfig {
 
     public boolean skipCsrfProtection;
 
+    public boolean validateOidcToken = true;
+    public Integer minSecurityLevel;
+
 
     public enum RequestRewrite {
         INCLUDE_CONTEXT_PATH,

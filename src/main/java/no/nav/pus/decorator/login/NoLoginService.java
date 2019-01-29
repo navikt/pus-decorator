@@ -1,5 +1,7 @@
 package no.nav.pus.decorator.login;
 
+import no.nav.common.auth.Subject;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
@@ -21,6 +23,11 @@ public class NoLoginService implements LoginService {
     @Override
     public AuthenticationStatusDTO getStatus(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         return null;
+    }
+
+    @Override
+    public Optional<Subject> authenticate(HttpServletRequest request, HttpServletResponse response) {
+        return empty();
     }
 
 }

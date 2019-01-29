@@ -99,7 +99,8 @@ public class OidcLoginService implements LoginService {
         return Optional.empty();
     }
 
-    private Optional<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    @Override
+    public Optional<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         return oidcAuthModule.authenticate(httpServletRequest, httpServletResponse);
     }
 

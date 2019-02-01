@@ -18,8 +18,6 @@ import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 
 public class MainTest {
 
-    public static final String TEST_PORT = "8765";
-
     public static void main(String... args) throws Exception {
         String applicationName = "decorator";
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
@@ -44,7 +42,7 @@ public class MainTest {
             setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, FasitUtils.getBaseUrl("aad_b2c_discovery"), PUBLIC);
         }
 
-        Main.main(TEST_PORT);
+        Main.main("8765", "8766");
     }
 
 }

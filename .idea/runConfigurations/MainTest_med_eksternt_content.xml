@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MainTest med eksternt content" type="Application" factoryName="Application" singleton="true">
+    <envs>
+      <env name="CONTENT_URL" value="http://localhost:3000" />
+      <env name="CONTEXT_PATH" value="/" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="MainTest" />
+    <module name="pus-decorator" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

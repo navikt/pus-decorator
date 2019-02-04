@@ -1,6 +1,11 @@
-contexPath: /custom-context-path
+contexPath: /custom-context-path-{{ ENVIRONMENT }}
 decorator:
   headerType: WITHOUT_MENU
-  footerType: NO_FOOTER
-spa: null
-proxy: null
+spa:
+ - forwardTarget: /1.html
+   urlPattern: /app1
+proxy:
+  - contextPath: /api
+    baseUrl: {{ API_URL }}
+  - contextPath: /app
+    baseUrl: http://app-{{ ENVIRONMENT }}.com

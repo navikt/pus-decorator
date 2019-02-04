@@ -2,6 +2,7 @@ package no.nav.pus.decorator;
 
 import lombok.SneakyThrows;
 import no.nav.innholdshenter.filter.DecoratorFilter;
+import no.nav.pus.decorator.config.DecoratorConfig;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,11 +10,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 import static no.nav.pus.decorator.ConfigurationService.Feature.FRONTEND_LOGGER;
 import static no.nav.pus.decorator.ConfigurationService.isEnabled;
-import static no.nav.pus.decorator.FragmentConfig.FOOTER_FRAGMENT;
-import static no.nav.pus.decorator.FragmentConfig.HEADER_FRAGMENT;
 
 public class FragmentCreator {
 
@@ -21,11 +21,16 @@ public class FragmentCreator {
     private static final String HEAD_TEMPLATE = readTemplate("/head-template.html");
     private final String frontendLoggerHtml;
     private final String environmentHtml;
+    private final Optional<String> headerFragment;
+    private final Optional<String> footerFragment;
 
-    public FragmentCreator(String applicationName) {
+    public FragmentCreator(DecoratorConfig decoratorConfig, String applicationName) {
         // https://github.com/navikt/fo-frontendlogger
         this.frontendLoggerHtml = getFrontendLoggerHtml(applicationName);
         this.environmentHtml = "<script>\n" + new EnvironmentScriptGenerator().generate() + "\n</script>";
+
+        this.headerFragment = decoratorConfig.headerType.getFragment();
+        this.footerFragment = decoratorConfig.footerType.getFragment();
     }
 
     private String getFrontendLoggerHtml(String applicationName) {
@@ -66,8 +71,8 @@ public class FragmentCreator {
         for (Element element : template.body().children()) {
             body.appendChild(element);
         }
-        HEADER_FRAGMENT.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment).prepend("{{fragment.skiplinks}}"));
-        FOOTER_FRAGMENT.ifPresent(fragment -> body.append(" " + fragment));
+        headerFragment.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment).prepend("{{fragment.skiplinks}}"));
+        footerFragment.ifPresent(fragment -> body.append(" " + fragment));
         body.prepend("<noscript>Du må aktivere javascript for å kjøre denne appen.</noscript>");
     }
 

@@ -6,7 +6,7 @@ import no.nav.apiapp.ApiApp;
 import no.nav.apiapp.config.ApiAppConfigurator;
 import no.nav.common.yaml.YamlUtils;
 import no.nav.pus.decorator.ApplicationConfig;
-import no.nav.pus.decorator.FragmentConfig;
+import no.nav.pus.decorator.HeaderType;
 import no.nav.pus.decorator.config.Config;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
@@ -23,7 +23,6 @@ import java.net.ServerSocket;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.Arrays.asList;
-import static no.nav.json.JsonUtils.toJson;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.config.ConfigResolver.CONFIGURATION_LOCATION_PROPERTY;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
@@ -49,7 +48,7 @@ public class SPAIntegrationTest {
         givenThat(get(urlPathEqualTo("/enonic/common-html/v4/navno"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withBody("<html><body><div id=\"" + FragmentConfig.HEADER_TYPE.getFragmentName().get() + "\"><h1>decorated!<h1></div></body></html>"))
+                        .withBody("<html><body><div id=\"" + HeaderType.WITH_MENU.getFragmentName().get() + "\"><h1>decorated!<h1></div></body></html>"))
         );
 
         String applicationName = getClass().getSimpleName();

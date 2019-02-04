@@ -2,14 +2,11 @@ package no.nav.pus.decorator.spa;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.pus.decorator.config.Config;
-import no.nav.pus.decorator.config.ConfigResolver;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static no.nav.pus.decorator.config.ConfigResolver.resolveConfig;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 @Slf4j
@@ -17,8 +14,7 @@ public class SPAConfigResolver {
 
     public static final String WEBROOT_PATH_PROPERTY_NAME = "WEBROOT_PATH";
 
-    public static List<SPAConfig> resolveSpaConfiguration() {
-        Config config = resolveConfig();
+    public static List<SPAConfig> resolveSpaConfiguration(Config config) {
         List<SPAConfig> spa = config.spa == null || config.spa.isEmpty() ? defaultConfig() : config.spa;
         return validate(spa);
     }

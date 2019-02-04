@@ -2,7 +2,7 @@ package no.nav.pus.decorator.proxy;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.pus.decorator.config.ConfigResolver;
+import no.nav.pus.decorator.config.Config;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -17,9 +17,9 @@ public class ProxyConfigResolver {
 
 
     @SneakyThrows
-    public static List<BackendProxyConfig> resolveProxyConfiguration() {
+    public static List<BackendProxyConfig> resolveProxyConfiguration(Config config) {
         List<BackendProxyConfig> backendProxyConfig = new ArrayList<>();
-        ofNullable(ConfigResolver.resolveConfig().proxy).ifPresent(backendProxyConfig::addAll);
+        ofNullable(config.proxy).ifPresent(backendProxyConfig::addAll);
 
         if (isEnabled(FRONTEND_LOGGER) && nothingOnFrontendloggerPath(backendProxyConfig)) {
             backendProxyConfig.add(new BackendProxyConfig()

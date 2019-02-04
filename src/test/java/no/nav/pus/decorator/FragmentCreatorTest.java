@@ -1,5 +1,6 @@
 package no.nav.pus.decorator;
 
+import no.nav.pus.decorator.config.DecoratorConfig;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -12,11 +13,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FragmentCreatorTest {
 
+    private DecoratorConfig decoratorConfig = new DecoratorConfig();
 
     @Test
     public void createFragmentTemplate() {
         setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "testapp", () -> {
-            FragmentCreator fragmentCreator = new FragmentCreator("testapp");
+            FragmentCreator fragmentCreator = new FragmentCreator(decoratorConfig, "testapp");
             String fragmentTemplate = fragmentCreator.createFragmentTemplate(readTemplate("/fragmentCreatorTest/original.html"));
             System.out.println(fragmentTemplate);
             assertThat(normalize(fragmentTemplate)).isEqualTo(normalize(readTemplate("/fragmentCreatorTest/merged.html")));
@@ -27,7 +29,7 @@ public class FragmentCreatorTest {
     public void createFragmentTemplateWithEnvironment() {
         setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "testapp", () -> {
             setTemporaryProperty("PUBLIC_MY_PROPERTY", "public_value", () -> {
-                FragmentCreator fragmentCreator = new FragmentCreator("testapp");
+                FragmentCreator fragmentCreator = new FragmentCreator(decoratorConfig, "testapp");
                 String fragmentTemplate = fragmentCreator.createFragmentTemplate(readTemplate("/fragmentCreatorTest/original.html"));
                 System.out.println(fragmentTemplate);
                 assertThat(normalize(fragmentTemplate)).isEqualTo(normalize(readTemplate("/fragmentCreatorTest/mergedWithEnvironment.html")));

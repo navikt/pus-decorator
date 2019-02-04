@@ -1,0 +1,6 @@
+contexPath: /custom-context-path
+decorator:
+  headerType: WITHOUT_MENU
+  footerType: NO_FOOTER
+spa: null
+proxy: null

@@ -1,6 +1,7 @@
 package no.nav.pus.decorator.proxy;
 
 
+import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.config.ConfigResolver;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import org.junit.Rule;
@@ -45,7 +46,8 @@ public class ProxyConfigResolverTest {
 
     private List<BackendProxyConfig> resolveProxyConfiguration(String name){
         systemPropertiesRule.setProperty(ConfigResolver.CONFIGURATION_LOCATION_PROPERTY,getClass().getResource(name).getFile());
-        return ProxyConfigResolver.resolveProxyConfiguration();
+        Config config = ConfigResolver.resolveConfig();
+        return ProxyConfigResolver.resolveProxyConfiguration(config);
     }
 
 }

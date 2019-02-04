@@ -2,6 +2,7 @@ package no.nav.pus.decorator.spa;
 
 import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.pus.decorator.ApplicationConfig;
+import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.config.ConfigResolver;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import org.junit.Rule;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.List;
 
+import static no.nav.pus.decorator.config.ConfigResolver.resolveConfig;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.*;
 
@@ -26,7 +28,7 @@ public class SPAConfigResolverTest {
     public void resolveSpaConfiguration_default() {
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
 
-        assertThat(SPAConfigResolver.resolveSpaConfiguration())
+        assertThat(SPAConfigResolver.resolveSpaConfiguration(resolveConfig()))
                 .extracting("forwardTarget", "urlPattern")
                 .containsExactly(
                         tuple("/index.html", "/*")
@@ -72,7 +74,8 @@ public class SPAConfigResolverTest {
 
     private List<SPAConfig> resolveSpaConfiguration(String name) {
         systemPropertiesRule.setProperty(ConfigResolver.CONFIGURATION_LOCATION_PROPERTY, getClass().getResource(name).getFile());
-        return SPAConfigResolver.resolveSpaConfiguration();
+        Config resolveConfig = resolveConfig();
+        return SPAConfigResolver.resolveSpaConfiguration(resolveConfig);
     }
 
 }

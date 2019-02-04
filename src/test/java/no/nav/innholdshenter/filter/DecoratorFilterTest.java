@@ -1,6 +1,7 @@
 package no.nav.innholdshenter.filter;
 
 import no.nav.innholdshenter.common.ContentRetriever;
+import no.nav.pus.decorator.config.DecoratorConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -52,7 +53,7 @@ public class DecoratorFilterTest {
 
         List<String> fragmentNames = Collections.emptyList();
 
-        decoratorFilter = new DecoratorFilter("http://nav.no/fragments", contentRetriever, fragmentNames, "arbeid");
+        decoratorFilter = new DecoratorFilter(new DecoratorConfig(), "http://nav.no/fragments", contentRetriever, fragmentNames, "arbeid");
     }
 
     @After
@@ -480,6 +481,6 @@ public class DecoratorFilterTest {
     @Test(expected = IllegalArgumentException.class)
     public void throwsWhenArgumentsAreMissing() {
         List<String> fragmentNames = asList("header", "footer");
-        new DecoratorFilter("http://nav.no/fragments", contentRetriever, fragmentNames, null);
+        new DecoratorFilter(new DecoratorConfig(), "http://nav.no/fragments", contentRetriever, fragmentNames, null);
     }
 }

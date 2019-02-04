@@ -6,6 +6,7 @@ import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.pus.decorator.spa.SPAConfig;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -13,6 +14,10 @@ import java.util.List;
 public class Config {
 
     public String contexPath;
+
+    @Valid
+    @NotNull
+    public DecoratorConfig decorator = new DecoratorConfig();
 
     @Valid
     public List<SPAConfig> spa;

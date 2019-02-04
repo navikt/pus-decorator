@@ -1,11 +1,10 @@
 package no.nav.innholdshenter.filter;
 
-import net.sf.ehcache.CacheException;
 import no.nav.cache.Cache;
 import no.nav.cache.CacheUtils;
 import no.nav.innholdshenter.common.ContentRetriever;
-import no.nav.pus.decorator.ApplicationConfig;
 import no.nav.pus.decorator.FragmentCreator;
+import no.nav.pus.decorator.config.DecoratorConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -53,8 +52,8 @@ public class DecoratorFilter implements Filter {
     private final Cache<String, Document> cache = CacheUtils.buildCache(DEFAULT.withTimeToLiveMillis(ONE_HOUR));
     private final FragmentCreator fragmentCreator;
 
-    public DecoratorFilter(String fragmentsUrl, ContentRetriever contentRetriever, List<String> fragmentNames, String applicationName) {
-        if (fragmentsUrl == null || contentRetriever == null || fragmentNames == null || applicationName == null) {
+    public DecoratorFilter(DecoratorConfig decoratorConfig, String fragmentsUrl, ContentRetriever contentRetriever, List<String> fragmentNames, String applicationName) {
+        if (decoratorConfig == null || fragmentsUrl == null || contentRetriever == null || fragmentNames == null || applicationName == null) {
             throw new IllegalArgumentException("Alle argumentene er paakrevd!");
         }
 
@@ -68,7 +67,7 @@ public class DecoratorFilter implements Filter {
         this.applicationName = applicationName;
         setDefaultIncludeContentTypes();
         setDefaultExcludeHeaders();
-        this.fragmentCreator = new FragmentCreator(applicationName);
+        this.fragmentCreator = new FragmentCreator(decoratorConfig, applicationName);
     }
 
     @SuppressWarnings("PMD.UnusedPrivateMethod")

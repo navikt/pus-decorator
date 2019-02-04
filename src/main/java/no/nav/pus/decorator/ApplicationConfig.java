@@ -8,6 +8,7 @@ import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
 import no.nav.innholdshenter.filter.DecoratorFilter;
+import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.feature.ByApplicationStrategy;
 import no.nav.pus.decorator.feature.ByQueryParamStrategy;
 import no.nav.pus.decorator.feature.FeatureResource;
@@ -45,11 +46,10 @@ import static javax.servlet.DispatcherType.FORWARD;
 import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.leggTilFilter;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
-import static no.nav.pus.decorator.ConfigurationService.Feature.DECORATOR;
-import static no.nav.pus.decorator.ConfigurationService.Feature.PROXY;
-import static no.nav.pus.decorator.ConfigurationService.Feature.UNLEASH;
+import static no.nav.pus.decorator.ConfigurationService.Feature.*;
 import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 import static no.nav.pus.decorator.DecoratorUtils.getDecoratorFilter;
+import static no.nav.pus.decorator.config.ConfigResolver.resolveConfig;
 import static no.nav.pus.decorator.proxy.ProxyConfigResolver.resolveProxyConfiguration;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.resolveSpaConfiguration;
 import static no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig.UNLEASH_API_URL_PROPERTY_NAME;
@@ -66,6 +66,7 @@ public class ApplicationConfig implements ApiApplication {
     public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
     public static final String OIDC_LOGIN_URL_PROPERTY_NAME = "OIDC_LOGIN_URL";
 
+    private final Config config = resolveConfig();
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
@@ -85,11 +86,11 @@ public class ApplicationConfig implements ApiApplication {
     public void startup(ServletContext servletContext) {
         leggTilFilter(servletContext, CsrfDoubleSubmitCookieFilter.class);
 
-        List<SPAConfig> spaConfigs = resolveSpaConfiguration();
+        List<SPAConfig> spaConfigs = resolveSpaConfiguration(config);
         log.info("spa configuration: {}", spaConfigs);
 
         if(isEnabled(DECORATOR)){
-            DecoratorFilter decoratorFilter = getDecoratorFilter();
+            DecoratorFilter decoratorFilter = getDecoratorFilter(config.decorator);
 
             servletContext.addFilter("decoratorFilter", decoratorFilter)
                     .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, spaConfigs.stream().map(SPAConfig::getForwardTarget).toArray(String[]::new));
@@ -130,7 +131,7 @@ public class ApplicationConfig implements ApiApplication {
     @Bean
     @Conditional({ConfigurationService.DecoratorEnabled.class})
     public EnonicHelsesjekk enonicHelsesjekk() {
-        return new EnonicHelsesjekk();
+        return new EnonicHelsesjekk(config.decorator);
     }
 
     @Bean
@@ -161,7 +162,7 @@ public class ApplicationConfig implements ApiApplication {
     private void addBackendProxies(Jetty jetty, ApiAppConfigurator apiAppConfigurator) {
         HandlerCollection handlerCollection = new HandlerCollection();
 
-        resolveProxyConfiguration()
+        resolveProxyConfiguration(config)
                 .stream()
                 .map(BackendProxyServlet::new)
                 .forEach(backendProxyServlet -> {

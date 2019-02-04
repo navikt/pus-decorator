@@ -1,5 +1,12 @@
 
 
+decorator:
+   # https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/HeaderType.java
+   headerType: WITH_MENU
+   # https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java
+   footerType: WITHOUT_ALPHABET
+
+
 # used to assign url patterns to forward targets.
 # files as forward targets are expected to be found under /app and will be decorated.
 

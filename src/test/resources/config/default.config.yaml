@@ -1,4 +1,7 @@
 ---
 contexPath: null
+decorator:
+  headerType: "WITH_MENU"
+  footerType: "WITHOUT_ALPHABET"
 spa: null
 proxy: null

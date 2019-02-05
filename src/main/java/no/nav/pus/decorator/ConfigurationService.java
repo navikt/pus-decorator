@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
+import static no.nav.pus.decorator.ConfigurationService.Feature.DECORATOR;
 import static no.nav.pus.decorator.ConfigurationService.Feature.UNLEASH;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
@@ -53,7 +54,7 @@ public class ConfigurationService {
 
     public static class DecoratorEnabled extends AbstractCondition {
         public DecoratorEnabled() {
-            super(UNLEASH);
+            super(DECORATOR);
         }
     }
 }

@@ -6,7 +6,6 @@ import no.nav.apiapp.security.SecurityLevelAuthorizationModule;
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
 import no.nav.common.auth.Subject;
-import no.nav.common.auth.openam.sbs.SecurityLevel;
 import no.nav.log.LogFilter;
 import no.nav.log.MDCConstants;
 import no.nav.pus.decorator.login.LoginService;

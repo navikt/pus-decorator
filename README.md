@@ -9,6 +9,7 @@ Decorates a static web application for use on nav.no
  - [environment variables](https://github.com/navikt/pus-decorator#environmentjs) exposed to frontend
  - CSP (content security policy) for added security
  - enforced login
+ - OIDC token validation and security level authorization
 
 pus-decorator comes with much functionality out of the box, but may be deactivated using the following environment variables:
  - `DISABLE_DECORATOR`

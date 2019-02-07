@@ -1,7 +1,7 @@
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUser;
+import no.nav.common.testconfig.ApiAppTest;
+import no.nav.common.testconfig.fasit.FasitUtils;
+import no.nav.common.testconfig.fasit.ServiceUser;
 import no.nav.pus.decorator.spa.SPAConfigResolverTest;
-import no.nav.testconfig.ApiAppTest;
 
 import static no.nav.apiapp.feil.FeilMapper.VIS_DETALJER_VED_FEIL;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME;

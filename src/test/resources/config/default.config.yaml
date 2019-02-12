@@ -5,3 +5,4 @@ decorator:
   footerType: "WITHOUT_ALPHABET"
 spa: null
 proxy: null
+redirect: null

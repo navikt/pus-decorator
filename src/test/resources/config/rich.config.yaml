@@ -9,3 +9,6 @@ proxy:
     baseUrl: {{ API_URL }}
   - contextPath: /app
     baseUrl: http://app-{{ ENVIRONMENT }}.com
+redirect:
+  - from: /home
+    to: https://www.nav.no

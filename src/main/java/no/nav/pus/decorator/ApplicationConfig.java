@@ -18,8 +18,8 @@ import no.nav.pus.decorator.login.NoLoginService;
 import no.nav.pus.decorator.login.OidcLoginService;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.pus.decorator.proxy.BackendProxyServlet;
+import no.nav.pus.decorator.redirect.RedirectServlet;
 import no.nav.pus.decorator.spa.SPAConfig;
-import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
 import no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig;
@@ -37,11 +37,13 @@ import javax.inject.Provider;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static java.util.EnumSet.of;
+import static java.util.Optional.ofNullable;
 import static javax.servlet.DispatcherType.FORWARD;
 import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.leggTilFilter;
@@ -154,14 +156,35 @@ public class ApplicationConfig implements ApiApplication {
 
     @Override
     public void configure(ApiAppConfigurator apiAppConfigurator) {
-        if (isEnabled(PROXY)) {
-            apiAppConfigurator.customizeJetty(jetty -> addBackendProxies(jetty, apiAppConfigurator));
-        }
+        apiAppConfigurator.customizeJetty(jetty -> {
+            HandlerCollection handlerCollection = new HandlerCollection();
+            if (isEnabled(PROXY)) {
+                addBackendProxies(apiAppConfigurator, handlerCollection);
+            }
+
+            addRedirects(handlerCollection);
+
+            Server server = jetty.server;
+            handlerCollection.addHandler(server.getHandler());
+            server.setHandler(handlerCollection);
+        });
     }
 
-    private void addBackendProxies(Jetty jetty, ApiAppConfigurator apiAppConfigurator) {
-        HandlerCollection handlerCollection = new HandlerCollection();
+    private void addRedirects(HandlerCollection handlerCollection) {
+        ofNullable(config.getRedirect()).orElseGet(Collections::emptyList).forEach(redirectConfig -> {
+            ServletContextHandler servletContextHandler = new ServletContextHandler();
+            servletContextHandler.setAllowNullPathInfo(true);
+            servletContextHandler.addServlet(new ServletHolder(new RedirectServlet(redirectConfig)), "/*");
+            servletContextHandler.setContextPath(redirectConfig.getFrom());
+            handlerCollection.addHandler(servletContextHandler);
+            log.info("redirect: {} -> {}",
+                    redirectConfig.from,
+                    redirectConfig.to
+            );
+        });
+    }
 
+    private void addBackendProxies(ApiAppConfigurator apiAppConfigurator, HandlerCollection handlerCollection) {
         resolveProxyConfiguration(config)
                 .stream()
                 .map(BackendProxyServlet::new)
@@ -169,10 +192,6 @@ public class ApplicationConfig implements ApiApplication {
                     handlerCollection.addHandler(proxyHandler(backendProxyServlet));
                     apiAppConfigurator.selfTest(backendProxyServlet);
                 });
-
-        Server server = jetty.server;
-        handlerCollection.addHandler(server.getHandler());
-        server.setHandler(handlerCollection);
     }
 
     private static ServletContextHandler proxyHandler(BackendProxyServlet backendProxyServlet) {

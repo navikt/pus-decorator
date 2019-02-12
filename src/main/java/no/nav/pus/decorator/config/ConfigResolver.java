@@ -8,6 +8,8 @@ import no.nav.validation.ValidationUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static no.nav.pus.decorator.config.DeprecatedConfigDetector.checkForDeprecatedConfig;
 
@@ -29,11 +31,22 @@ public class ConfigResolver {
         File file = new File(configurationLocation);
         if (file.exists()) {
             log.info("Reading configuration file at: {}", configurationLocation);
-            return YamlUtils.fromYaml(FileUtils.readFileToString(file, "UTF-8"), Config.class);
+            return YamlUtils.fromYaml(interpolate(FileUtils.readFileToString(file, "UTF-8")), Config.class);
         } else {
             log.info("No configuration found at {}, using default configuration", configurationLocation);
             return new Config();
         }
+    }
+
+    static String interpolate(String string) {
+        StringBuffer sb = new StringBuffer();
+        Matcher matcher = Pattern.compile("\\{\\{(.+?)}}").matcher(string);
+        while (matcher.find()) {
+            String trim = matcher.group(1).trim();
+            matcher.appendReplacement(sb, EnvironmentUtils.getRequiredProperty(trim));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
 }

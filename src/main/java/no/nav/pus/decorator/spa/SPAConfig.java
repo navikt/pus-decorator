@@ -1,20 +1,15 @@
 package no.nav.pus.decorator.spa;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
-import java.util.Arrays;
-import java.util.List;
 
-import static lombok.AccessLevel.PRIVATE;
-
+@Data
 @Builder
-@NoArgsConstructor(access = PRIVATE)
-@AllArgsConstructor(access = PRIVATE)
-@ToString
-@Getter
+@Accessors(chain = true)
 public class SPAConfig {
 
     @NotEmpty

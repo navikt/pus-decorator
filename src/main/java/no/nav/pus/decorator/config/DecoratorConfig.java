@@ -14,10 +14,13 @@ import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 @Accessors(chain = true)
 public class DecoratorConfig {
 
-    @NotNull
-    public HeaderType headerType = getOptionalProperty("HEADER_TYPE").map(HeaderType::valueOf).orElse(HeaderType.WITH_MENU);
+    public static final String HEADER_TYPE_PROPERTY = "HEADER_TYPE";
+    public static final String FOOTER_TYPE_PROPERTY = "FOOTER_TYPE";
 
     @NotNull
-    public FooterType footerType = getOptionalProperty("FOOTER_TYPE").map(FooterType::valueOf).orElse(FooterType.WITHOUT_ALPHABET);
+    public HeaderType headerType = getOptionalProperty(HEADER_TYPE_PROPERTY).map(HeaderType::valueOf).orElse(HeaderType.WITH_MENU);
+
+    @NotNull
+    public FooterType footerType = getOptionalProperty(FOOTER_TYPE_PROPERTY).map(FooterType::valueOf).orElse(FooterType.WITHOUT_ALPHABET);
 
 }

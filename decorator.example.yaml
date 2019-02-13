@@ -55,3 +55,16 @@ proxy: # default: /frontendlogger => http://frontendlogger.default is added, but
    pingRequestPath: /ping
 
 
+
+# the example below will create the following redirects:
+# | end-user request                                         | redirect                                          |
+# |----------------------------------------------------------|---------------------------------------------------|
+# | https://tjenester.nav.no/my-app                          | https://my-app.nav.no                             |
+# | https://tjenester.nav.no/my-app/deep/link?a=b            | https://my-app.nav.no/deep/link?a=b               |
+# | https://my-app.nav.no/other-app                          | https://tjenester.nav.no/other-app                |
+# | https://my-app.nav.no/other-app/deep/link?a=b            | https://tjenester.nav.no/other-app/deep/link?a=b  |
+redirect:
+ - from: /my-app
+   to: https://my-app.nav.no
+ - from: /other-app
+   to: https://tjenester.nav.no/other-app

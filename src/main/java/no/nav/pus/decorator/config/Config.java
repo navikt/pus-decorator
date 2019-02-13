@@ -25,4 +25,7 @@ public class Config {
     @Valid
     public List<BackendProxyConfig> proxy;
 
+    @Valid
+    public List<RedirectConfig> redirect;
+
 }

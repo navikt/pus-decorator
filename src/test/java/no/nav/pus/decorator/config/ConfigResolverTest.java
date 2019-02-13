@@ -49,6 +49,9 @@ public class ConfigResolverTest {
                         new BackendProxyConfig().setContextPath("/api").setBaseUrl(new URL("http://my-api.com")),
                         new BackendProxyConfig().setContextPath("/app").setBaseUrl(new URL("http://app-t.com"))
                 ))
+                .setRedirect(asList(
+                        new RedirectConfig().setFrom("/home").setTo(new URL("https://www.nav.no"))
+                ))
         );
     }
 

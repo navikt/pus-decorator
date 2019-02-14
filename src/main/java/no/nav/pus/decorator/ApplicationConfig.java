@@ -78,11 +78,6 @@ public class ApplicationConfig implements ApiApplication {
     }
 
     @Override
-    public boolean brukSTSHelsesjekk() {
-        return false;
-    }
-
-    @Override
     public String getContextPath() {
         return getOptionalProperty(CONTEXT_PATH_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName);
     }

@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
@@ -43,6 +42,7 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
     private final boolean removeContextPath;
     private final int contextPathLength;
     private final LoginService loginService;
+    private final SecurityLevelAuthorizationModule securityLevelAuthorizationModule;
 
     public BackendProxyServlet(BackendProxyConfig backendProxyConfig, LoginService loginService) {
         this.backendProxyConfig = backendProxyConfig;
@@ -58,6 +58,10 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
                 false
         );
         this.loginService = loginService;
+        this.securityLevelAuthorizationModule =
+                backendProxyConfig.minSecurityLevel != null && backendProxyConfig.minSecurityLevel > 0
+                        ? new SecurityLevelAuthorizationModule(backendProxyConfig.minSecurityLevel)
+                        : null;
     }
 
     private String defaultPingPath() {
@@ -92,20 +96,31 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (backendProxyConfig.validateOidcToken) {
-
-            Optional<Subject> subject = loginService.authenticate(request, response);
-
-            if (backendProxyConfig.minSecurityLevel != null) {
-                SecurityLevelAuthorizationModule securityLevelAuthorizationModule = new SecurityLevelAuthorizationModule(backendProxyConfig.minSecurityLevel);
-                subject = subject.filter(s -> securityLevelAuthorizationModule.authorized(s, request));
-            }
-
-            if (!subject.isPresent()) {
-                response.sendError(HttpStatus.UNAUTHORIZED_401);
-            }
+        if (isAuthorized(request, response)) {
+            super.service(request, response);
+        } else {
+            response.setStatus(HttpStatus.UNAUTHORIZED_401);
         }
-        super.service(request, response);
+    }
+
+    private boolean isAuthorized(HttpServletRequest request, HttpServletResponse response) {
+        if (backendProxyConfig.validateOidcToken) {
+            return loginService
+                    .authenticate(request, response)
+                    .filter(subject -> isValidSecurityLevel(subject, request))
+                    .isPresent();
+        } else {
+            return true;
+        }
+
+    }
+
+    private boolean isValidSecurityLevel(Subject subject, HttpServletRequest request) {
+        if (securityLevelAuthorizationModule != null) {
+            return securityLevelAuthorizationModule.authorized(subject, request);
+        } else {
+            return true;
+        }
     }
 
     @Override

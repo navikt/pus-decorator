@@ -108,6 +108,7 @@ public class ProxyIntegrationTest {
                         .setBaseUrl(new URL(wiremockBasePath))
                         .setContextPath("/validate-oidc")
                         .setValidateOidcToken(true)
+                        .setMinSecurityLevel(0)
                 ,
                 new BackendProxyConfig()
                         .setBaseUrl(new URL(wiremockBasePath))

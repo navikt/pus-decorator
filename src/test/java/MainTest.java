@@ -1,5 +1,5 @@
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUser;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.ServiceUser;
 import no.nav.pus.decorator.spa.SPAConfigResolverTest;
 import no.nav.testconfig.ApiAppTest;
 

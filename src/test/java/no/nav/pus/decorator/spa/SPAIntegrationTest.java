@@ -152,9 +152,7 @@ public class SPAIntegrationTest {
         @Override
         public void configure(ApiAppConfigurator apiAppConfigurator) {
             super.configure(apiAppConfigurator);
-            apiAppConfigurator.customizeJettyBuilder(jettyBuilder -> {
-                jettyBuilder.war(getWarPath());
-            });
+            apiAppConfigurator.customizeJettyBuilder(jettyBuilder -> jettyBuilder.war(getWarPath()));
         }
     }
 

@@ -40,6 +40,8 @@ proxy: # default: /frontendlogger => http://frontendlogger.default is added, but
 
  - contextPath: /backend
    baseUrl: http://my-backend-api
+   validateOidcToken: true # default: true
+   minSecurityLevel: 4 # default: 4 (disable with 0/null)
 
  - contextPath: /pingable
    baseUrl: http://pingable-service

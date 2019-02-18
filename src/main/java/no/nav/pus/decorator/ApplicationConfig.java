@@ -68,15 +68,13 @@ public class ApplicationConfig implements ApiApplication {
     public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
     public static final String OIDC_LOGIN_URL_PROPERTY_NAME = "OIDC_LOGIN_URL";
 
+    private LoginService loginService = getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME)
+            .map(this::oidcLoginService).orElse(new NoLoginService());
+
     private final Config config = resolveConfig();
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
-    }
-
-    @Override
-    public boolean brukSTSHelsesjekk() {
-        return false;
     }
 
     @Override
@@ -103,8 +101,6 @@ public class ApplicationConfig implements ApiApplication {
         AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) ServletUtil.getContext(servletContext);
         SingletonBeanRegistry singletonBeanRegistry = annotationConfigWebApplicationContext.getBeanFactory();
 
-        LoginService loginService = getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME).map(oidcLoginUrl -> oidcLoginService(oidcLoginUrl,servletContext.getContextPath())).orElse(new NoLoginService());
-
         singletonBeanRegistry.registerSingleton(AuthenticationResource.class.getName(), new AuthenticationResource(loginService, servletContext.getContextPath()));
 
         spaConfigs.forEach(spaConfig -> {
@@ -123,11 +119,11 @@ public class ApplicationConfig implements ApiApplication {
         });
     }
 
-    private LoginService oidcLoginService(String oidcLoginUrl, String contextPath) {
+    private LoginService oidcLoginService(String oidcLoginUrl) {
         AzureADB2CConfig azureADB2CConfig = AzureADB2CConfig.readFromSystemProperties();
         AzureADB2CProvider azureADB2CProvider = new AzureADB2CProvider(azureADB2CConfig);
         OidcAuthModule oidcAuthModule = new OidcAuthModule(singletonList(azureADB2CProvider));
-        return new OidcLoginService(oidcLoginUrl, oidcAuthModule, contextPath);
+        return new OidcLoginService(oidcLoginUrl, oidcAuthModule, getContextPath());
     }
 
     @Bean
@@ -159,7 +155,7 @@ public class ApplicationConfig implements ApiApplication {
         apiAppConfigurator.customizeJetty(jetty -> {
             HandlerCollection handlerCollection = new HandlerCollection();
             if (isEnabled(PROXY)) {
-                addBackendProxies(apiAppConfigurator, handlerCollection);
+                addBackendProxies(apiAppConfigurator, handlerCollection, loginService);
             }
 
             addRedirects(handlerCollection);
@@ -184,10 +180,10 @@ public class ApplicationConfig implements ApiApplication {
         });
     }
 
-    private void addBackendProxies(ApiAppConfigurator apiAppConfigurator, HandlerCollection handlerCollection) {
+    private void addBackendProxies(ApiAppConfigurator apiAppConfigurator, HandlerCollection handlerCollection, LoginService loginService) {
         resolveProxyConfiguration(config)
                 .stream()
-                .map(BackendProxyServlet::new)
+                .map((BackendProxyConfig backendProxyConfig) -> new BackendProxyServlet(backendProxyConfig, loginService))
                 .forEach(backendProxyServlet -> {
                     handlerCollection.addHandler(proxyHandler(backendProxyServlet));
                     apiAppConfigurator.selfTest(backendProxyServlet);

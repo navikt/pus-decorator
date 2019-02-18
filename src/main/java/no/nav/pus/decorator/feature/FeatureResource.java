@@ -69,8 +69,11 @@ public class FeatureResource {
                     .build();
             evaluation = features
                     .stream()
-                    .collect(
-                            toMap(e -> e, e -> unleashService.isEnabled(e, unleashContext)));
+                    .collect(toMap(
+                            e -> e,
+                            e -> unleashService.isEnabled(e, unleashContext),
+                            (a, b) -> a
+                    ));
         }
 
         @GET

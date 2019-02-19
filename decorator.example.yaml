@@ -1,4 +1,6 @@
 
+# default: /<application name>
+contextPath: /
 
 decorator:
    # https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/HeaderType.java

@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 import static java.util.EnumSet.of;
@@ -68,10 +69,11 @@ public class ApplicationConfig implements ApiApplication {
     public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
     public static final String OIDC_LOGIN_URL_PROPERTY_NAME = "OIDC_LOGIN_URL";
 
-    private LoginService loginService = getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME)
-            .map(this::oidcLoginService).orElse(new NoLoginService());
-
     private final Config config = resolveConfig();
+
+    private final LoginService loginService = getOptionalProperty(OIDC_LOGIN_URL_PROPERTY_NAME)
+            .map(this::oidcLoginService)
+            .orElse(new NoLoginService());
 
     public static String resolveApplicationName() {
         return getRequiredProperty(APPLICATION_NAME_PROPERTY, NAIS_APP_NAME_PROPERTY_NAME);
@@ -79,7 +81,8 @@ public class ApplicationConfig implements ApiApplication {
 
     @Override
     public String getContextPath() {
-        return getOptionalProperty(CONTEXT_PATH_PROPERTY_NAME).orElseGet(ApplicationConfig::resolveApplicationName);
+        Optional<String> configuredContextPath = ofNullable(getOptionalProperty(CONTEXT_PATH_PROPERTY_NAME).orElse(config.contexPath));
+        return configuredContextPath.orElseGet(ApplicationConfig::resolveApplicationName);
     }
 
     @Override

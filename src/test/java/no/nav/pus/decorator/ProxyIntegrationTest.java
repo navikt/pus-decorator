@@ -4,7 +4,9 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
 import no.nav.common.yaml.YamlUtils;
+import no.nav.metrics.TestUtil;
 import no.nav.pus.decorator.config.Config;
+import no.nav.pus.decorator.login.AuthConfig;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
@@ -38,7 +40,6 @@ import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREA
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.ApplicationConfig.CONTEXT_PATH_PROPERTY_NAME;
-import static no.nav.pus.decorator.ApplicationConfig.OIDC_LOGIN_URL_PROPERTY_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.config.ConfigResolver.CONFIGURATION_LOCATION_PROPERTY;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
@@ -121,7 +122,6 @@ public class ProxyIntegrationTest {
         systemPropertiesRule.setProperty(CONFIGURATION_LOCATION_PROPERTY, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
-        systemPropertiesRule.setProperty(OIDC_LOGIN_URL_PROPERTY_NAME, "url");
         systemPropertiesRule.setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, oidcProviderRule.getDiscoveryUri());
         systemPropertiesRule.setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, oidcProviderRule.getAudience());
 
@@ -237,7 +237,10 @@ public class ProxyIntegrationTest {
 
     private File writeProxyConfiguration(BackendProxyConfig... backendProxyConfigs) throws IOException {
         File file = File.createTempFile(getClass().getSimpleName(), ".json");
-        FileUtils.writeStringToFile(file, YamlUtils.toYaml(new Config().setProxy(asList(backendProxyConfigs))), "UTF-8");
+        Config config = new Config()
+                .setAuth(new AuthConfig().setLoginUrl(TestUtils.url("http://localhost/login")))
+                .setProxy(asList(backendProxyConfigs));
+        FileUtils.writeStringToFile(file, YamlUtils.toYaml(config), "UTF-8");
         return file;
     }
 

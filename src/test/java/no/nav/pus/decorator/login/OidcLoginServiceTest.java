@@ -4,6 +4,7 @@ import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
+import no.nav.pus.decorator.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +27,8 @@ public class OidcLoginServiceTest {
     private static final int EXPIRATION_TIME = Integer.MAX_VALUE;
 
     private OidcAuthModule oidcAuthModule = mock(OidcAuthModule.class);
-    private OidcLoginService oidcLoginService = new OidcLoginService("https://login.nav.no/oidc", oidcAuthModule, "/contextpath");
+    private AuthConfig authConfig = new AuthConfig().setLoginUrl(TestUtils.url("https://login.nav.no/oidc")).setEnforce(true);
+    private OidcLoginService oidcLoginService = newOidcLoginService(authConfig, "/contextpath");
     private HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
     private HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
     private String requestUrl = "http://app.nav.no/contextpath";
@@ -56,6 +58,12 @@ public class OidcLoginServiceTest {
 
         authenticateUser();
         assertThat(oidcLoginService.getLoginRedirectUrl(httpServletRequest, httpServletResponse)).isEmpty();
+    }
+
+    @Test
+    public void getLoginRedirectUr__notEnforced() {
+        OidcLoginService notEnforcingOidcLoginService = newOidcLoginService(authConfig.setEnforce(false), null);
+        assertThat(notEnforcingOidcLoginService.getLoginRedirectUrl(httpServletRequest, httpServletResponse)).isEmpty();
     }
 
     @Test
@@ -103,5 +111,9 @@ public class OidcLoginServiceTest {
         when(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).thenReturn(of(subject));
     }
 
+
+    private OidcLoginService newOidcLoginService(AuthConfig authConfig, String contextPath) {
+        return new OidcLoginService(authConfig, oidcAuthModule, contextPath);
+    }
 
 }

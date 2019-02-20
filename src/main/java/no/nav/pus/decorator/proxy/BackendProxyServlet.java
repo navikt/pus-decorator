@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;

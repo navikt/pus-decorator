@@ -1,4 +1,7 @@
 contexPath: /custom-context-path-{{ ENVIRONMENT }}
+auth:
+  enforce: true
+  loginUrl: https://example.com
 decorator:
   headerType: WITHOUT_MENU
 spa:

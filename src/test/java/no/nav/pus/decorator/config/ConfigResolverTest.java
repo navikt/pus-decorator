@@ -4,6 +4,8 @@ import lombok.SneakyThrows;
 import no.nav.common.yaml.YamlUtils;
 import no.nav.pus.decorator.FooterType;
 import no.nav.pus.decorator.HeaderType;
+import no.nav.pus.decorator.TestUtils;
+import no.nav.pus.decorator.login.AuthConfig;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.pus.decorator.spa.SPAConfig;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
@@ -42,6 +44,10 @@ public class ConfigResolverTest {
         assertThat(config).isEqualTo(new Config()
                 .setContexPath("/custom-context-path-t")
                 .setDecorator(new DecoratorConfig().setFooterType(FooterType.NO_FOOTER).setHeaderType(HeaderType.WITHOUT_MENU))
+                .setAuth(new AuthConfig()
+                        .setEnforce(true)
+                        .setLoginUrl(TestUtils.url("https://example.com"))
+                )
                 .setSpa(asList(
                         SPAConfig.builder().urlPattern("/app1").forwardTarget("/1.html").build()
                 ))

@@ -9,6 +9,11 @@ decorator:
    footerType: WITHOUT_ALPHABET
 
 
+# default: no support for authentication and authorization
+auth: # any value in the following attributes will activate support for authentication and authorization (additional configuration properties will be required)
+   enforce: false # if pus-decorator should automatically login users before serving the application. default: true
+   loginUrl: https://loginservice.nav.no/login # login-endpoint that pus-decorator will redirect to - required when enforce=true
+
 # used to assign url patterns to forward targets.
 # files as forward targets are expected to be found under /app and will be decorated.
 
@@ -44,6 +49,8 @@ proxy: # default: /frontendlogger => http://frontendlogger.default is added, but
    baseUrl: http://my-backend-api
    validateOidcToken: true # default: true
    minSecurityLevel: 4 # default: 4 (disable with 0/null)
+   # NB: if a backend either defaults to, or is configured to, perform authentication and/or authorization -
+   # all request will be denied unless this functionality is activated in the auth-section above
 
  - contextPath: /pingable
    baseUrl: http://pingable-service

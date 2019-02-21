@@ -5,12 +5,14 @@ import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.pus.decorator.ApplicationConfig;
+import no.nav.sbl.util.AssertUtils;
 import org.jose4j.jwt.ReservedClaimNames;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.time.Duration;
@@ -18,6 +20,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static java.util.Optional.*;
+import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 
 public class OidcLoginService implements LoginService {
@@ -27,12 +30,14 @@ public class OidcLoginService implements LoginService {
     static final String DESTINATION_COOKIE_NAME = "login_dest";
     static final String EXPIRATION_TIME_ATTRIBUTE_NAME = ReservedClaimNames.EXPIRATION_TIME;
 
-    private final String oidcLoginUrl;
+    private final URL oidcLoginUrl;
+    private final boolean enforce;
     private final OidcAuthModule oidcAuthModule;
     private final String contextPath;
 
-    public OidcLoginService(String oidcLoginUrl, OidcAuthModule oidcAuthModule, String contextPath) {
-        this.oidcLoginUrl = oidcLoginUrl;
+    public OidcLoginService(AuthConfig oidcLoginUrl, OidcAuthModule oidcAuthModule, String contextPath) {
+        this.enforce = oidcLoginUrl.enforce;
+        this.oidcLoginUrl = oidcLoginUrl.enforce ? assertNotNull(oidcLoginUrl.loginUrl, "loginUrl må spesifiseres når enforce=true") : null;
         this.oidcAuthModule = oidcAuthModule;
         this.contextPath = contextPath;
     }
@@ -53,7 +58,7 @@ public class OidcLoginService implements LoginService {
 
     @Override
     public Optional<String> getLoginRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        if (getStatus(httpServletRequest, httpServletResponse).remainingSeconds < MINIMUM_REMAINING_SECONDS) {
+        if (enforce && getStatus(httpServletRequest, httpServletResponse).remainingSeconds < MINIMUM_REMAINING_SECONDS) {
             Cookie cookie = new Cookie(DESTINATION_COOKIE_NAME, encode(buildDestinationUrl(httpServletRequest)));
             cookie.setPath("/");
             httpServletResponse.addCookie(cookie);

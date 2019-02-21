@@ -3,6 +3,7 @@ contexPath: null
 decorator:
   headerType: "WITH_MENU"
   footerType: "WITHOUT_ALPHABET"
+auth: null
 spa: null
 proxy: null
 redirect: null

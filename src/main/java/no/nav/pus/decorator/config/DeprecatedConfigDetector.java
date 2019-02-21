@@ -2,11 +2,21 @@ package no.nav.pus.decorator.config;
 
 import java.io.File;
 
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+
 public class DeprecatedConfigDetector {
 
     public static void checkForDeprecatedConfig() {
         checkFile("/proxy.json");
         checkFile("/spa.config.json");
+
+        checkVariable("OIDC_LOGIN_URL");
+    }
+
+    private static void checkVariable(String variableName) {
+        if (getOptionalProperty(variableName).isPresent()) {
+            fail(variableName);
+        }
     }
 
     private static void checkFile(String path) {

@@ -1,33 +1,33 @@
 package no.nav.pus.decorator.proxy;
 
 import lombok.extern.slf4j.Slf4j;
-import net.logstash.logback.marker.ObjectAppendingMarker;
 import no.nav.apiapp.security.SecurityLevelAuthorizationModule;
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
 import no.nav.common.auth.Subject;
 import no.nav.log.LogFilter;
-import no.nav.log.MDCConstants;
+import no.nav.log.MarkerBuilder;
 import no.nav.pus.decorator.login.LoginService;
 import no.nav.sbl.util.EnvironmentUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.api.Result;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.proxy.ProxyServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
-import static no.nav.sbl.util.StringUtils.*;
+import static no.nav.sbl.util.StringUtils.nullOrEmpty;
+import static no.nav.sbl.util.StringUtils.of;
 
 @Slf4j
 public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
@@ -137,7 +137,6 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
 
         String callId = LogFilter.resolveCallId(clientRequest);
         clientRequest.setAttribute(CALL_ID, callId);
-        log.info(new ObjectAppendingMarker(MDCConstants.MDC_CALL_ID, callId), "{}", target);
         return target;
     }
 
@@ -165,5 +164,44 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
     public HelsesjekkMetadata getMetadata() {
         return helsesjekkMetadata;
     }
+
+
+    @Override
+    protected Response.Listener newProxyResponseListener(HttpServletRequest request, HttpServletResponse response) {
+        return new ApplicationProxyResponseListener(request, response);
+    }
+
+    private class ApplicationProxyResponseListener extends ProxyResponseListener {
+
+        private final HttpServletRequest request;
+
+        private ApplicationProxyResponseListener(HttpServletRequest request, HttpServletResponse response) {
+            super(request, response);
+            this.request = request;
+        }
+
+        @Override
+        public void onComplete(Result result) {
+            Object callId = request.getAttribute(CALL_ID);
+            Response response = result.getResponse();
+            Throwable responseFailure = result.getResponseFailure();
+
+            new MarkerBuilder()
+                    .field(CALL_ID, callId)
+                    .field("method", request.getMethod())
+                    .field("path", request.getRequestURI())
+                    .field("status", response.getStatus())
+                    .log((marker, message) -> {
+                        if (responseFailure != null) {
+                            log.warn(marker, message, responseFailure);
+                        } else {
+                            log.info(marker, message);
+                        }
+                    });
+
+            super.onComplete(result);
+        }
+    }
+
 
 }

@@ -43,6 +43,7 @@ import static no.nav.pus.decorator.ApplicationConfig.CONTEXT_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.config.ConfigResolver.CONFIGURATION_LOCATION_PROPERTY;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
+import static no.nav.pus.decorator.proxy.ProxyConfigResolver.FRONTENDLOGGER_URL_PROPERTY;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.spa.SPAConfigResolverTest.getWebappSourceDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,6 +73,13 @@ public class ProxyIntegrationTest {
 
         int wiremockPort = wireMockRule.port();
         String wiremockBasePath = localBasePath(wiremockPort);
+
+        givenThat(get(urlEqualTo("/frontendlogger"))
+                .willReturn(aResponse()
+                        .withStatus(234)
+                        .withBody("all good!"))
+        );
+
         givenThat(get(urlEqualTo("/proxy"))
                 .willReturn(aResponse()
                         .withStatus(599)
@@ -124,6 +132,7 @@ public class ProxyIntegrationTest {
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
         systemPropertiesRule.setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, oidcProviderRule.getDiscoveryUri());
         systemPropertiesRule.setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, oidcProviderRule.getAudience());
+        systemPropertiesRule.setProperty(FRONTENDLOGGER_URL_PROPERTY, wiremockBasePath);
 
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
 
@@ -194,6 +203,19 @@ public class ProxyIntegrationTest {
                         .get()
                         .getStatus()
         ).isEqualTo(HttpStatus.UNAUTHORIZED_401);
+    }
+
+
+    @Test
+    public void frontendloggerShouldBePublic() {
+        assertThat(
+                client
+                        .target(applicationBasePath)
+                        .path("/frontendlogger")
+                        .request()
+                        .get()
+                        .getStatus()
+        ).isEqualTo(234);
     }
 
     @Test

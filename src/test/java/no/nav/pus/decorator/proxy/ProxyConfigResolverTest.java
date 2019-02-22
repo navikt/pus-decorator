@@ -27,7 +27,9 @@ public class ProxyConfigResolverTest {
         assertThat(resolveProxyConfiguration("/config/demo-proxy.yaml")).isEqualTo(asList(
                 new BackendProxyConfig().setContextPath("/api").setBaseUrl(url("http://backend-api")),
                 new BackendProxyConfig().setContextPath("/log").setBaseUrl(url("http://logger")),
-                new BackendProxyConfig().setContextPath("/frontendlogger").setBaseUrl(url("http://frontendlogger")).setSkipCsrfProtection(true)
+                new BackendProxyConfig().setContextPath("/frontendlogger").setBaseUrl(url("http://frontendlogger"))
+                        .setSkipCsrfProtection(true)
+                        .setValidateOidcToken(false)
         ));
     }
 

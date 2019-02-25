@@ -15,6 +15,7 @@ import no.nav.pus.decorator.login.LoginServiceResolver;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.pus.decorator.proxy.BackendProxyServlet;
 import no.nav.pus.decorator.redirect.RedirectServlet;
+import no.nav.pus.decorator.security.InternalProtectionFilter;
 import no.nav.pus.decorator.spa.SPAConfig;
 import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
@@ -42,6 +43,7 @@ import static java.util.EnumSet.of;
 import static java.util.Optional.ofNullable;
 import static javax.servlet.DispatcherType.FORWARD;
 import static javax.servlet.DispatcherType.REQUEST;
+import static no.nav.apiapp.ServletUtil.filterBuilder;
 import static no.nav.apiapp.ServletUtil.leggTilFilter;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
 import static no.nav.pus.decorator.ConfigurationService.Feature.*;
@@ -78,7 +80,8 @@ public class ApplicationConfig implements ApiApplication {
 
     @Override
     public void startup(ServletContext servletContext) {
-        leggTilFilter(servletContext, CsrfDoubleSubmitCookieFilter.class);
+        filterBuilder(CsrfDoubleSubmitCookieFilter.class).register(servletContext);
+        filterBuilder(InternalProtectionFilter.class).urlPatterns("/internal/*").register(servletContext);
 
         List<SPAConfig> spaConfigs = resolveSpaConfiguration(config);
         log.info("spa configuration: {}", spaConfigs);

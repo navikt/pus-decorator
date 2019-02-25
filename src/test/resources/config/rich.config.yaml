@@ -1,4 +1,4 @@
-contexPath: /custom-context-path-{{ ENVIRONMENT }}
+contextPath: /custom-context-path-{{ ENVIRONMENT }}
 auth:
   enforce: true
   loginUrl: https://example.com

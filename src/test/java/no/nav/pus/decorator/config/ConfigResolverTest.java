@@ -42,7 +42,7 @@ public class ConfigResolverTest {
 
         Config config = resolveConfig();
         assertThat(config).isEqualTo(new Config()
-                .setContexPath("/custom-context-path-t")
+                .setContextPath("/custom-context-path-t")
                 .setDecorator(new DecoratorConfig().setFooterType(FooterType.NO_FOOTER).setHeaderType(HeaderType.WITHOUT_MENU))
                 .setAuth(new AuthConfig()
                         .setEnforce(true)

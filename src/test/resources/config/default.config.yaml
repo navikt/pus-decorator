@@ -1,5 +1,5 @@
 ---
-contexPath: null
+contextPath: null
 decorator:
   headerType: "WITH_MENU"
   footerType: "WITHOUT_ALPHABET"

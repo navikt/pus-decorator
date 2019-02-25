@@ -74,7 +74,7 @@ public class ApplicationConfig implements ApiApplication {
 
     @Override
     public String getContextPath() {
-        Optional<String> configuredContextPath = ofNullable(getOptionalProperty(CONTEXT_PATH_PROPERTY_NAME).orElse(config.contexPath));
+        Optional<String> configuredContextPath = ofNullable(getOptionalProperty(CONTEXT_PATH_PROPERTY_NAME).orElse(config.contextPath));
         return configuredContextPath.orElseGet(ApplicationConfig::resolveApplicationName);
     }
 

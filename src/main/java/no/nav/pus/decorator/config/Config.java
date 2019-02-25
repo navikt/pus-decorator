@@ -14,7 +14,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class Config {
 
-    public String contexPath;
+    public String contextPath;
 
     @Valid
     @NotNull

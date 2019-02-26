@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static no.nav.apiapp.ApiAppServletContextListener.INTERNAL_IS_ALIVE;
 
 @Slf4j
 public class InternalProtectionFilter implements Filter {
@@ -33,7 +34,8 @@ public class InternalProtectionFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         String hostname = httpServletRequest.getServerName();
-        if (isAllowedAccessToInternal(hostname)) {
+        String servletPath = httpServletRequest.getServletPath();
+        if (isAllowedAccessToInternal(hostname) || isPublicPath(servletPath)) {
             chain.doFilter(request, response);
         } else {
             log.warn("blocking access to unsafe host: {}", hostname);
@@ -41,6 +43,10 @@ public class InternalProtectionFilter implements Filter {
             httpServletResponse.setContentType("text/plain");
             httpServletResponse.getWriter().write("FORBIDDEN");
         }
+    }
+
+    static boolean isPublicPath(String servletPath) {
+        return INTERNAL_IS_ALIVE.equals(servletPath);
     }
 
     static boolean isAllowedAccessToInternal(String hostname) {

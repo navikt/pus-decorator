@@ -23,6 +23,13 @@ public class InternalProtectionFilterTest {
         assertAccess("localhost");
     }
 
+    @Test
+    public void isPublicPath() {
+        assertThat(InternalProtectionFilter.isPublicPath("/internal/isAlive")).isTrue();
+        assertThat(InternalProtectionFilter.isPublicPath("/internal/selftest")).isFalse();
+    }
+
+
     private void assertNoAccess(String hostName) {
         assertThat(InternalProtectionFilter.isAllowedAccessToInternal(hostName)).isFalse();
     }

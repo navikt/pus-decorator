@@ -13,7 +13,7 @@ import java.net.URL;
 public class BackendProxyConfig {
 
     @NotEmpty
-    @Pattern(regexp = "/(\\w|-)+")
+    @Pattern(regexp = "/(\\w|-|/)+")
     public String contextPath;
 
     @NotNull

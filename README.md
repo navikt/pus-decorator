@@ -30,8 +30,9 @@ https://github.com/navikt/jobbsokerkompetanse/commit/a24450465ee4b49e7772f7739c8
 
 ## configuration
 
-pus-decorator checks for a configuration file at `/decorator.yaml`. 
-If this file is absent or if some required attributes are undefined, pus-decorator will apply sane and safe default.
+pus-decorator checks for a configuration file at `/decorator.yaml` unless a different path is explicitly set through
+the `CONFIGURATION_LOCATION` environment variable . 
+If either of these files are absent or if some required attributes are undefined, pus-decorator will apply sane and safe default.
 Using a minimalistic configuration file, only overriding or extending default behaviour is therefore fine.
 
 Please see  the 
@@ -55,6 +56,7 @@ in addition to the configuration file the following environment variables are su
  - CONTEXT_PATH (optional) if set is the contextpath of the application. Defaults to APPLICATION_NAME
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk
  - UNLEASH_API_URL (optional) unleash server url. Defaults to `https://unleashproxy.nais.oera.no/api/` 
+ - CONFIGURATION_LOCATION (optional) set path of configuration file, this will override the default which is set to `/decorator.yaml`
 
 ### proxy configuration
 Please see the 

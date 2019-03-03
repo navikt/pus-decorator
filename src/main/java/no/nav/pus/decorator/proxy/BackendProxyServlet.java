@@ -14,6 +14,7 @@ import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.proxy.ProxyServlet;
 
@@ -28,6 +29,7 @@ import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 import static no.nav.sbl.util.StringUtils.of;
+import static org.eclipse.jetty.http.HttpMethod.GET;
 
 @Slf4j
 public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
@@ -153,7 +155,11 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
 
     @Override
     public void helsesjekk() throws Throwable {
-        ContentResponse contentResponse = getHttpClient().GET(pingUrl);
+        ContentResponse contentResponse = getHttpClient()
+                .newRequest(pingUrl)
+                .header(CONSUMER_ID_HEADER_NAME, applicationName)
+                .method(GET)
+                .send();
         int status = contentResponse.getStatus();
         if (status != 200) {
             throw new IllegalStateException(status + " != 200");

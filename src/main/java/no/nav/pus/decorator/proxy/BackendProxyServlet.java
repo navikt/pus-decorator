@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
@@ -53,7 +54,7 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         this.removeContextPath = backendProxyConfig.requestRewrite == REMOVE_CONTEXT_PATH;
         this.contextPathLength = backendProxyConfig.contextPath.length();
 
-        this.pingUrl = backendProxyConfig.baseUrl + ofNullable(backendProxyConfig.pingRequestPath).orElseGet(this::defaultPingPath);
+        this.pingUrl = normalizeUrl(backendProxyConfig.baseUrl + ofNullable(backendProxyConfig.pingRequestPath).orElseGet(this::defaultPingPath));
         this.helsesjekkMetadata = new HelsesjekkMetadata(
                 "proxy_" + id,
                 pingUrl,
@@ -65,6 +66,10 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
                 backendProxyConfig.minSecurityLevel != null && backendProxyConfig.minSecurityLevel > 0
                         ? new SecurityLevelAuthorizationModule(backendProxyConfig.minSecurityLevel)
                         : null;
+    }
+
+    private String normalizeUrl(String pingUrl) {
+        return URI.create(pingUrl).normalize().toString();
     }
 
     private String defaultPingPath() {

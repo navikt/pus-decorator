@@ -107,7 +107,7 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         if (isAuthorized(request, response)) {
             super.service(request, response);
         } else {
-            log.warn("proxy call was not authorized");
+            log.warn("proxy call was not authorized: " + request.getRequestURI());
             response.setStatus(HttpStatus.UNAUTHORIZED_401);
         }
     }

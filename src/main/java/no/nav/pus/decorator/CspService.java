@@ -12,9 +12,9 @@ public class CspService {
     public static String generateCspDirectives() {
         return ""
                 + " default-src 'self' appres.nav.no" + appresTest() + " tjenester.nav.no" + tjenesterTest() + ";"
-                + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no" + appresTest() + " www.googletagmanager.com www.google-analytics.com *.psplugin.com *.hotjar.com;"
+                + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no" + appresTest() + " www.googletagmanager.com www.google-analytics.com *.psplugin.com *.hotjar.com *.dev-sbs.nais.io;"
                 + " img-src 'self' appres.nav.no" + appresTest() + " static.hotjar.com www.google-analytics.com data: ;"
-                + " style-src 'self' 'unsafe-inline' appres.nav.no" + appresTest() + ";"
+                + " style-src 'self' 'unsafe-inline' appres.nav.no" + appresTest() + " *.dev-sbs.nais.io;"
                 + " font-src 'self' *.psplugin.com *.vergic.com static.hotjar.com data: ;"
                 + " connect-src 'self' *.psplugin.com in.hotjar.com www.google-analytics.com;"
                 + " frame-src vars.hotjar.com video.qbrick.com;" // video i aktivitetsplan, mulig den bør ha spesialisert CSP

@@ -28,9 +28,9 @@ public class CspServiceTest {
         setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "q6", () -> {
             assertThat(CspService.generateCspDirectives()).isEqualTo("" +
                     " default-src 'self' appres.nav.no appres-q6.nav.no tjenester.nav.no tjenester-q6.nav.no;" +
-                    " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no appres-q6.nav.no www.googletagmanager.com www.google-analytics.com *.psplugin.com *.hotjar.com;" +
+                    " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no appres-q6.nav.no www.googletagmanager.com www.google-analytics.com *.psplugin.com *.hotjar.com *.dev-sbs.nais.io;" +
                     " img-src 'self' appres.nav.no appres-q6.nav.no static.hotjar.com www.google-analytics.com data: ;" +
-                    " style-src 'self' 'unsafe-inline' appres.nav.no appres-q6.nav.no;" +
+                    " style-src 'self' 'unsafe-inline' appres.nav.no appres-q6.nav.no *.dev-sbs.nais.io;" +
                     " font-src 'self' *.psplugin.com *.vergic.com static.hotjar.com data: ;" +
                     " connect-src 'self' *.psplugin.com in.hotjar.com www.google-analytics.com;" +
                     " frame-src vars.hotjar.com video.qbrick.com;" +

@@ -12,9 +12,9 @@ public class CspService {
     public static String generateCspDirectives() {
         return ""
                 + " default-src 'self' appres.nav.no" + appresTest() + " tjenester.nav.no" + tjenesterTest() + ";"
-                + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no" + appresTest() + " www.googletagmanager.com www.google-analytics.com *.psplugin.com *.hotjar.com;"
+                + " script-src 'self' 'unsafe-inline' 'unsafe-eval' appres.nav.no" + appresTest() + " www.googletagmanager.com www.google-analytics.com *.psplugin.com *.hotjar.com" + devsbsnaisioTest() + ";"
                 + " img-src 'self' appres.nav.no" + appresTest() + " static.hotjar.com www.google-analytics.com data: ;"
-                + " style-src 'self' 'unsafe-inline' appres.nav.no" + appresTest() + ";"
+                + " style-src 'self' 'unsafe-inline' appres.nav.no" + appresTest() + devsbsnaisioTest() + ";"
                 + " font-src 'self' *.psplugin.com *.vergic.com static.hotjar.com data: ;"
                 + " connect-src 'self' *.psplugin.com in.hotjar.com www.google-analytics.com;"
                 + " frame-src vars.hotjar.com video.qbrick.com;" // video i aktivitetsplan, mulig den bør ha spesialisert CSP
@@ -27,6 +27,10 @@ public class CspService {
 
     private static String tjenesterTest() {
         return testResourceDirective(e -> String.format("tjenester-%s.nav.no", e));
+    }
+
+    private static String devsbsnaisioTest() {
+        return testResourceDirective(e -> String.format("*.dev-sbs.nais.io"));
     }
 
     private static String testResourceDirective(Function<String, String> formatter) {

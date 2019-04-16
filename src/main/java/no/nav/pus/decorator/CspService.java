@@ -30,7 +30,7 @@ public class CspService {
     }
 
     private static String devsbsnaisioTest() {
-        return testResourceDirective(e -> String.format("dev-sbs.nais.io"));
+        return testResourceDirective(e -> String.format("*.dev-sbs.nais.io"));
     }
 
     private static String testResourceDirective(Function<String, String> formatter) {

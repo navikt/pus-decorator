@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
-import static no.nav.sbl.util.StringUtils.nullOrEmpty;
-import static no.nav.sbl.util.StringUtils.of;
+import static no.nav.sbl.util.StringUtils.*;
 import static org.eclipse.jetty.http.HttpMethod.GET;
 
 @Slf4j
@@ -107,17 +107,27 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         if (isAuthorized(request, response)) {
             super.service(request, response);
         } else {
-            log.warn("proxy call was not authorized: " + request.getRequestURI());
             response.setStatus(HttpStatus.UNAUTHORIZED_401);
         }
     }
 
     private boolean isAuthorized(HttpServletRequest request, HttpServletResponse response) {
         if (backendProxyConfig.validateOidcToken) {
-            return loginService
-                    .authenticate(request, response)
-                    .filter(subject -> isValidSecurityLevel(subject, request))
-                    .isPresent();
+
+            Optional<Subject> maybeSubject = loginService.authenticate(request, response);
+
+            if (!maybeSubject.isPresent()) {
+                log.warn("proxy call was not authorized due to invalid token: " + request.getRequestURI());
+            }
+
+            boolean isAuthorizedWithValidSecurityLevel = maybeSubject.filter(subject -> isValidSecurityLevel(subject, request)).isPresent();
+
+            if (!isAuthorizedWithValidSecurityLevel) {
+                log.warn("proxy call was not authorized due to invalid security level: " + request.getRequestURI());
+            }
+
+            return isAuthorizedWithValidSecurityLevel;
+
         } else {
             return true;
         }

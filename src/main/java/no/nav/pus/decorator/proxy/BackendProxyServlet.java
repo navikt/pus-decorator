@@ -150,6 +150,7 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
 
         String callId = LogFilter.resolveCallId(clientRequest);
         clientRequest.setAttribute(CALL_ID, callId);
+        log.info("Proxying: {} -> {}", clientRequest.getRequestURL(), target);
         return target;
     }
 

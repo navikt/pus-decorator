@@ -115,17 +115,13 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         if (backendProxyConfig.validateOidcToken) {
 
             Optional<Subject> maybeSubject = loginService.authenticate(request, response);
+            boolean isAuthorizedWithValidSecurityLevel = maybeSubject.filter(subject -> isValidSecurityLevel(subject, request)).isPresent();
 
             if (!maybeSubject.isPresent()) {
                 log.warn("proxy call was not authorized due to invalid token: " + request.getRequestURI());
-            }
-
-            boolean isAuthorizedWithValidSecurityLevel = maybeSubject.filter(subject -> isValidSecurityLevel(subject, request)).isPresent();
-
-            if (!isAuthorizedWithValidSecurityLevel) {
+            } else if (!isAuthorizedWithValidSecurityLevel) {
                 log.warn("proxy call was not authorized due to invalid security level: " + request.getRequestURI());
             }
-
             return isAuthorizedWithValidSecurityLevel;
 
         } else {

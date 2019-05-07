@@ -5,7 +5,7 @@ import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.pus.decorator.ApplicationConfig;
-import no.nav.sbl.util.AssertUtils;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.jose4j.jwt.ReservedClaimNames;
 
 import javax.servlet.http.Cookie;
@@ -24,7 +24,11 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 
 public class OidcLoginService implements LoginService {
-    private static final long MINIMUM_REMAINING_SECONDS = Duration.ofMinutes(20).getSeconds();
+    private static final long MINIMUM_REMAINING_SECONDS = EnvironmentUtils
+            .getOptionalProperty("MINIMUM_REMAINING_AUTHENTICATED_SECONDS")
+            .map(Long::getLong)
+            .orElse(Duration.ofMinutes(20).getSeconds());
+
     private static final String UTF_8 = "UTF-8";
 
     static final String DESTINATION_COOKIE_NAME = "login_dest";

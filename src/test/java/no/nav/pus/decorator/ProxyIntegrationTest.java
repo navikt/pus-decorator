@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
 import no.nav.common.yaml.YamlUtils;
-import no.nav.metrics.TestUtil;
 import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.login.AuthConfig;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;

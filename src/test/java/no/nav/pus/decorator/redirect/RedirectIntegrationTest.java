@@ -67,6 +67,7 @@ public class RedirectIntegrationTest {
         systemPropertiesRule.setProperty(CONFIGURATION_LOCATION_PROPERTY, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, "https://some-cms-here.com");
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
+        systemPropertiesRule.setProperty("APPLICATION_NAME", applicationName);
 
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
         jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();

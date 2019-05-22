@@ -106,6 +106,7 @@ public class OidcLoginServiceTest {
     private void authenticateUser() {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(EXPIRATION_TIME_ATTRIBUTE_NAME, EXPIRATION_TIME);
+        attributes.put("acr", "Level4");
         SsoToken oidcToken = oidcToken("token", attributes);
         Subject subject = new Subject("uid", IdentType.EksternBruker, oidcToken);
         when(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).thenReturn(of(subject));

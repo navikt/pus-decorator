@@ -2,6 +2,7 @@ package no.nav.pus.decorator.login;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import no.nav.brukerdialog.security.SecurityLevel;
 
 import java.util.Date;
 
@@ -10,4 +11,5 @@ import java.util.Date;
 public class AuthenticationStatusDTO {
     public long remainingSeconds;
     public Date expirationTime;
+    public SecurityLevel securityLevel;
 }

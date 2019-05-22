@@ -11,5 +11,5 @@ public class AuthConfig {
 
     public boolean enforce = true;
     public URL loginUrl;
-
+    public int minSecurityLevel = 4;
 }

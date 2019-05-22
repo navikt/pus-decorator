@@ -76,7 +76,7 @@ public class OidcLoginService implements LoginService {
             AuthenticationStatusDTO status = getStatus(httpServletRequest, httpServletResponse);
             int securityLevel = status.getSecurityLevel().getSecurityLevel();
 
-            if (status.remainingSeconds < MINIMUM_REMAINING_SECONDS && securityLevel >= minSecurityLevel) {
+            if (status.remainingSeconds < MINIMUM_REMAINING_SECONDS && securityLevel < minSecurityLevel) {
                 Cookie cookie = new Cookie(DESTINATION_COOKIE_NAME, encode(buildDestinationUrl(httpServletRequest)));
                 cookie.setPath("/");
                 httpServletResponse.addCookie(cookie);

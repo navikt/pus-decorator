@@ -7,7 +7,6 @@ import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.pus.decorator.ApplicationConfig;
-import no.nav.sbl.util.EnvironmentUtils;
 import org.jose4j.jwt.ReservedClaimNames;
 
 import javax.servlet.http.Cookie;
@@ -17,11 +16,11 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 
-import static java.util.Optional.*;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static no.nav.brukerdialog.security.SecurityLevel.Ukjent;
 import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;

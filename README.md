@@ -17,6 +17,8 @@ pus-decorator comes with much functionality out of the box, but may be deactivat
  - `DISABLE_UNLEASH`
  - `DISABLE_FRONTEND_LOGGER`
 
+BETA:
+Use the environment variabel `GZIP_ENABLED` to turn on gzipping for files
 
 ## usage
 use this image as baseimage and set the required configuration parameters. 

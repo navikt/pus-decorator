@@ -17,7 +17,6 @@ import java.util.Map;
 
 import static java.util.Optional.of;
 import static no.nav.brukerdialog.security.SecurityLevel.Level4;
-import static no.nav.brukerdialog.security.SecurityLevel.Ukjent;
 import static no.nav.common.auth.SsoToken.oidcToken;
 import static no.nav.pus.decorator.login.OidcLoginService.*;
 import static org.assertj.core.api.Assertions.assertThat;

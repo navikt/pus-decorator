@@ -1,7 +1,9 @@
 package no.nav.pus.decorator.login;
 
 import lombok.SneakyThrows;
+import no.nav.brukerdialog.security.SecurityLevel;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
+import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.pus.decorator.ApplicationConfig;
@@ -20,6 +22,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static java.util.Optional.*;
+import static no.nav.brukerdialog.security.SecurityLevel.Ukjent;
 import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 
@@ -38,43 +41,58 @@ public class OidcLoginService implements LoginService {
     private final boolean enforce;
     private final OidcAuthModule oidcAuthModule;
     private final String contextPath;
+    private final int minSecurityLevel;
 
-    public OidcLoginService(AuthConfig oidcLoginUrl, OidcAuthModule oidcAuthModule, String contextPath) {
-        this.enforce = oidcLoginUrl.enforce;
-        this.oidcLoginUrl = oidcLoginUrl.enforce ? assertNotNull(oidcLoginUrl.loginUrl, "loginUrl må spesifiseres når enforce=true") : null;
+    public OidcLoginService(AuthConfig authConfig, OidcAuthModule oidcAuthModule, String contextPath) {
+        this.enforce = authConfig.enforce;
+        this.oidcLoginUrl = authConfig.enforce ? assertNotNull(authConfig.loginUrl, "loginUrl må spesifiseres når enforce=true") : null;
         this.oidcAuthModule = oidcAuthModule;
         this.contextPath = contextPath;
+        this.minSecurityLevel = authConfig.minSecurityLevel;
     }
 
     @Override
     public AuthenticationStatusDTO getStatus(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        Number expirationTimeSeconds = authenticate(httpServletRequest, httpServletResponse)
-                .map(Subject::getSsoToken).map(SsoToken::getAttributes)
+        Optional<SsoToken> ssoToken = authenticate(httpServletRequest, httpServletResponse)
+                .map(Subject::getSsoToken);
+
+        Number expirationTimeSeconds = ssoToken
+                .map(SsoToken::getAttributes)
                 .map(a -> a.get(EXPIRATION_TIME_ATTRIBUTE_NAME))
                 .map(i -> (Number) i)
                 .orElse(0);
+
+        SecurityLevel securityLevel = ssoToken.map(OidcTokenUtils::getOidcSecurityLevel).orElse(Ukjent);
+
         long expirationTimestamp = expirationTimeSeconds.longValue() * 1000L;
         long remainingMillis = expirationTimestamp - System.currentTimeMillis();
+
         return new AuthenticationStatusDTO()
+                .setSecurityLevel(securityLevel)
                 .setExpirationTime(remainingMillis > 0 ? new Date(expirationTimestamp) : null)
                 .setRemainingSeconds(Math.max(remainingMillis / 1000, 0L));
     }
 
     @Override
     public Optional<String> getLoginRedirectUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        if (enforce && getStatus(httpServletRequest, httpServletResponse).remainingSeconds < MINIMUM_REMAINING_SECONDS) {
-            Cookie cookie = new Cookie(DESTINATION_COOKIE_NAME, encode(buildDestinationUrl(httpServletRequest)));
-            cookie.setPath("/");
-            httpServletResponse.addCookie(cookie);
-            String returnUrl = buildReturnUrl(httpServletRequest);
-            return of(String.format("%s?url=%s&redirect=%s&force=true",
-                    oidcLoginUrl,
-                    returnUrl,
-                    returnUrl
-            ));
-        } else {
-            return empty();
+        if (enforce) {
+
+            AuthenticationStatusDTO status = getStatus(httpServletRequest, httpServletResponse);
+            int securityLevel = status.getSecurityLevel().getSecurityLevel();
+
+            if (status.remainingSeconds < MINIMUM_REMAINING_SECONDS || securityLevel < minSecurityLevel) {
+                Cookie cookie = new Cookie(DESTINATION_COOKIE_NAME, encode(buildDestinationUrl(httpServletRequest)));
+                cookie.setPath("/");
+                httpServletResponse.addCookie(cookie);
+                String returnUrl = buildReturnUrl(httpServletRequest);
+                return of(String.format("%s?url=%s&redirect=%s&force=true",
+                        oidcLoginUrl,
+                        returnUrl,
+                        returnUrl
+                ));
+            }
         }
+        return Optional.empty();
     }
 
     private String buildDestinationUrl(HttpServletRequest httpServletRequest) {
@@ -94,7 +112,8 @@ public class OidcLoginService implements LoginService {
     }
 
     @Override
-    public Optional<String> getDestinationUrl(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public Optional<String> getDestinationUrl(HttpServletRequest httpServletRequest, HttpServletResponse
+            httpServletResponse) {
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -109,7 +128,8 @@ public class OidcLoginService implements LoginService {
     }
 
     @Override
-    public Optional<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public Optional<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse
+            httpServletResponse) {
         return oidcAuthModule.authenticate(httpServletRequest, httpServletResponse);
     }
 

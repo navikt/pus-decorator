@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
 import no.nav.common.yaml.YamlUtils;
-import no.nav.metrics.TestUtil;
 import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.login.AuthConfig;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
@@ -133,6 +132,7 @@ public class ProxyIntegrationTest {
         systemPropertiesRule.setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, oidcProviderRule.getDiscoveryUri());
         systemPropertiesRule.setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, oidcProviderRule.getAudience());
         systemPropertiesRule.setProperty(FRONTENDLOGGER_URL_PROPERTY, wiremockBasePath);
+        systemPropertiesRule.setProperty("APPLICATION_NAME", applicationName);
 
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
 

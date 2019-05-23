@@ -57,6 +57,9 @@ in addition to the configuration file the following environment variables are su
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk
  - UNLEASH_API_URL (optional) unleash server url. Defaults to `https://unleashproxy.nais.oera.no/api/` 
  - CONFIGURATION_LOCATION (optional) set path of configuration file, this will override the default which is set to `/decorator.yaml`
+ - DISABLE_PRAGMA_HEADER=true|false (optional) removes the `Pragma: no-cache` header from responses
+ - ALLOW_CLIENT_STORAGE=true|false (optional) if true, removes the `no-store, must-revalidate` directives from the `Cache-Control` header
+
 
 ### proxy configuration
 Please see the 

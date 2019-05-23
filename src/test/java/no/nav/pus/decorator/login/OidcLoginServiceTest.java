@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Optional.of;
+import static no.nav.brukerdialog.security.SecurityLevel.Level4;
+import static no.nav.brukerdialog.security.SecurityLevel.Ukjent;
 import static no.nav.common.auth.SsoToken.oidcToken;
 import static no.nav.pus.decorator.login.OidcLoginService.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,14 +70,13 @@ public class OidcLoginServiceTest {
 
     @Test
     public void getStatus() {
-        assertThat(oidcLoginService.getStatus(httpServletRequest, httpServletResponse)).isEqualTo(new AuthenticationStatusDTO());
         authenticateUser();
 
         long expirationTimeMillis = EXPIRATION_TIME * 1000L;
         AuthenticationStatusDTO status = oidcLoginService.getStatus(httpServletRequest, httpServletResponse);
         assertThat(status.remainingSeconds).isGreaterThan(1000);
         assertThat(status.setRemainingSeconds(0)) // ignore remainingSeconds as it is relative
-                .isEqualTo(new AuthenticationStatusDTO().setExpirationTime(new Date(expirationTimeMillis))
+                .isEqualTo(new AuthenticationStatusDTO().setExpirationTime(new Date(expirationTimeMillis)).setSecurityLevel(Level4)
         );
     }
 
@@ -106,6 +107,7 @@ public class OidcLoginServiceTest {
     private void authenticateUser() {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(EXPIRATION_TIME_ATTRIBUTE_NAME, EXPIRATION_TIME);
+        attributes.put("acr", "Level4");
         SsoToken oidcToken = oidcToken("token", attributes);
         Subject subject = new Subject("uid", IdentType.EksternBruker, oidcToken);
         when(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).thenReturn(of(subject));

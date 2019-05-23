@@ -27,10 +27,7 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 
 public class OidcLoginService implements LoginService {
-    private static final long MINIMUM_REMAINING_SECONDS = EnvironmentUtils
-            .getOptionalProperty("MINIMUM_REMAINING_AUTHENTICATED_SECONDS")
-            .map(Long::getLong)
-            .orElse(Duration.ofMinutes(20).getSeconds());
+    private final long minRemainingSeconds;
 
     private static final String UTF_8 = "UTF-8";
 
@@ -49,6 +46,7 @@ public class OidcLoginService implements LoginService {
         this.oidcAuthModule = oidcAuthModule;
         this.contextPath = contextPath;
         this.minSecurityLevel = authConfig.minSecurityLevel;
+        this.minRemainingSeconds = authConfig.minRemainingSeconds;
     }
 
     @Override
@@ -80,7 +78,7 @@ public class OidcLoginService implements LoginService {
             AuthenticationStatusDTO status = getStatus(httpServletRequest, httpServletResponse);
             int securityLevel = status.getSecurityLevel().getSecurityLevel();
 
-            if (status.remainingSeconds < MINIMUM_REMAINING_SECONDS || securityLevel < minSecurityLevel) {
+            if (status.remainingSeconds < minRemainingSeconds || securityLevel < minSecurityLevel) {
                 Cookie cookie = new Cookie(DESTINATION_COOKIE_NAME, encode(buildDestinationUrl(httpServletRequest)));
                 cookie.setPath("/");
                 httpServletResponse.addCookie(cookie);

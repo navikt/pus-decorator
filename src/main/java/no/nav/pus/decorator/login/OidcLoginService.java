@@ -65,6 +65,7 @@ public class OidcLoginService implements LoginService {
         long remainingMillis = expirationTimestamp - System.currentTimeMillis();
 
         return new AuthenticationStatusDTO()
+                .setLoggedIn(ssoToken.isPresent())
                 .setSecurityLevel(securityLevel)
                 .setExpirationTime(remainingMillis > 0 ? new Date(expirationTimestamp) : null)
                 .setRemainingSeconds(Math.max(remainingMillis / 1000, 0L));

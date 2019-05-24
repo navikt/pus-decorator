@@ -75,7 +75,10 @@ public class OidcLoginServiceTest {
         AuthenticationStatusDTO status = oidcLoginService.getStatus(httpServletRequest, httpServletResponse);
         assertThat(status.remainingSeconds).isGreaterThan(1000);
         assertThat(status.setRemainingSeconds(0)) // ignore remainingSeconds as it is relative
-                .isEqualTo(new AuthenticationStatusDTO().setExpirationTime(new Date(expirationTimeMillis)).setSecurityLevel(Level4)
+                .isEqualTo(new AuthenticationStatusDTO()
+                        .setExpirationTime(new Date(expirationTimeMillis))
+                        .setSecurityLevel(Level4)
+                        .setLoggedIn(true)
         );
     }
 

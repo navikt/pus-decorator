@@ -7,7 +7,6 @@ import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.pus.decorator.ApplicationConfig;
-import no.nav.sbl.util.AssertUtils;
 import org.jose4j.jwt.ReservedClaimNames;
 
 import javax.servlet.http.Cookie;
@@ -17,17 +16,18 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
 
-import static java.util.Optional.*;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static no.nav.brukerdialog.security.SecurityLevel.Ukjent;
 import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 
 public class OidcLoginService implements LoginService {
-    private static final long MINIMUM_REMAINING_SECONDS = Duration.ofMinutes(20).getSeconds();
+    private final long minRemainingSeconds;
+
     private static final String UTF_8 = "UTF-8";
 
     static final String DESTINATION_COOKIE_NAME = "login_dest";
@@ -45,6 +45,7 @@ public class OidcLoginService implements LoginService {
         this.oidcAuthModule = oidcAuthModule;
         this.contextPath = contextPath;
         this.minSecurityLevel = authConfig.minSecurityLevel;
+        this.minRemainingSeconds = authConfig.minRemainingSeconds;
     }
 
     @Override
@@ -64,6 +65,7 @@ public class OidcLoginService implements LoginService {
         long remainingMillis = expirationTimestamp - System.currentTimeMillis();
 
         return new AuthenticationStatusDTO()
+                .setLoggedIn(ssoToken.isPresent())
                 .setSecurityLevel(securityLevel)
                 .setExpirationTime(remainingMillis > 0 ? new Date(expirationTimestamp) : null)
                 .setRemainingSeconds(Math.max(remainingMillis / 1000, 0L));
@@ -76,7 +78,7 @@ public class OidcLoginService implements LoginService {
             AuthenticationStatusDTO status = getStatus(httpServletRequest, httpServletResponse);
             int securityLevel = status.getSecurityLevel().getSecurityLevel();
 
-            if (status.remainingSeconds < MINIMUM_REMAINING_SECONDS || securityLevel < minSecurityLevel) {
+            if (status.remainingSeconds < minRemainingSeconds || securityLevel < minSecurityLevel) {
                 Cookie cookie = new Cookie(DESTINATION_COOKIE_NAME, encode(buildDestinationUrl(httpServletRequest)));
                 cookie.setPath("/");
                 httpServletResponse.addCookie(cookie);

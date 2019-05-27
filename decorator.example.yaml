@@ -14,6 +14,7 @@ auth: # any value in the following attributes will activate support for authenti
    enforce: false # if pus-decorator should automatically login users before serving the application. default: true
    loginUrl: https://loginservice.nav.no/login # login-endpoint that pus-decorator will redirect to - required when enforce=true
    minSecurityLevel: 4 # default: 4 (redirects users with lower security level)
+   minRemainingSeconds: 1200 # default: 20 min (redirects users with lower remaining login time)
 
 # used to assign url patterns to forward targets.
 # files as forward targets are expected to be found under /app and will be decorated.

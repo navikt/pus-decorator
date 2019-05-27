@@ -17,7 +17,6 @@ import java.util.Map;
 
 import static java.util.Optional.of;
 import static no.nav.brukerdialog.security.SecurityLevel.Level4;
-import static no.nav.brukerdialog.security.SecurityLevel.Ukjent;
 import static no.nav.common.auth.SsoToken.oidcToken;
 import static no.nav.pus.decorator.login.OidcLoginService.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +75,10 @@ public class OidcLoginServiceTest {
         AuthenticationStatusDTO status = oidcLoginService.getStatus(httpServletRequest, httpServletResponse);
         assertThat(status.remainingSeconds).isGreaterThan(1000);
         assertThat(status.setRemainingSeconds(0)) // ignore remainingSeconds as it is relative
-                .isEqualTo(new AuthenticationStatusDTO().setExpirationTime(new Date(expirationTimeMillis)).setSecurityLevel(Level4)
+                .isEqualTo(new AuthenticationStatusDTO()
+                        .setExpirationTime(new Date(expirationTimeMillis))
+                        .setSecurityLevel(Level4)
+                        .setLoggedIn(true)
         );
     }
 

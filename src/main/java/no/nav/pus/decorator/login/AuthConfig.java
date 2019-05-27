@@ -12,4 +12,5 @@ public class AuthConfig {
     public boolean enforce = true;
     public URL loginUrl;
     public int minSecurityLevel = 4;
+    public long minRemainingSeconds = 60 * 20;
 }

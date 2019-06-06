@@ -9,6 +9,7 @@ import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.feature.ByApplicationStrategy;
 import no.nav.pus.decorator.feature.ByQueryParamStrategy;
 import no.nav.pus.decorator.feature.FeatureResource;
+import no.nav.pus.decorator.gzip.GZIPFilter;
 import no.nav.pus.decorator.login.AuthenticationResource;
 import no.nav.pus.decorator.login.LoginService;
 import no.nav.pus.decorator.login.LoginServiceResolver;
@@ -44,7 +45,6 @@ import static java.util.Optional.ofNullable;
 import static javax.servlet.DispatcherType.FORWARD;
 import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.filterBuilder;
-import static no.nav.apiapp.ServletUtil.leggTilFilter;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
 import static no.nav.pus.decorator.ConfigurationService.Feature.*;
 import static no.nav.pus.decorator.ConfigurationService.isEnabled;
@@ -64,6 +64,7 @@ public class ApplicationConfig implements ApiApplication {
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "APP_NAME";
     public static final String CONTEXT_PATH_PROPERTY_NAME = "CONTEXT_PATH";
     public static final String CONTENT_URL_PROPERTY_NAME = "CONTENT_URL";
+    public static final boolean GZIP = getOptionalProperty("GZIP_ENABLED").map(Boolean::parseBoolean).orElse(false);
 
     private final Config config = resolveConfig();
     private final LoginService loginService = LoginServiceResolver.resolveLoginService(config, getContextPath());
@@ -91,6 +92,10 @@ public class ApplicationConfig implements ApiApplication {
 
             servletContext.addFilter("decoratorFilter", decoratorFilter)
                     .addMappingForUrlPatterns(EnumSet.of(FORWARD), false, spaConfigs.stream().map(SPAConfig::getForwardTarget).toArray(String[]::new));
+        }
+
+        if (GZIP) {
+            filterBuilder(GZIPFilter.class).register(servletContext);
         }
 
         leggTilServlet(servletContext, EnvironmentServlet.class, "/environment.js");

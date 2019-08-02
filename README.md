@@ -18,7 +18,7 @@ pus-decorator comes with much functionality out of the box, but may be deactivat
  - `DISABLE_FRONTEND_LOGGER`
 
 BETA:
-Use the environment variabel `GZIP_ENABLED` to turn on gzipping for files
+Use the environment variabel `GZIP_ENABLED` in the `Dockerfile` to turn on gzipping for files: `ENV GZIP_ENABLED=true`.
 
 ## usage
 use this image as baseimage and set the required configuration parameters. 

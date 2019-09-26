@@ -5,5 +5,5 @@ ADD / /source
 WORKDIR /source
 RUN mvn install -DskipTests
 
-FROM docker.adeo.no:5000/pus/nais-java-app
+FROM navikt/pus-nais-java-app
 COPY --from=maven-builder /source/target/decorator /app

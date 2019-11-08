@@ -57,21 +57,13 @@ public class DecoratorUtils {
         return APPRES_FRAGMENT_URL;
     }
 
-    private static String getHeadertype (DecoratorConfig decoratorConfig) {
-        HeaderType headerType = decoratorConfig.headerType;
-        return headerType.getFragmentName().orElse(null);
-    }
-
-    private static String getFootertype (DecoratorConfig decoratorConfig) {
-        FooterType footerType = decoratorConfig.footerType;
-        return footerType.getFragmentName().orElse(null);
-    }
-
     private static List<String> fragmentNames(DecoratorConfig decoratorConfig) {
+        HeaderType headerType = decoratorConfig.headerType;
+        FooterType footerType = decoratorConfig.footerType;
         return of(
                 "webstats-ga-notrack",
-                getHeadertype(decoratorConfig),
-                getFootertype(decoratorConfig),
+                headerType.getFragmentName().orElse(null),
+                footerType.getFragmentName().orElse(null),
                 "styles",
                 "scripts",
                 "skiplinks",

@@ -12,7 +12,7 @@ public enum FooterType {
 
     private final String fragmentName;
 
-    private FooterType(String fragmentName) {
+    FooterType(String fragmentName) {
         this.fragmentName = fragmentName;
     }
 

@@ -11,7 +11,7 @@ public enum HeaderType {
 
     private final String fragmentName;
 
-    private HeaderType(String fragmentName) {
+    HeaderType(String fragmentName) {
         this.fragmentName = fragmentName;
     }
 

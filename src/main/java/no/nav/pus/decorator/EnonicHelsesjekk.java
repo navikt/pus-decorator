@@ -15,7 +15,7 @@ public class EnonicHelsesjekk implements Helsesjekk {
 
     public EnonicHelsesjekk(DecoratorConfig decoratorConfig) {
         fragmentFetcher = getDecoratorFilter(decoratorConfig).createFragmentFetcher("", requestMock());
-        url = DecoratorUtils.decoratorUrl + "/" + fragmentFetcher.buildUrl();
+        url = DecoratorUtils.getDecoratorUrl() + "/" + fragmentFetcher.buildUrl();
     }
 
     @Override

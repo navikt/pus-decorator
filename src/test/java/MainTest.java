@@ -26,7 +26,7 @@ public class MainTest {
         /* Ny dekoratør: */
         setProperty(NEW_DECORATOR_URL_PROPERTY, "https://www-q0.nav.no", PUBLIC);
         /* Gammel dekoratør: */
-        //setProperty(APPRES_CMS_URL_PROPERTY, "https://appres.nav.no", PUBLIC);
+        // setProperty(APPRES_CMS_URL_PROPERTY, "https://appres.nav.no", PUBLIC);
 
         setProperty(PUBLIC_PREFIX + "prop", "content", PUBLIC);
         setProperty(PUBLIC_PREFIX + "prop1", "content1", PUBLIC);

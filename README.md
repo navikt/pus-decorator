@@ -2,7 +2,7 @@
 Decorates a static web application for use on nav.no
 
 ## supported functionality
- - dynamic decoration of static web applications at runtime with resources from appres.nav.no / www.nav.no/person/nav-dekoratoren
+ - dynamic decoration of static web applications at runtime with resources from appres.nav.no / www.nav.no/dekoratoren
  - [multiple single page apps](https://github.com/navikt/pus-decorator#multiple-single-page-applications) 
  - [reverse proxy](https://github.com/navikt/pus-decorator#proxy-configuration) for api calls
  - [feature toggling](https://github.com/navikt/pus-decorator#apifeature) with unleash

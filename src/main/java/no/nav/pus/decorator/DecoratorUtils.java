@@ -19,7 +19,7 @@ public class DecoratorUtils {
     private static final String APPRES_FRAGMENT_URL ="common-html/v4/navno";
 
     public static final String NEW_DECORATOR_URL_PROPERTY = "NAV_DEKORATOREN_URL";
-    private static final String NEW_DECORATOR_FRAGMENT_URL = "person/nav-dekoratoren/";
+    private static final String NEW_DECORATOR_FRAGMENT_URL = "dekoratoren/";
 
     private static SimpleEnonicClient enonicClient;
 

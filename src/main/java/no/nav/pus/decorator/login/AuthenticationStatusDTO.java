@@ -2,7 +2,7 @@ package no.nav.pus.decorator.login;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import no.nav.brukerdialog.security.SecurityLevel;
+import no.nav.common.auth.SecurityLevel;
 
 import java.util.Date;
 

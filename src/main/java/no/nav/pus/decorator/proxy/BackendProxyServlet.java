@@ -1,20 +1,19 @@
 package no.nav.pus.decorator.proxy;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.apiapp.security.SecurityLevelAuthorizationModule;
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
 import no.nav.common.auth.Subject;
 import no.nav.log.LogFilter;
 import no.nav.log.MarkerBuilder;
 import no.nav.pus.decorator.login.LoginService;
+import no.nav.pus.decorator.security.SecurityLevelAuthorizationModule;
 import no.nav.sbl.util.EnvironmentUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.client.api.Result;
-import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.proxy.ProxyServlet;
 
@@ -46,7 +45,6 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
     private final boolean removeContextPath;
     private final int contextPathLength;
     private final LoginService loginService;
-    private final SecurityLevelAuthorizationModule securityLevelAuthorizationModule;
 
     public BackendProxyServlet(BackendProxyConfig backendProxyConfig, LoginService loginService) {
         this.backendProxyConfig = backendProxyConfig;
@@ -62,10 +60,6 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
                 false
         );
         this.loginService = loginService;
-        this.securityLevelAuthorizationModule =
-                backendProxyConfig.minSecurityLevel != null && backendProxyConfig.minSecurityLevel > 0
-                        ? new SecurityLevelAuthorizationModule(backendProxyConfig.minSecurityLevel)
-                        : null;
     }
 
     private String normalizeUrl(String pingUrl) {
@@ -115,7 +109,7 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         if (backendProxyConfig.validateOidcToken) {
 
             Optional<Subject> maybeSubject = loginService.authenticate(request, response);
-            boolean isAuthorizedWithValidSecurityLevel = maybeSubject.filter(subject -> isValidSecurityLevel(subject, request)).isPresent();
+            boolean isAuthorizedWithValidSecurityLevel = maybeSubject.filter(this::isValidSecurityLevel).isPresent();
 
             if (!maybeSubject.isPresent()) {
                 log.warn("proxy call was not authorized due to invalid token: " + request.getRequestURI());
@@ -130,12 +124,11 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
 
     }
 
-    private boolean isValidSecurityLevel(Subject subject, HttpServletRequest request) {
-        if (securityLevelAuthorizationModule != null) {
-            return securityLevelAuthorizationModule.authorized(subject, request);
-        } else {
-            return true;
+    private boolean isValidSecurityLevel(Subject subject) {
+        if( backendProxyConfig.minSecurityLevel != null && backendProxyConfig.minSecurityLevel > 0){
+            return SecurityLevelAuthorizationModule.authorized(subject, backendProxyConfig.minSecurityLevel);
         }
+        return true;
     }
 
     @Override

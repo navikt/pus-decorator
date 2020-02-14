@@ -1,7 +1,7 @@
 package no.nav.pus.decorator.login;
 
 import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.pus.decorator.TestUtils;
@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Optional.of;
-import static no.nav.brukerdialog.security.SecurityLevel.Level4;
 import static no.nav.common.auth.SsoToken.oidcToken;
 import static no.nav.pus.decorator.login.OidcLoginService.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +27,6 @@ public class OidcLoginServiceTest {
 
     private static final int EXPIRATION_TIME = Integer.MAX_VALUE;
 
-    private OidcAuthModule oidcAuthModule = mock(OidcAuthModule.class);
     private AuthConfig authConfig = new AuthConfig().setLoginUrl(TestUtils.url("https://login.nav.no/oidc")).setEnforce(true);
     private OidcLoginService oidcLoginService = newOidcLoginService(authConfig, "/contextpath");
     private HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
@@ -47,6 +46,8 @@ public class OidcLoginServiceTest {
 
     @Test
     public void getLoginRedirectUrl() {
+        notAuthenticated();
+
         assertThat(oidcLoginService.getLoginRedirectUrl(httpServletRequest, httpServletResponse)).hasValue("https://login.nav.no/oidc" +
                 "?url=http://app.nav.no/contextpath/api/auth/login" + // url: veilarbstepup
                 "&redirect=http://app.nav.no/contextpath/api/auth/login" + // redirect: loginservice
@@ -77,7 +78,7 @@ public class OidcLoginServiceTest {
         assertThat(status.setRemainingSeconds(0)) // ignore remainingSeconds as it is relative
                 .isEqualTo(new AuthenticationStatusDTO()
                         .setExpirationTime(new Date(expirationTimeMillis))
-                        .setSecurityLevel(Level4)
+                        .setSecurityLevel(SecurityLevel.Level4)
                         .setLoggedIn(true)
         );
     }
@@ -112,12 +113,16 @@ public class OidcLoginServiceTest {
         attributes.put("acr", "Level4");
         SsoToken oidcToken = oidcToken("token", attributes);
         Subject subject = new Subject("uid", IdentType.EksternBruker, oidcToken);
-        when(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).thenReturn(of(subject));
+        doReturn(of(subject)).when(oidcLoginService).authenticate(httpServletRequest, httpServletResponse);
+    }
+
+    private void notAuthenticated() {
+        doReturn(Optional.empty()).when(oidcLoginService).authenticate(httpServletRequest, httpServletResponse);
     }
 
 
     private OidcLoginService newOidcLoginService(AuthConfig authConfig, String contextPath) {
-        return new OidcLoginService(authConfig, oidcAuthModule, contextPath);
+        return spy(new OidcLoginService(authConfig, null, contextPath));
     }
 
 }

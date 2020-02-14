@@ -3,6 +3,7 @@ package no.nav.pus.decorator;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.yaml.YamlUtils;
 import no.nav.pus.decorator.config.Config;
 import no.nav.pus.decorator.login.AuthConfig;
@@ -11,6 +12,7 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import no.nav.testconfig.ApiAppTest;
 import no.nav.testconfig.security.JwtTestTokenIssuer;
+import no.nav.testconfig.security.JwtTestTokenIssuerConfig;
 import no.nav.testconfig.security.OidcProviderTestRule;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.http.HttpStatus;
@@ -31,11 +33,9 @@ import java.util.stream.IntStream;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 import static java.util.Arrays.asList;
-import static no.nav.brukerdialog.security.SecurityLevel.Level3;
-import static no.nav.brukerdialog.security.SecurityLevel.Level4;
 import static no.nav.brukerdialog.security.oidc.OidcTokenUtils.SECURITY_LEVEL_ATTRIBUTE;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.ApplicationConfig.CONTEXT_PATH_PROPERTY_NAME;
@@ -50,11 +50,17 @@ import static org.glassfish.jersey.client.ClientProperties.FOLLOW_REDIRECTS;
 
 public class ProxyIntegrationTest {
 
+    private final static JwtTestTokenIssuerConfig azureAdIssuerConfig = JwtTestTokenIssuerConfig.builder()
+            .id("oidc-provider-test-rule-aad")
+            .issuer("oidc-provider-test-rule-aad")
+            .audience("oidc-provider-test-rule-aad")
+            .build();
+
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
 
     @Rule
-    public OidcProviderTestRule oidcProviderRule = new OidcProviderTestRule(SocketUtils.findAvailableTcpPort());
+    public OidcProviderTestRule oidcProviderRule = new OidcProviderTestRule(SocketUtils.findAvailableTcpPort(), azureAdIssuerConfig);
 
     @Rule
     public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
@@ -129,8 +135,8 @@ public class ProxyIntegrationTest {
         systemPropertiesRule.setProperty(CONFIGURATION_LOCATION_PROPERTY, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
-        systemPropertiesRule.setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, oidcProviderRule.getDiscoveryUri());
-        systemPropertiesRule.setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, oidcProviderRule.getAudience());
+        systemPropertiesRule.setProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL, oidcProviderRule.getDiscoveryUri());
+        systemPropertiesRule.setProperty(EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE, oidcProviderRule.getAudience());
         systemPropertiesRule.setProperty(FRONTENDLOGGER_URL_PROPERTY, wiremockBasePath);
         systemPropertiesRule.setProperty("APPLICATION_NAME", applicationName);
 
@@ -185,7 +191,7 @@ public class ProxyIntegrationTest {
                         .path("/validate-oidc-lvl4")
                         .request()
                         .header("Authorization", "Bearer " + oidcProviderRule.getToken(
-                                new JwtTestTokenIssuer.Claims("12345678901").setClaim(SECURITY_LEVEL_ATTRIBUTE, Level4)))
+                                new JwtTestTokenIssuer.Claims("12345678901").setClaim(SECURITY_LEVEL_ATTRIBUTE, SecurityLevel.Level4)))
                         .get()
                         .getStatus()
         ).isEqualTo(HttpStatus.OK_200);
@@ -199,7 +205,7 @@ public class ProxyIntegrationTest {
                         .path("/validate-oidc-lvl4")
                         .request()
                         .header("Authorization", "Bearer " + oidcProviderRule.getToken(
-                                new JwtTestTokenIssuer.Claims("12345678901").setClaim(SECURITY_LEVEL_ATTRIBUTE, Level3)))
+                                new JwtTestTokenIssuer.Claims("12345678901").setClaim(SECURITY_LEVEL_ATTRIBUTE, SecurityLevel.Level3)))
                         .get()
                         .getStatus()
         ).isEqualTo(HttpStatus.UNAUTHORIZED_401);

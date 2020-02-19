@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 
 public class OidcLoginServiceTest {
 
-    private static final int EXPIRATION_TIME = Integer.MAX_VALUE;
+    private static final Date EXPIRATION_TIME = new Date(Long.MAX_VALUE);
 
     private AuthConfig authConfig = new AuthConfig().setLoginUrl(TestUtils.url("https://login.nav.no/oidc")).setEnforce(true);
     private OidcLoginService oidcLoginService = newOidcLoginService(authConfig, "/contextpath");
@@ -72,12 +72,11 @@ public class OidcLoginServiceTest {
     public void getStatus() {
         authenticateUser();
 
-        long expirationTimeMillis = EXPIRATION_TIME * 1000L;
         AuthenticationStatusDTO status = oidcLoginService.getStatus(httpServletRequest, httpServletResponse);
         assertThat(status.remainingSeconds).isGreaterThan(1000);
         assertThat(status.setRemainingSeconds(0)) // ignore remainingSeconds as it is relative
                 .isEqualTo(new AuthenticationStatusDTO()
-                        .setExpirationTime(new Date(expirationTimeMillis))
+                        .setExpirationTime(EXPIRATION_TIME)
                         .setSecurityLevel(SecurityLevel.Level4)
                         .setLoggedIn(true)
         );

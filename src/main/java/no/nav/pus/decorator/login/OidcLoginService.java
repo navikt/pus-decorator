@@ -64,15 +64,15 @@ public class OidcLoginService implements LoginService {
         Optional<SsoToken> ssoToken = authenticate(httpServletRequest, httpServletResponse)
                 .map(Subject::getSsoToken);
 
-        Number expirationTimeSeconds = ssoToken
+        long expirationTimestamp = ssoToken
                 .map(SsoToken::getAttributes)
                 .map(a -> a.get(EXPIRATION_TIME_ATTRIBUTE_NAME))
-                .map(i -> (Number) i)
-                .orElse(0);
+                .map(i -> (Date) i)
+                .map(Date::getTime)
+                .orElse((long) 0);
 
         SecurityLevel securityLevel = ssoToken.map(OidcTokenUtils::getOidcSecurityLevel).orElse(Ukjent);
 
-        long expirationTimestamp = expirationTimeSeconds.longValue() * 1000L;
         long remainingMillis = expirationTimestamp - System.currentTimeMillis();
 
         return new AuthenticationStatusDTO()

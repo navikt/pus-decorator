@@ -166,6 +166,7 @@ public class ProxyIntegrationTest {
                         .request()
                         .header("Authorization", "Bearer " + oidcProviderRule.getToken(
                                 new JwtTestTokenIssuer.Claims("12345678901")))
+                        .cookie("test", "hello")
                         .get()
                         .getStatus()
         ).isEqualTo(HttpStatus.OK_200);
@@ -178,6 +179,7 @@ public class ProxyIntegrationTest {
                         .target(applicationBasePath)
                         .path("/validate-oidc")
                         .request()
+                        .cookie("test", "hello")
                         .get()
                         .getStatus()
         ).isEqualTo(HttpStatus.UNAUTHORIZED_401);
@@ -192,6 +194,7 @@ public class ProxyIntegrationTest {
                         .request()
                         .header("Authorization", "Bearer " + oidcProviderRule.getToken(
                                 new JwtTestTokenIssuer.Claims("12345678901").setClaim(SECURITY_LEVEL_ATTRIBUTE, SecurityLevel.Level4)))
+                        .cookie("test", "hello")
                         .get()
                         .getStatus()
         ).isEqualTo(HttpStatus.OK_200);
@@ -206,6 +209,7 @@ public class ProxyIntegrationTest {
                         .request()
                         .header("Authorization", "Bearer " + oidcProviderRule.getToken(
                                 new JwtTestTokenIssuer.Claims("12345678901").setClaim(SECURITY_LEVEL_ATTRIBUTE, SecurityLevel.Level3)))
+                        .cookie("test", "hello")
                         .get()
                         .getStatus()
         ).isEqualTo(HttpStatus.UNAUTHORIZED_401);

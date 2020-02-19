@@ -1,11 +1,18 @@
 package no.nav.pus.decorator.login;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
-import no.nav.brukerdialog.security.SecurityLevel;
-import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
+import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
+import no.nav.common.oidc.OidcTokenValidator;
+import no.nav.common.oidc.utils.TokenLocator;
+import no.nav.common.oidc.utils.TokenUtils;
 import no.nav.pus.decorator.ApplicationConfig;
 import org.jose4j.jwt.ReservedClaimNames;
 
@@ -16,12 +23,14 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Optional;
 
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
-import static no.nav.brukerdialog.security.SecurityLevel.Ukjent;
+import static no.nav.common.auth.SecurityLevel.Ukjent;
+import static no.nav.common.oidc.Constants.ESSO_ID_TOKEN_COOKIE_NAME;
 import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 
@@ -35,17 +44,19 @@ public class OidcLoginService implements LoginService {
 
     private final URL oidcLoginUrl;
     private final boolean enforce;
-    private final OidcAuthModule oidcAuthModule;
+    private final OidcTokenValidator validator;
+    private final TokenLocator locator;
     private final String contextPath;
     private final int minSecurityLevel;
 
-    public OidcLoginService(AuthConfig authConfig, OidcAuthModule oidcAuthModule, String contextPath) {
+    public OidcLoginService(AuthConfig authConfig, OidcTokenValidator validator, String contextPath) {
         this.enforce = authConfig.enforce;
         this.oidcLoginUrl = authConfig.enforce ? assertNotNull(authConfig.loginUrl, "loginUrl må spesifiseres når enforce=true") : null;
-        this.oidcAuthModule = oidcAuthModule;
+        this.validator = validator;
         this.contextPath = contextPath;
         this.minSecurityLevel = authConfig.minSecurityLevel;
         this.minRemainingSeconds = authConfig.minRemainingSeconds;
+        this.locator = new TokenLocator(ESSO_ID_TOKEN_COOKIE_NAME);
     }
 
     @Override
@@ -128,7 +139,30 @@ public class OidcLoginService implements LoginService {
     @Override
     public Optional<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse
             httpServletResponse) {
-        return oidcAuthModule.authenticate(httpServletRequest, httpServletResponse);
+
+        Optional<String> token = locator.getIdToken(httpServletRequest);
+        try {
+            if(!token.isPresent()){
+                return Optional.empty();
+            }
+
+            JWT jwtToken = JWTParser.parse(token.get());
+
+            validator.validate(jwtToken);
+
+            SsoToken ssoToken = SsoToken.oidcToken(jwtToken.getParsedString(), jwtToken.getJWTClaimsSet().getClaims());
+            Subject subject = new Subject(
+                    TokenUtils.getUid(jwtToken, IdentType.EksternBruker),
+                    IdentType.EksternBruker,
+                    ssoToken
+            );
+
+            return Optional.of(subject);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @SneakyThrows

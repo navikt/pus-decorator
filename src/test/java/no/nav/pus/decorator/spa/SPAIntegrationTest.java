@@ -12,10 +12,7 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import no.nav.testconfig.ApiAppTest;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
@@ -96,6 +93,7 @@ public class SPAIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void smoketest() throws Exception {
         withClient(client -> {
             pathResponsWithContent("/", "root");

@@ -52,3 +52,4 @@ jobs:
           docker build -t ${IMAGE}:${IMAGE_TAG} .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}:${IMAGE_TAG}
+          docker push ${IMAGE}:latest

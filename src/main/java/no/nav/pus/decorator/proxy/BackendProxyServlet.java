@@ -23,10 +23,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.Optional.ofNullable;
-import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
-import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.*;
 import static no.nav.pus.decorator.proxy.BackendProxyConfig.RequestRewrite.REMOVE_CONTEXT_PATH;
 import static no.nav.sbl.util.StringUtils.*;
 import static org.eclipse.jetty.http.HttpMethod.GET;
@@ -163,12 +163,19 @@ public class BackendProxyServlet extends ProxyServlet implements Helsesjekk {
         ContentResponse contentResponse = getHttpClient()
                 .newRequest(pingUrl)
                 .header(CONSUMER_ID_HEADER_NAME, applicationName)
+                .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, generateId())
+                .header(CONSUMER_ID_HEADER_NAME, applicationName)
                 .method(GET)
                 .send();
         int status = contentResponse.getStatus();
         if (status != 200) {
             throw new IllegalStateException(status + " != 200");
         }
+    }
+
+    private static String generateId() {
+        UUID uuid = UUID.randomUUID();
+        return Long.toHexString(uuid.getMostSignificantBits()) + Long.toHexString(uuid.getLeastSignificantBits());
     }
 
     @Override

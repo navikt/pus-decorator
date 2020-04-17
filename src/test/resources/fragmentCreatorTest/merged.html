@@ -3,7 +3,25 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" /> {{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" />
+    <style>
+        body {
+            background-color: #efefef;
+            color: #3e3832;
+        }
+
+        .pagewrapper {
+            height: auto;
+            min-height: 100%;
+            margin-bottom: -200px;
+            padding-bottom: 200px;
+        }
+
+        .maincontent {
+            padding-bottom: 60px;
+            padding-top: 30px;
+        }
+    </style> {{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}
     <script>
         testapp = window.testapp || {};
 

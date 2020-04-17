@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import static java.util.stream.Collectors.joining;
 import static no.nav.pus.decorator.EnvironmentScriptGenerator.ENVIRONMENT_CONTEXT_PROPERTY_NAME;
-import static no.nav.pus.decorator.FragmentCreator.readTemplate;
+import static no.nav.pus.decorator.FragmentCreator.readFile;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,9 +19,9 @@ public class FragmentCreatorTest {
     public void createFragmentTemplate() {
         setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "testapp", () -> {
             FragmentCreator fragmentCreator = new FragmentCreator(decoratorConfig, "testapp");
-            String fragmentTemplate = fragmentCreator.createFragmentTemplate(readTemplate("/fragmentCreatorTest/original.html"));
+            String fragmentTemplate = fragmentCreator.createFragmentTemplate(readFile("/fragmentCreatorTest/original.html"));
             System.out.println(fragmentTemplate);
-            assertThat(normalize(fragmentTemplate)).isEqualTo(normalize(readTemplate("/fragmentCreatorTest/merged.html")));
+            assertThat(normalize(fragmentTemplate)).isEqualTo(normalize(readFile("/fragmentCreatorTest/merged.html")));
         });
     }
 
@@ -30,9 +30,9 @@ public class FragmentCreatorTest {
         setTemporaryProperty(ENVIRONMENT_CONTEXT_PROPERTY_NAME, "testapp", () -> {
             setTemporaryProperty("PUBLIC_MY_PROPERTY", "public_value", () -> {
                 FragmentCreator fragmentCreator = new FragmentCreator(decoratorConfig, "testapp");
-                String fragmentTemplate = fragmentCreator.createFragmentTemplate(readTemplate("/fragmentCreatorTest/original.html"));
+                String fragmentTemplate = fragmentCreator.createFragmentTemplate(readFile("/fragmentCreatorTest/original.html"));
                 System.out.println(fragmentTemplate);
-                assertThat(normalize(fragmentTemplate)).isEqualTo(normalize(readTemplate("/fragmentCreatorTest/mergedWithEnvironment.html")));
+                assertThat(normalize(fragmentTemplate)).isEqualTo(normalize(readFile("/fragmentCreatorTest/mergedWithEnvironment.html")));
             });
         });
     }

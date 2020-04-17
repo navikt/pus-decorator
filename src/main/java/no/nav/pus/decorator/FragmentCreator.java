@@ -17,8 +17,9 @@ import static no.nav.pus.decorator.ConfigurationService.isEnabled;
 
 public class FragmentCreator {
 
-    private static final String BODY_TEMPLATE = readTemplate("/body-template.html");
-    private static final String HEAD_TEMPLATE = readTemplate("/head-template.html");
+    private static final String BODY_TEMPLATE = readFile("/body-template.html");
+    private static final String HEAD_TEMPLATE = readFile("/head-template.html");
+    private static final String NY_DEKORATOR_CSS_SHIM = readFile("/ny-dekorator-styling-shim.html");
     private final String frontendLoggerHtml;
     private final String environmentHtml;
     private final Optional<String> headerFragment;
@@ -58,6 +59,7 @@ public class FragmentCreator {
                 .prepend(this.frontendLoggerHtml)
                 .prepend(this.environmentHtml)
                 .prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}")
+                .prepend(NY_DEKORATOR_CSS_SHIM)
                 .prepend(HEAD_TEMPLATE);
     }
 
@@ -77,7 +79,7 @@ public class FragmentCreator {
     }
 
     @SneakyThrows
-    static String readTemplate(String uri) {
+    static String readFile(String uri) {
         return IOUtils.toString(DecoratorFilter.class.getResource(uri), Charset.forName("UTF-8"));
     }
 

@@ -94,7 +94,7 @@ public class FragmentFetcher {
             urlBuilder.addParameter(option, additionalOptions.get(option));
         }
 
-        return urlBuilder.build().toString() + getOptionalProperty("EXTRA_DECORATOR_PARAMS").orElse(null);
+        return urlBuilder.build().toString() + getOptionalProperty("EXTRA_DECORATOR_PARAMS").orElse("");
     }
 
     private void addApplicationName(URIBuilder urlBuilder) {

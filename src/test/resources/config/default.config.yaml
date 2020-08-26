@@ -2,7 +2,7 @@
 contextPath: null
 decorator:
   headerType: "WITH_MENU"
-  footerType: "WITHOUT_ALPHABET"
+  footerType: "WITH_ALPHABET"
 auth: null
 spa: null
 proxy: null

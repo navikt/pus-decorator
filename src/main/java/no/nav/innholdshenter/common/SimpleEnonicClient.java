@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4;
 
 public class SimpleEnonicClient implements ContentRetriever {

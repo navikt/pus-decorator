@@ -54,6 +54,7 @@ in addition to the configuration file the following environment variables are su
  - HEADER_TYPE (optional:https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/HeaderType.java)
  - FOOTER_TYPE (optional)
  https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java
+ - DECORATOR_PARAMS (optional) sends extra params to the decorator. 
  - ENVIRONMENT_CONTEXT (optional) sets context name for `/environment.js` and `/api/feature.js`. Defaults to application name (see below)
  - CONTEXT_PATH (optional) if set is the contextpath of the application. Defaults to APPLICATION_NAME
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk

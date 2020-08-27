@@ -54,7 +54,7 @@ in addition to the configuration file the following environment variables are su
  - HEADER_TYPE (optional:https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/HeaderType.java)
  - FOOTER_TYPE (optional)
  https://github.com/navikt/pus-decorator/blob/master/src/main/java/no/nav/pus/decorator/FooterType.java
- - EXTRA_DECORATOR_PARAMS (optional) forward extra parameters to the decorator based on https://github.com/navikt/nav-dekoratoren/#parametere
+ - EXTRA_DECORATOR_PARAMS (optional) forward extra parameters to the decorator based on https://github.com/navikt/nav-dekoratoren/#parametere. Example: &chatbot=true&feedback=false
  - ENVIRONMENT_CONTEXT (optional) sets context name for `/environment.js` and `/api/feature.js`. Defaults to application name (see below)
  - CONTEXT_PATH (optional) if set is the contextpath of the application. Defaults to APPLICATION_NAME
  - CONTENT_URL (optional) application to be decorated will be fetched from this url. If not set, the application is read from local disk
@@ -62,7 +62,6 @@ in addition to the configuration file the following environment variables are su
  - CONFIGURATION_LOCATION (optional) set path of configuration file, this will override the default which is set to `/decorator.yaml`
  - DISABLE_PRAGMA_HEADER=true|false (optional) removes the `Pragma: no-cache` header from responses
  - ALLOW_CLIENT_STORAGE=true|false (optional) if true, removes the `no-store, must-revalidate` directives from the `Cache-Control` header
-
 
 ### proxy configuration
 Please see the 

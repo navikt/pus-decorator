@@ -76,9 +76,7 @@ public class DecoratorUtils {
                 headerType.getFragmentName().orElse(null),
                 footerType.getFragmentName().orElse(null),
                 "styles",
-                "scripts",
-                "skiplinks",
-                "megamenu-resources"
+                "scripts"
         ).filter(StringUtils::notNullOrEmpty).collect(toList());
     }
 }

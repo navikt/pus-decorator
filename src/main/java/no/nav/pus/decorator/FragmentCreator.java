@@ -58,7 +58,7 @@ public class FragmentCreator {
         head
                 .prepend(this.frontendLoggerHtml)
                 .prepend(this.environmentHtml)
-                .prepend("{{fragment.styles}}{{fragment.scripts}}{{fragment.megamenu-resources}}")
+                .prepend("{{fragment.styles}}{{fragment.scripts}}")
                 .prepend(NY_DEKORATOR_CSS_SHIM)
                 .prepend(HEAD_TEMPLATE);
     }
@@ -73,7 +73,7 @@ public class FragmentCreator {
         for (Element element : template.body().children()) {
             body.appendChild(element);
         }
-        headerFragment.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment).prepend("{{fragment.skiplinks}}"));
+        headerFragment.ifPresent(fragment -> body.getElementById("pagewrapper").prepend(" " + fragment));
         footerFragment.ifPresent(fragment -> body.append(" " + fragment));
         body.prepend("<noscript>Du må aktivere javascript for å kjøre denne appen.</noscript>");
     }

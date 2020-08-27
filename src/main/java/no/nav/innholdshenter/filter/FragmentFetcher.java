@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 
 import static no.nav.cache.CacheConfig.DEFAULT;
 import static no.nav.innholdshenter.filter.DecoratorFilterUtils.*;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class FragmentFetcher {
@@ -93,7 +94,7 @@ public class FragmentFetcher {
             urlBuilder.addParameter(option, additionalOptions.get(option));
         }
 
-        return urlBuilder.build().toString();
+        return urlBuilder.build().toString() + getOptionalProperty("EXTRA_DECORATOR_PARAMS").orElse("");
     }
 
     private void addApplicationName(URIBuilder urlBuilder) {

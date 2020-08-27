@@ -36,6 +36,6 @@ public class DecoratorConfig {
         if (getNewDecoratorUrl().isPresent()) {
             return FooterType.WITH_ALPHABET;
         }
-        return getOptionalProperty(FOOTER_TYPE_PROPERTY).map(FooterType::valueOf).orElse(FooterType.WITHOUT_ALPHABET);
+        return getOptionalProperty(FOOTER_TYPE_PROPERTY).map(FooterType::valueOf).orElse(FooterType.WITH_ALPHABET);
     }
 }

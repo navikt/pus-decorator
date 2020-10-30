@@ -2,7 +2,7 @@ name: Test, build, push and deploy
 on: push
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/pus-decorator
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/pus-decorator-dependencies-upgrade
   PRINT_PAYLOAD: true
   FASIT_MOCK_ENABLED: true
 

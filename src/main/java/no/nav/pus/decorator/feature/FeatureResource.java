@@ -21,7 +21,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toMap;
 import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
-import static no.nav.common.oidc.Constants.ESSO_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.oidc.Constants.AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME;
 
 @Path("/")
 @Component
@@ -45,7 +45,7 @@ public class FeatureResource {
     public FeatureEvaluator evaluate(
             @QueryParam("feature") List<String> features,
             @CookieParam(UNLEASH_SESSION_ID_COOKIE_NAME) String sessionId,
-            @CookieParam(ESSO_ID_TOKEN_COOKIE_NAME) String azureAdB2cOidcToken,
+            @CookieParam(AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME) String azureAdB2cOidcToken,
             @CookieParam(ID_TOKEN_COOKIE_NAME) String issoOidcToken,
             @Context HttpServletRequest request,
             @Context HttpServletResponse response

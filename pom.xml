@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.common</groupId>
         <artifactId>mor-pom</artifactId>
-        <version>1.2020.02.21_14.01-cdaccec525a6</version>
+        <version>1.2020.02.24_13.30-8f314608e23a</version>
     </parent>
 
     <groupId>no.nav.pus</groupId>
@@ -57,6 +57,7 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>validation</artifactId>
+            <version>1.2020.02.21_14.01-cdaccec525a6</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -69,6 +70,7 @@
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -104,8 +106,15 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>oidc-security</artifactId>
+            <artifactId>oidc</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>oidc-security</artifactId>
+            <version>1.2020.02.21_14.01-cdaccec525a6</version>
+        </dependency>
+
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>web</artifactId>

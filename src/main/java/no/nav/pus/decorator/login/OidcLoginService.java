@@ -30,7 +30,7 @@ import java.util.Optional;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static no.nav.common.auth.SecurityLevel.Ukjent;
-import static no.nav.common.oidc.Constants.ESSO_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.oidc.Constants.AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME;
 import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 
@@ -56,7 +56,7 @@ public class OidcLoginService implements LoginService {
         this.contextPath = contextPath;
         this.minSecurityLevel = authConfig.minSecurityLevel;
         this.minRemainingSeconds = authConfig.minRemainingSeconds;
-        this.locator = new TokenLocator(ESSO_ID_TOKEN_COOKIE_NAME);
+        this.locator = new TokenLocator(AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME);
     }
 
     @Override

@@ -132,7 +132,7 @@ public class ApplicationConfig implements ApiApplication {
     public UnleashService unleashService(Provider<HttpServletRequest> httpServletRequestProvider) {
         return new UnleashService(UnleashServiceConfig.builder()
                 .applicationName(ApplicationConfig.resolveApplicationName())
-                .unleashApiUrl(getOptionalProperty(UNLEASH_API_URL_PROPERTY_NAME).orElse("https://unleashproxy.nais.oera.no/api/"))
+                .unleashApiUrl(getOptionalProperty(UNLEASH_API_URL_PROPERTY_NAME).orElse("https://unleash.nais.io/api/"))
                 .build(),
                 new ByQueryParamStrategy(httpServletRequestProvider),
                 new ByApplicationStrategy()

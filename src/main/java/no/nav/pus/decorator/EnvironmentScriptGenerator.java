@@ -1,7 +1,5 @@
 package no.nav.pus.decorator;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -19,7 +17,7 @@ public class EnvironmentScriptGenerator {
         return formatMapAsJs(getEnvironmentVariablesAndSystemProperties());
     }
 
-    public String formatMapAsJs(Map<String, ?> map) {
+    String formatMapAsJs(Map<String, ?> map) {
         String values = map
                 .entrySet()
                 .stream()

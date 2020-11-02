@@ -2,7 +2,6 @@ package no.nav.pus.decorator.feature;
 
 import lombok.extern.slf4j.Slf4j;
 import no.finn.unleash.UnleashContext;
-import no.nav.pus.decorator.EnvironmentScriptGenerator;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
 import no.nav.sbl.util.StringUtils;
 import org.jose4j.jwt.MalformedClaimException;
@@ -15,7 +14,10 @@ import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import java.util.*;
 
@@ -81,14 +83,6 @@ public class FeatureResource {
         public Map<String, Boolean> getFeatures() {
             return evaluation;
         }
-
-        @GET
-        @Path("/feature.js")
-        @Produces("application/javascript")
-        public String getFeaturesAsJs() {
-            return new EnvironmentScriptGenerator().formatMapAsJs(evaluation);
-        }
-
     }
 
 

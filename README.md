@@ -122,14 +122,5 @@ Returns application/json
     "toggle-c":false    
 }
 
-
-GET /myapp/api/feature.js?feature=toggle-a&feature=toggle-b&feature=toggle-c
-
-Returns application/javascript
-
-myapp = window.myapp || {};
-myapp['toggle-b']=false;
-myapp['toggle-a']=true;
-myapp['toggle-c']=false;
  
 ```

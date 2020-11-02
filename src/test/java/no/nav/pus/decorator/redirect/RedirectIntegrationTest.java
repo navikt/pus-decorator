@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URL;
 
 import static java.util.Arrays.asList;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.config.ConfigResolver.CONFIGURATION_LOCATION_PROPERTY;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
@@ -102,7 +104,11 @@ public class RedirectIntegrationTest {
     }
 
     private void assertRedirect(String path, String target) {
-        Response response = client.target(applicationBasePath + path).request().get();
+        Response response = client.target(applicationBasePath + path).request()
+                .header(CONSUMER_ID_HEADER_NAME, "customConsumer")
+                .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, "customCallId")
+                .get();
+
         assertThat(response.getStatus()).isEqualTo(302);
         assertThat(response.getLocation()).isEqualTo(URI.create(target));
     }

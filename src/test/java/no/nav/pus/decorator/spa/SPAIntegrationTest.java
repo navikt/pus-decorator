@@ -81,7 +81,9 @@ public class SPAIntegrationTest {
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
         systemPropertiesRule.setProperty("APPLICATION_NAME", applicationName);
 
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .environment("q1")
+                .applicationName(applicationName).build());
         jetty = ApiApp.startApiApp(SPAIntegrationTestConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
     }
 

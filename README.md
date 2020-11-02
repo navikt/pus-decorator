@@ -73,19 +73,11 @@ Please see  the
 
 ### enforced login
 If your application requires the user to be logged in, the pus-decorator can enforce this:
-1. in `app-config.yaml`, depend on the fasit-resources `aad_b2c_clientid` and `aad_b2c_discovery` (see example below)
-2. in `app-config.yaml`, set the `webproxy`-flag to `true` (see example below)
-3. in `Dockerfile`, set the environment variable `OIDC_LOGIN_URL` to `/veilarbstepup/oidc` (see example below)
+1. in `app-config.yaml`, set the `webproxy`-flag to `true` (see example below)
+2. in `Dockerfile`, set the environment variable `OIDC_LOGIN_URL` to `/veilarbstepup/oidc` (see example below)
 
 `app-config.yaml`:
 ```
-fasitResources:  
-  used:                         
-  - alias: aad_b2c_clientid
-    resourceType: credential
-  - alias: aad_b2c_discovery
-    resourceType: baseurl
-    
 webproxy: true
 ```
 `Dockerfile`:

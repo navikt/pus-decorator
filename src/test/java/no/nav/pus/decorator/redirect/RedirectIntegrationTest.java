@@ -71,7 +71,9 @@ public class RedirectIntegrationTest {
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
         systemPropertiesRule.setProperty("APPLICATION_NAME", applicationName);
 
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .environment("q1")
+                .applicationName(applicationName).build());
         jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
     }
 

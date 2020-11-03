@@ -1,7 +1,5 @@
 package no.nav.pus.decorator.login;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
@@ -11,7 +9,6 @@ import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.oidc.OidcTokenValidator;
-import no.nav.common.oidc.utils.TokenLocator;
 import no.nav.common.oidc.utils.TokenUtils;
 import no.nav.pus.decorator.ApplicationConfig;
 import org.jose4j.jwt.ReservedClaimNames;
@@ -23,7 +20,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -45,7 +42,6 @@ public class OidcLoginService implements LoginService {
     private final URL oidcLoginUrl;
     private final boolean enforce;
     private final OidcTokenValidator validator;
-    private final TokenLocator locator;
     private final String contextPath;
     private final int minSecurityLevel;
 
@@ -56,7 +52,6 @@ public class OidcLoginService implements LoginService {
         this.contextPath = contextPath;
         this.minSecurityLevel = authConfig.minSecurityLevel;
         this.minRemainingSeconds = authConfig.minRemainingSeconds;
-        this.locator = new TokenLocator(AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME);
     }
 
     @Override
@@ -140,7 +135,7 @@ public class OidcLoginService implements LoginService {
     public Optional<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse
             httpServletResponse) {
 
-        Optional<String> token = locator.getIdToken(httpServletRequest);
+        Optional<String> token = getToken(httpServletRequest);
         try {
             if(!token.isPresent()){
                 return Optional.empty();
@@ -163,6 +158,27 @@ public class OidcLoginService implements LoginService {
             e.printStackTrace();
             return Optional.empty();
         }
+    }
+
+    private Optional<String> getToken(HttpServletRequest request) {
+
+        Optional<String> tokenFromCookie = getTokenFromCookie(request, AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME);
+
+        if (tokenFromCookie.isPresent()) {
+            return tokenFromCookie;
+        }
+
+        return TokenUtils.getTokenFromHeader(request);
+    }
+
+    private Optional<String> getTokenFromCookie(HttpServletRequest request, String cookieName) {
+        return Optional.ofNullable(request.getCookies())
+                .flatMap(cookies -> Arrays
+                        .stream(cookies)
+                        .filter(cookie -> cookie.getName().equals(cookieName) && cookie.getValue() != null)
+                        .findFirst()
+                        .map(Cookie::getValue)
+                );
     }
 
     @SneakyThrows

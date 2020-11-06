@@ -108,13 +108,6 @@
             <groupId>no.nav.common</groupId>
             <artifactId>oidc</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>no.nav.common</groupId>
-            <artifactId>oidc-security</artifactId>
-            <version>1.2020.02.21_14.01-cdaccec525a6</version>
-        </dependency>
-
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>web</artifactId>

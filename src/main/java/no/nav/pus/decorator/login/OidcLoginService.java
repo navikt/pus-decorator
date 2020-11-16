@@ -4,6 +4,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.oidc.OidcTokenValidator;
@@ -32,7 +33,6 @@ public class OidcLoginService implements LoginService {
     private final long minRemainingSeconds;
 
     private static final String UTF_8 = "UTF-8";
-    private static final String SECURITY_LEVEL_ATTRIBUTE = "acr";
 
     static final String DESTINATION_COOKIE_NAME = "login_dest";
     static final String EXPIRATION_TIME_ATTRIBUTE_NAME = ReservedClaimNames.EXPIRATION_TIME;
@@ -64,14 +64,15 @@ public class OidcLoginService implements LoginService {
                 .map(Date::getTime)
                 .orElse((long) 0);
 
-        JWTSecurityLevel securityLevelTest = new JWTSecurityLevel(ssoToken);
-
+        SecurityLevel securityLevel = ssoToken
+                .map(SecurityLevel::getOidcSecurityLevel)
+                .orElse(SecurityLevel.Ukjent);
 
         long remainingMillis = expirationTimestamp - System.currentTimeMillis();
 
         return new AuthenticationStatusDTO()
                 .setLoggedIn(ssoToken.isPresent())
-                .setSecurityLevel(JWTSecurityLevel.getSecurityLevel())
+                .setSecurityLevel(securityLevel)
                 .setExpirationTime(remainingMillis > 0 ? new Date(expirationTimestamp) : null)
                 .setRemainingSeconds(Math.max(remainingMillis / 1000, 0L));
     }

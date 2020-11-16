@@ -5,11 +5,11 @@ import no.nav.common.auth.Subject;
 
 public class SecurityLevelAuthorizationModule {
     public static boolean authorized(Subject subject, Integer minimumLevel) {
-        return subject != null && getSecurityLevel(subject).getSecurityLevel() >= minimumLevel;
+        return subject != null && getOidcSecurityLevel(subject) >= minimumLevel;
     }
 
-    private static SecurityLevel getSecurityLevel(Subject subject) {
-        return SecurityLevel.getOidcSecurityLevel(subject.getSsoToken());
+    private static Integer getOidcSecurityLevel(Subject subject) {
+        return SecurityLevel.getOidcSecurityLevel(subject.getSsoToken()).getSecurityLevel();
     }
 
 }

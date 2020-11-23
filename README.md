@@ -68,22 +68,12 @@ Please see the
 [example configuration file](https://github.com/navikt/pus-decorator/blob/master/decorator.example.yaml)
  
 ### Multiple single page applications
-Please see  the 
+Please see the 
 [example configuration file](https://github.com/navikt/pus-decorator/blob/master/decorator.example.yaml)
 
-### enforced login
-If your application requires the user to be logged in, the pus-decorator can enforce this:
-1. in `app-config.yaml`, set the `webproxy`-flag to `true` (see example below)
-2. in `Dockerfile`, set the environment variable `OIDC_LOGIN_URL` to `/veilarbstepup/oidc` (see example below)
-
-`app-config.yaml`:
-```
-webproxy: true
-```
-`Dockerfile`:
-```
-ENV OIDC_LOGIN_URL /veilarbstepup/oidc
-``` 
+### Enforced login
+If your application requires the user to be logged in, the pus-decorator can enforce this. Check out the [example configuration file](https://github.com/navikt/pus-decorator/blob/master/decorator.example.yaml#L13).  
+And don't forget to set the `webproxy`-flag to `true` in your application's `nais.yaml`.
 
 ## /environment.js
 endpoint that exposes system properties/environment variables matching this regex: `^PUBLIC_.+`. Example:

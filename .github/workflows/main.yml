@@ -2,7 +2,7 @@ name: Test, build, push and deploy
 on: push
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/pus-decorator-dependencies-upgrade
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/pus-decorator
   PRINT_PAYLOAD: true
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
   test-build-and-push:
     name: Test, build and push
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/versjonsbumping'
+    if: github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
         uses: actions/checkout@v1

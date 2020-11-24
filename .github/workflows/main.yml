@@ -4,7 +4,6 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   IMAGE: docker.pkg.github.com/${{ github.repository }}/pus-decorator
   PRINT_PAYLOAD: true
-  FASIT_MOCK_ENABLED: true
 
 jobs:
   test:

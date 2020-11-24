@@ -6,6 +6,7 @@ import no.nav.apiapp.ApiApp;
 import no.nav.common.auth.SecurityLevel;
 import no.nav.common.yaml.YamlUtils;
 import no.nav.pus.decorator.config.Config;
+import no.nav.pus.decorator.feature.ApplicationConfigTest;
 import no.nav.pus.decorator.login.AuthConfig;
 import no.nav.pus.decorator.proxy.BackendProxyConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
@@ -18,7 +19,10 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.glassfish.jersey.client.JerseyClient;
 import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
 import java.io.File;
@@ -30,9 +34,6 @@ import java.util.stream.IntStream;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
 import static java.util.Arrays.asList;
-import static no.nav.brukerdialog.security.oidc.OidcTokenUtils.SECURITY_LEVEL_ATTRIBUTE;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE;
 import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.ApplicationConfig.CONTEXT_PATH_PROPERTY_NAME;
@@ -46,6 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.glassfish.jersey.client.ClientProperties.FOLLOW_REDIRECTS;
 
 public class ProxyIntegrationTest {
+    private static final String SECURITY_LEVEL_ATTRIBUTE = "acr";
 
     private final static JwtTestTokenIssuerConfig azureAdIssuerConfig = JwtTestTokenIssuerConfig.builder()
             .id("oidc-provider-test-rule-aad")
@@ -132,14 +134,16 @@ public class ProxyIntegrationTest {
         systemPropertiesRule.setProperty(CONFIGURATION_LOCATION_PROPERTY, proxyConfigurationFile.getAbsolutePath());
         systemPropertiesRule.setProperty(APPRES_CMS_URL_PROPERTY, wiremockBasePath);
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
-        systemPropertiesRule.setProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL, oidcProviderRule.getDiscoveryUri());
-        systemPropertiesRule.setProperty(EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE, oidcProviderRule.getAudience());
+        systemPropertiesRule.setProperty("AAD_B2C_DISCOVERY_URL", oidcProviderRule.getDiscoveryUri());
+        systemPropertiesRule.setProperty("AAD_B2C_CLIENTID_USERNAME", oidcProviderRule.getAudience());
         systemPropertiesRule.setProperty(FRONTENDLOGGER_URL_PROPERTY, wiremockBasePath);
         systemPropertiesRule.setProperty("APPLICATION_NAME", applicationName);
 
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .environment("q1")
+                .applicationName(applicationName).build());
 
-        jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
+        jetty = ApiApp.startApiApp(ApplicationConfigTest.class, new String[]{Integer.toString(applicationPort)}).getJetty();
     }
 
     private String localBasePath(int port) {

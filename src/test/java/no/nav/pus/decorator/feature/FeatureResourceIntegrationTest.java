@@ -2,7 +2,6 @@ package no.nav.pus.decorator.feature;
 
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApp;
-import no.nav.pus.decorator.ApplicationConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import no.nav.testconfig.ApiAppTest;
@@ -15,6 +14,8 @@ import javax.ws.rs.core.Response;
 import java.net.ServerSocket;
 import java.util.Map;
 
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static no.nav.pus.decorator.DecoratorUtils.APPRES_CMS_URL_PROPERTY;
 import static no.nav.pus.decorator.spa.SPAConfigResolver.WEBROOT_PATH_PROPERTY_NAME;
 import static no.nav.pus.decorator.spa.SPAConfigResolverTest.getWebappSourceDirectory;
@@ -42,8 +43,10 @@ public class FeatureResourceIntegrationTest {
         systemPropertiesRule.setProperty(WEBROOT_PATH_PROPERTY_NAME, getWebappSourceDirectory());
         systemPropertiesRule.setProperty("APPLICATION_NAME", applicationName);
 
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder().applicationName(applicationName).build());
-        jetty = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(applicationPort)}).getJetty();
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .environment("q1")
+                .applicationName(applicationName).build());
+        jetty = ApiApp.startApiApp(ApplicationConfigTest.class, new String[]{Integer.toString(applicationPort)}).getJetty();
     }
 
     @After
@@ -54,29 +57,15 @@ public class FeatureResourceIntegrationTest {
     }
 
     @Test
-    public void testFeatureJs() {
-        withClient(client -> {
-            Response response = client.target(applicationBasePath).path("/api/feature.js")
-                    .queryParam("feature", "testFeature1", "testFeature2")
-                    .request().get();
-            assertThat(response.getStatus())
-                    .isEqualTo(200);
-            assertThat(response.getHeaderString("Content-Type")).isEqualTo("application/javascript;charset=utf-8");
-            assertThat(response.readEntity(String.class)).isEqualTo("" +
-                    "FeatureResourceIntegrationTest = window.FeatureResourceIntegrationTest || {};\n" +
-                    "FeatureResourceIntegrationTest['testFeature1']=false;\n" +
-                    "FeatureResourceIntegrationTest['testFeature2']=false;\n"
-            );
-            return null;
-        });
-    }
-
-    @Test
     public void testFeatureJson() {
         withClient(client -> {
             Response response = client.target(applicationBasePath).path("/api/feature")
                     .queryParam("feature", "testFeature1", "testFeature2")
-                    .request().get();
+                    .request()
+                    .header(CONSUMER_ID_HEADER_NAME, "customConsumer")
+                    .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, "customCallId")
+                    .get();
+
             assertThat(response.getStatus())
                     .isEqualTo(200);
             assertThat(response.getHeaderString("Content-Type")).isEqualTo("application/json;charset=utf-8");

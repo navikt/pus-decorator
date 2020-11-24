@@ -2,7 +2,6 @@ package no.nav.pus.decorator.feature;
 
 import lombok.extern.slf4j.Slf4j;
 import no.finn.unleash.UnleashContext;
-import no.nav.pus.decorator.EnvironmentScriptGenerator;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
 import no.nav.sbl.util.StringUtils;
 import org.jose4j.jwt.MalformedClaimException;
@@ -15,13 +14,16 @@ import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import java.util.*;
 
 import static java.util.stream.Collectors.toMap;
-import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
-import static no.nav.common.oidc.Constants.ESSO_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.oidc.Constants.AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.oidc.Constants.OPEN_AM_ID_TOKEN_COOKIE_NAME;
 
 @Path("/")
 @Component
@@ -45,8 +47,8 @@ public class FeatureResource {
     public FeatureEvaluator evaluate(
             @QueryParam("feature") List<String> features,
             @CookieParam(UNLEASH_SESSION_ID_COOKIE_NAME) String sessionId,
-            @CookieParam(ESSO_ID_TOKEN_COOKIE_NAME) String azureAdB2cOidcToken,
-            @CookieParam(ID_TOKEN_COOKIE_NAME) String issoOidcToken,
+            @CookieParam(AZURE_AD_B2C_ID_TOKEN_COOKIE_NAME) String azureAdB2cOidcToken,
+            @CookieParam(OPEN_AM_ID_TOKEN_COOKIE_NAME) String issoOidcToken,
             @Context HttpServletRequest request,
             @Context HttpServletResponse response
     ) {
@@ -81,14 +83,6 @@ public class FeatureResource {
         public Map<String, Boolean> getFeatures() {
             return evaluation;
         }
-
-        @GET
-        @Path("/feature.js")
-        @Produces("application/javascript")
-        public String getFeaturesAsJs() {
-            return new EnvironmentScriptGenerator().formatMapAsJs(evaluation);
-        }
-
     }
 
 

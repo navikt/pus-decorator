@@ -44,11 +44,19 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
       - name: Build maven artifacts
         run: mvn -B package
-      - name: Build and push Docker image
+      - name: Build and tag Docker image
+        run: |
+          docker build -t ${IMAGE} .
+          docker tag ${IMAGE} ${IMAGE}:${IMAGE_TAG}
+      - name: Push to docker.pkg.github.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker build -t ${IMAGE} .
-          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-          docker tag ${IMAGE} ${IMAGE}:${IMAGE_TAG}
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          docker push ${IMAGE}
+      - name: Push to ghcr.io
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${GITHUB_REPOSITORY} --password-stdin
           docker push ${IMAGE}

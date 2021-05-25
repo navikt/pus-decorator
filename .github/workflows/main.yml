@@ -2,7 +2,8 @@ name: Test, build, push and deploy
 on: push
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE: docker.pkg.github.com/${{ github.repository }}/pus-decorator
+  IMAGE_DOCKER_PKG: docker.pkg.github.com/${{ github.repository }}/pus-decorator
+  IMAGE_GHCR: ghcr.io/${{ github.repository }}/pus-decorator
   PRINT_PAYLOAD: true
 
 jobs:
@@ -44,20 +45,19 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
       - name: Build maven artifacts
         run: mvn -B package
-      - name: Build and tag Docker image
-        run: |
-          docker build -t ${IMAGE} .
-          docker tag ${IMAGE} ${IMAGE}:${IMAGE_TAG}
+      - name: Build Docker image
+        run: docker build -t ${IMAGE_DOCKER_PKG} -t ${IMAGE_GHCR} .
       - name: Push to docker.pkg.github.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE}
+          docker tag ${IMAGE_DOCKER_PKG} ${IMAGE_DOCKER_PKG}:${IMAGE_TAG}
+          docker push ${IMAGE_DOCKER_PKG}
       - name: Push to ghcr.io
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          docker logout
           echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE}
+          docker tag ${IMAGE_GHCR} ${IMAGE_GHCR}:${IMAGE_TAG}
+          docker push ${IMAGE_GHCR}

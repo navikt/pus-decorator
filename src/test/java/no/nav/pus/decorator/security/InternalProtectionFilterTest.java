@@ -12,6 +12,8 @@ public class InternalProtectionFilterTest {
         assertNoAccess("tjenester.nav.no");
         assertNoAccess("evil.com");
         assertNoAccess("174.148.185.236");
+        assertNoAccess("10.8.81.131");
+        assertNoAccess("10.5.81.131");
 
         assertAccess("192.168.1.1");
         assertAccess("192.168.255.255");
@@ -21,6 +23,8 @@ public class InternalProtectionFilterTest {
         assertAccess("myapp.nais.preprod.local");
         assertAccess("myapp-q0.nais.oera-q.local");
         assertAccess("localhost");
+        assertAccess("10.6.81.131");
+        assertAccess("10.7.5.123");
     }
 
     @Test

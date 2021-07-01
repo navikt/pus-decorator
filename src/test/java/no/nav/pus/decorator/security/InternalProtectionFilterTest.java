@@ -12,6 +12,8 @@ public class InternalProtectionFilterTest {
         assertNoAccess("tjenester.nav.no");
         assertNoAccess("evil.com");
         assertNoAccess("174.148.185.236");
+        assertNoAccess("10.6.81.131");
+        assertNoAccess("10.7.5.123");
 
         assertAccess("192.168.1.1");
         assertAccess("192.168.255.255");

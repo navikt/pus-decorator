@@ -20,7 +20,9 @@ import static no.nav.apiapp.ApiAppServletContextListener.INTERNAL_IS_ALIVE;
 public class InternalProtectionFilter implements Filter {
 
     private static final List<Pattern> SUBNET_IP_PATTERNS = Arrays.asList(
-            Pattern.compile("192\\.168\\.\\d{1,3}\\.\\d{1,3}") // on-prem
+            Pattern.compile("192\\.168\\.\\d{1,3}\\.\\d{1,3}"), // on-prem
+            Pattern.compile("10\\.6\\.\\d{1,3}\\.\\d{1,3}"), // gcp dev
+            Pattern.compile("10\\.7\\.\\d{1,3}\\.\\d{1,3}") // gcp prod
     );
 
     private static final List<String> SAFE_POSTFIXES = new ArrayList<>(asList(

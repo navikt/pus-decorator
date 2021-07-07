@@ -16,6 +16,7 @@ pus-decorator comes with much functionality out of the box, but may be deactivat
  - `DISABLE_PROXY`
  - `DISABLE_UNLEASH`
  - `DISABLE_FRONTEND_LOGGER`
+ - `DISABLE_SENSU_METRICS`
 
 BETA:
 Use the environment variabel `GZIP_ENABLED` in the `Dockerfile` to turn on gzipping for files: `ENV GZIP_ENABLED=true`.

@@ -46,7 +46,11 @@ jobs:
       - name: Build maven artifacts
         run: mvn -B package
       - name: Build Docker image
-        run: docker build -t ${IMAGE_DOCKER_PKG} -t ${IMAGE_GHCR} .
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo ${GITHUB_TOKEN} | docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} --password-stdin
+          docker build -t ${IMAGE_DOCKER_PKG} -t ${IMAGE_GHCR} .
       - name: Push to docker.pkg.github.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

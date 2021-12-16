@@ -105,5 +105,5 @@ Returns application/json
     "toggle-c":false    
 }
 
- 
+
 ```

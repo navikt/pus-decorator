@@ -1,5 +1,7 @@
 package no.nav.pus.decorator.login;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
@@ -11,6 +13,7 @@ import org.junit.Test;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,6 +107,39 @@ public class OidcLoginServiceTest {
         assertThat(encode(requestUrl)).isEqualTo(requestUrlEncoded);
         assertThat(encode(queryString)).isEqualTo(queryStringEncoded);
         assertThat(encode(completeRequestUrl)).isEqualTo(completeRequestUrlEncoded);
+    }
+
+    @Test
+    public void getUid_returns_null_if_missing() throws ParseException {
+        JWTClaimsSet claimset = new JWTClaimsSet
+                .Builder()
+                .build();
+        PlainJWT token = new PlainJWT(claimset);
+
+        assertThat(getUid(token)).isNull();
+    }
+
+    @Test
+    public void getUid_returns_pid_if_it_exist() throws ParseException {
+        JWTClaimsSet claimset = new JWTClaimsSet
+                .Builder()
+                .subject("subvalue")
+                .claim("pid", "pidvalue")
+                .build();
+        PlainJWT token = new PlainJWT(claimset);
+
+        assertThat(getUid(token)).isEqualTo("pidvalue");
+    }
+
+    @Test
+    public void getUid_returns_sub_if_pid_doesnt_exist() throws ParseException {
+        JWTClaimsSet claimset = new JWTClaimsSet
+                .Builder()
+                .subject("subvalue")
+                .build();
+        PlainJWT token = new PlainJWT(claimset);
+
+        assertThat(getUid(token)).isEqualTo("subvalue");
     }
 
     private void authenticateUser() {

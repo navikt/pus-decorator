@@ -19,7 +19,8 @@ public class DecoratorUtils {
     private static final String APPRES_FRAGMENT_URL ="common-html/v4/navno";
 
     public static final String NEW_DECORATOR_URL_PROPERTY = "NAV_DEKORATOREN_URL";
-    private static final String NEW_DECORATOR_FRAGMENT_URL = "dekoratoren/";
+    private static final String NEW_DECORATOR_FRAGMENT_URL_PROPERTY = "NEW_DECORATOR_FRAGMENT_URL";
+    private static final String NEW_DECORATOR_FRAGMENT_DEFAULT_URL = "dekoratoren/";
 
     private static SimpleEnonicClient enonicClient;
 
@@ -61,9 +62,19 @@ public class DecoratorUtils {
         throw new IllegalStateException("Fant ingen av propertyene (appres.url, nav.dekoratoren)");
     }
 
-    public static String getFragmentPath () {
+    public static String getFragmentPath() {
         if (getNewDecoratorUrl().isPresent()) {
-            return NEW_DECORATOR_FRAGMENT_URL;
+            // Vi kan ikke bruke getOptionalProperty fordi en tom verdi er også OK her
+            String value = System.getProperty(
+                    NEW_DECORATOR_FRAGMENT_URL_PROPERTY,
+                    System.getenv(NEW_DECORATOR_FRAGMENT_URL_PROPERTY)
+            );
+
+            if (value == null) {
+                return NEW_DECORATOR_FRAGMENT_DEFAULT_URL;
+            } else {
+                return value;
+            }
         }
         return APPRES_FRAGMENT_URL;
     }

@@ -22,6 +22,8 @@ public class InternalProtectionFilterTest {
         assertAccess("myapp.nais.adeo.no");
         assertAccess("myapp.nais.preprod.local");
         assertAccess("myapp-q0.nais.oera-q.local");
+        assertAccess("myapp.dev.nav.no");
+        assertAccess("myapp.intern.nav.no");
         assertAccess("localhost");
         assertAccess("10.6.81.131");
         assertAccess("10.7.5.123");

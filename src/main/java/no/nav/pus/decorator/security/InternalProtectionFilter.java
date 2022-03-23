@@ -29,7 +29,9 @@ public class InternalProtectionFilter implements Filter {
             ".oera.no",
             ".oera-q.local",
             ".adeo.no",
-            ".preprod.local"
+            ".preprod.local",
+            ".dev.nav.no",
+            ".intern.nav.no"
     ));
 
     @Override
